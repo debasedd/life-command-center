@@ -9,3 +9,6 @@ scripts/dbcheck.js
 scripts/tcpcheck.js
 verify-result.json
 *.log
+
+.vercel
+.env*
