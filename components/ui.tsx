@@ -1,0 +1,215 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+/* ---------- Shared primitives ---------- */
+
+export function Card({
+  children,
+  className = "",
+  onClick,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className={`rounded-2xl bg-zinc-900 border border-zinc-800 p-4 ${onClick ? "active:scale-[0.99] transition" : ""} ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function SectionTitle({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between mb-2 mt-5 first:mt-0">
+      <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">{children}</h2>
+      {action}
+    </div>
+  );
+}
+
+export function Btn({
+  children,
+  onClick,
+  variant = "primary",
+  className = "",
+  disabled,
+  type = "button",
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  variant?: "primary" | "ghost" | "danger" | "success";
+  className?: string;
+  disabled?: boolean;
+  type?: "button" | "submit";
+}) {
+  const styles = {
+    primary: "bg-indigo-600 active:bg-indigo-500 text-white",
+    ghost: "bg-zinc-800 active:bg-zinc-700 text-zinc-200",
+    danger: "bg-rose-600/90 active:bg-rose-500 text-white",
+    success: "bg-emerald-600 active:bg-emerald-500 text-white",
+  }[variant];
+  return (
+    <button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100 ${styles} ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className={`w-full rounded-xl bg-zinc-800 border border-zinc-700 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-indigo-500 ${props.className || ""}`}
+    />
+  );
+}
+
+export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      {...props}
+      className={`w-full rounded-xl bg-zinc-800 border border-zinc-700 px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-indigo-500 ${props.className || ""}`}
+    />
+  );
+}
+
+export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      {...props}
+      className={`w-full rounded-xl bg-zinc-800 border border-zinc-700 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-indigo-500 ${props.className || ""}`}
+    />
+  );
+}
+
+export function ProgressRing({
+  value,
+  size = 56,
+  stroke = 6,
+  color = "#6366f1",
+  children,
+}: {
+  value: number; // 0..1
+  size?: number;
+  stroke?: number;
+  color?: string;
+  children?: React.ReactNode;
+}) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(1, value));
+  return (
+    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#27272a" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - clamped)}
+          style={{ transition: "stroke-dashoffset 0.4s ease" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">{children}</div>
+    </div>
+  );
+}
+
+/* ---------- Bottom sheet ---------- */
+
+export function Sheet({
+  open,
+  onClose,
+  title,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50">
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-md animate-sheet rounded-t-3xl bg-zinc-900 border-t border-zinc-800 max-h-[85vh] overflow-y-auto no-scrollbar">
+        <div className="sticky top-0 bg-zinc-900 rounded-t-3xl px-4 pt-3 pb-2 flex items-center justify-between border-b border-zinc-800">
+          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-zinc-700" />
+          <h3 className="text-base font-bold mt-1">{title}</h3>
+          <button onClick={onClose} className="text-zinc-500 mt-1 text-xl px-2">
+            ✕
+          </button>
+        </div>
+        <div className="p-4 safe-bottom">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Toast ---------- */
+
+let toastFn: ((msg: string, kind?: "ok" | "err") => void) | null = null;
+export function toast(msg: string, kind: "ok" | "err" = "ok") {
+  toastFn?.(msg, kind);
+}
+
+export function ToastHost() {
+  const [items, setItems] = useState<{ id: number; msg: string; kind: string }[]>([]);
+  const idRef = useRef(0);
+  useEffect(() => {
+    toastFn = (msg, kind = "ok") => {
+      const id = ++idRef.current;
+      setItems((prev) => [...items, { id, msg, kind }].slice(-3));
+      setTimeout(() => setItems((cur) => cur.filter((t) => t.id !== id)), 2600);
+    };
+    return () => {
+      toastFn = null;
+    };
+  }, [items]);
+  return (
+    <div className="fixed top-3 left-0 right-0 z-[100] flex flex-col items-center gap-2 px-4 pointer-events-none">
+      {items.map((t) => (
+        <div
+          key={t.id}
+          className={`animate-rise rounded-xl px-4 py-2 text-sm font-medium shadow-lg ${t.kind === "ok" ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"}`}
+        >
+          {t.msg}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- API helper ---------- */
+
+export async function api<T = unknown>(url: string, options?: RequestInit & { json?: unknown }): Promise<T> {
+  const init: RequestInit = { ...options };
+  if (options?.json !== undefined) {
+    init.method = options.method || "POST";
+    init.headers = { "Content-Type": "application/json" };
+    init.body = JSON.stringify(options.json);
+  }
+  const res = await fetch(url, init);
+  if (res.status === 401) {
+    window.location.href = "/login";
+    throw new Error("unauthorized");
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as T;
+}
