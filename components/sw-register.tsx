@@ -49,7 +49,13 @@ export default function SWRegister() {
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (refreshing) return;
       refreshing = true;
-      if (sessionStorage.getItem("lcc-sw-reload")) location.reload();
+      if (!sessionStorage.getItem("lcc-sw-reload")) return;
+      // Reload only after the page is settled — never mid-hydration.
+      if (document.readyState === "complete") {
+        location.reload();
+      } else {
+        window.addEventListener("load", () => location.reload(), { once: true });
+      }
     });
 
     return () => window.removeEventListener("error", onChunkError);

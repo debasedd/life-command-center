@@ -254,11 +254,11 @@ export default function FinancePage() {
               <div className="space-y-1.5">
                 {items.map((tx) => (
                   <Card key={tx.id} className="!py-2.5 flex items-center gap-3">
-                    <span className="text-lg w-7 text-center shrink-0">{tx.category.icon}</span>
+                    <span className="text-lg w-7 text-center shrink-0">{tx.category?.icon ?? "📦"}</span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-[#f7f8f8] truncate">{tx.note || tx.category.name}</div>
+                      <div className="text-sm font-medium text-[#f7f8f8] truncate">{tx.note || tx.category?.name || "Transaksi"}</div>
                       <div className="text-[10px] text-[#62666d] flex items-center gap-1.5">
-                        {tx.category.name}
+                        {tx.category?.name ?? "Tanpa kategori"}
                         {tx.aiCategorized && <span className="text-[9px] text-[#7170ff] border border-[#7170ff]/30 rounded px-1">AI</span>}
                         <Select
                           value={tx.categoryId}
