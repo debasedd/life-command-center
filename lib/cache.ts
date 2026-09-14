@@ -2,8 +2,11 @@
  * Cache-first data layer: instant paint from localStorage, silent revalidate.
  * Pages read cache in useLayoutEffect (before first paint — no skeleton flash),
  * write cache after every successful fetch, and prewarm other tabs' data in idle time.
+ *
+ * PREFIX v2: invalidates every entry written before shapes were aligned
+ * (poisoned entries from mismatched prewarm keys can never crash pages again).
  */
-const PREFIX = "lcc:";
+const PREFIX = "lcc2:";
 
 export function readCache<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
@@ -24,16 +27,16 @@ export function writeCache(key: string, data: unknown) {
   }
 }
 
-type WarmEntry = [key: string, url: string];
+export type WarmEntry = { key: string; get: () => Promise<unknown> };
 
-/** Fire-and-forget fetch + cache write for other tabs' data, in idle time. */
+/** Fire-and-forget composite fetches that write EXACTLY the shapes pages read, in idle time. */
 export function prewarm(entries: WarmEntry[]) {
   if (typeof window === "undefined") return;
   const run = () => {
-    for (const [key, url] of entries) {
-      fetch(url)
-        .then((r) => (r.ok ? r.json() : null))
-        .then((d) => d && writeCache(key, d))
+    for (const entry of entries) {
+      entry
+        .get()
+        .then((data) => data !== undefined && data !== null && writeCache(entry.key, data))
         .catch(() => {});
     }
   };

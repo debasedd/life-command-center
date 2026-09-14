@@ -48,10 +48,14 @@ export default function ProfilePage() {
   useLayoutEffect(() => {
     const c = readCache<{ me: Me; settings: Settings; prefs: Pref[] }>("profileBundle");
     if (c) {
-      setMe(c.me); setSettings(c.settings); setPrefs(c.prefs);
-      setWaterTargetL(String(c.settings.waterTargetMl / 1000));
-      setGlassMl(String(c.settings.glassMl));
-      setWorkoutWeek(String(c.settings.workoutPerWeek));
+      if (c.me) setMe(c.me);
+      if (c.settings) {
+        setSettings(c.settings);
+        setWaterTargetL(String(c.settings.waterTargetMl / 1000));
+        setGlassMl(String(c.settings.glassMl));
+        setWorkoutWeek(String(c.settings.workoutPerWeek));
+      }
+      setPrefs(c.prefs ?? []);
     }
   }, []);
 

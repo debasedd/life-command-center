@@ -108,7 +108,10 @@ export default function AcademicPage() {
   // Cache-first paint: hydrate from localStorage before first paint — no empty flash.
   useLayoutEffect(() => {
     const c = readCache<{ tasks: Task[]; blocks: Block[] }>("academic");
-    if (c) { setTasks(c.tasks); setBlocks(c.blocks); }
+    if (c) {
+      setTasks(c.tasks ?? []);
+      setBlocks(c.blocks ?? []);
+    }
   }, []);
   useEffect(() => {
     load();

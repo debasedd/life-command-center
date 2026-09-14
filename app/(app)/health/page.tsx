@@ -66,7 +66,13 @@ export default function HealthPage() {
   // Cache-first paint
   useLayoutEffect(() => {
     const c = readCache<{ workouts: Workout[]; stats: typeof wStats; water: typeof water; sleep: SleepLog[]; habits: HabitsRes }>("health");
-    if (c) { setWorkouts(c.workouts); setWStats(c.stats); setWater(c.water); setSleepLogs(c.sleep); setHData(c.habits); }
+    if (c) {
+      setWorkouts(c.workouts ?? []);
+      if (c.stats) setWStats(c.stats);
+      if (c.water) setWater(c.water);
+      setSleepLogs(c.sleep ?? []);
+      if (c.habits) setHData(c.habits);
+    }
   }, []);
   useEffect(() => { load() }, []);
 

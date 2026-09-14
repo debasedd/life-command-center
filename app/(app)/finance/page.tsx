@@ -60,7 +60,11 @@ export default function FinancePage() {
   // Cache-first paint
   useLayoutEffect(() => {
     const c = readCache<{ categories: Category[]; transactions: Tx[]; goals: Goal[] }>("finance");
-    if (c) { setCats(c.categories); setTxs(c.transactions); setGoals(c.goals); }
+    if (c) {
+      setCats(c.categories ?? []);
+      setTxs(c.transactions ?? []);
+      setGoals(c.goals ?? []);
+    }
   }, []);
   useEffect(() => { load() }, []);
 
@@ -182,7 +186,7 @@ export default function FinancePage() {
             onClick={() => setTab(t)}
             className={`flex-1 rounded-md py-1.5 text-[13px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#f7f8f8]" : "text-[#8a8f98]"}`}
           >
-            {t === "ledger" ? "Buku Kas" : `Target${goals.some((g) => g.status === "ACTIVE") ? ` · ${goals.filter((g) => g.status === "ACTIVE").length}` : ""}`}
+            {t === "ledger" ? "Buku Kas" : `Target${goals?.some((g) => g.status === "ACTIVE") ? ` · ${goals.filter((g) => g.status === "ACTIVE").length}` : ""}`}
           </button>
         ))}
       </div>

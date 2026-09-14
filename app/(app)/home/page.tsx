@@ -52,21 +52,39 @@ export default function HomeDashboard() {
 
   useEffect(() => {
     load();
-    // Warm other tabs' data in idle time — by the time user taps a tab, cache is hot.
+    // Warm other tabs' data in idle time — composites match EXACTLY the shapes pages read.
+    const j = (u: string) => fetch(u).then((r) => (r.ok ? r.json() : null));
     prewarm([
-      ["academic", "/api/tasks"],
-      ["academic2", "/api/schedule"],
-      ["finance", "/api/transactions"],
-      ["finance2", "/api/goals"],
-      ["finance3", "/api/categories"],
-      ["health", "/api/workouts?days=35"],
-      ["health2", "/api/water?days=7"],
-      ["health3", "/api/sleep?days=14"],
-      ["health4", "/api/habits"],
-      ["profile", "/api/me"],
-      ["profile2", "/api/settings"],
-      ["profile3", "/api/push/prefs"],
-      ["invest", "/api/invest"],
+      {
+        key: "academic",
+        get: async () => {
+          const [t, s] = await Promise.all([j("/api/tasks"), j("/api/schedule")]);
+          return { tasks: t?.tasks ?? [], blocks: s?.blocks ?? [] };
+        },
+      },
+      {
+        key: "finance",
+        get: async () => {
+          const [c, t, g] = await Promise.all([j("/api/categories"), j("/api/transactions"), j("/api/goals")]);
+          return { categories: c?.categories ?? [], transactions: t?.transactions ?? [], goals: g?.goals ?? [] };
+        },
+      },
+      {
+        key: "health",
+        get: async () => {
+          const [w, wa, s, h] = await Promise.all([j("/api/workouts?days=35"), j("/api/water?days=7"), j("/api/sleep?days=14"), j("/api/habits")]);
+          return { workouts: w?.workouts ?? [], stats: w?.stats, water: wa, sleep: s?.logs ?? [], habits: h };
+        },
+      },
+      {
+        key: "profileBundle",
+        get: async () => {
+          const [m, s, p] = await Promise.all([j("/api/me"), j("/api/settings"), j("/api/push/prefs")]);
+          return { me: m, settings: s?.settings, prefs: p?.prefs ?? [] };
+        },
+      },
+      { key: "investProfile", get: async () => (await j("/api/invest"))?.profile ?? null },
+      { key: "advisor", get: async () => (await j("/api/advisor"))?.evaluations ?? [] },
     ]);
   }, []);
 
