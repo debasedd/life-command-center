@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Card, Btn, Input, SectionTitle, toast, api } from "@/components/ui";
 
 interface Me { id: string; email: string; name: string }
@@ -21,7 +20,6 @@ const PREF_LABEL: Record<string, string> = {
 function hhmm(m: number) { return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}` }
 
 export default function ProfilePage() {
-  const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [prefs, setPrefs] = useState<Pref[]>([]);
@@ -68,12 +66,6 @@ export default function ProfilePage() {
     setPrefs((prev) => prev.map((p) => (p.type === type ? res.pref : p)).concat(prev.some((p) => p.type === type) ? [] : [res.pref]));
   }
 
-  async function logout() {
-    await api("/api/auth/logout", { json: {} });
-    router.push("/login");
-    router.refresh();
-  }
-
   return (
     <div className="animate-rise">
       <h1 className="text-xl font-bold mb-4">⚙️ Profil</h1>
@@ -82,9 +74,8 @@ export default function ProfilePage() {
         <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold">{me?.name?.[0]?.toUpperCase() || "?"}</div>
         <div className="flex-1 min-w-0">
           <div className="font-semibold">{me?.name}</div>
-          <div className="text-xs text-zinc-500 truncate">{me?.email}</div>
+          <div className="text-xs text-[#62666d] truncate">{me?.email}</div>
         </div>
-        <Btn variant="ghost" onClick={logout} className="text-xs">Keluar</Btn>
       </Card>
 
       <SectionTitle>Link Cepat</SectionTitle>

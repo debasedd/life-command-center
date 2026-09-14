@@ -9,9 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        surface: "#09090b",
-        card: "#18181b",
-        card2: "#27272a",
+        bg: "#08090a",
+        panel: "#0f1011",
+        surface2: "#191a1b",
+        accent: "#5e6ad2",
+        accent2: "#7170ff",
+        accent3: "#828fff",
+        txt: "#f7f8f8",
+        txt2: "#d0d6e0",
+        txt3: "#8a8f98",
+        txt4: "#62666d",
       },
     },
   },
