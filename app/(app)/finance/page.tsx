@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState, useMemo } from "react";
 import { Card, Btn, Input, Select, Sheet, SectionTitle, toast, api } from "@/components/ui";
 import { wibToday } from "@/lib/wib";
+import { readCache, writeCache } from "@/lib/cache";
 
 interface Category { id: string; name: string; icon: string; color: string }
 interface Tx { id: string; type: string; amount: number; note: string | null; day: string; categoryId: string; aiCategorized: boolean; category: Category }
@@ -51,10 +52,16 @@ export default function FinancePage() {
       api<{ transactions: Tx[] }>("/api/transactions"),
       api<{ goals: Goal[] }>("/api/goals"),
     ]);
+    writeCache("finance", { categories: c.categories, transactions: t.transactions, goals: g.goals });
     setCats(c.categories);
     setTxs(t.transactions);
     setGoals(g.goals);
   }
+  // Cache-first paint
+  useLayoutEffect(() => {
+    const c = readCache<{ categories: Category[]; transactions: Tx[]; goals: Goal[] }>("finance");
+    if (c) { setCats(c.categories); setTxs(c.transactions); setGoals(c.goals); }
+  }, []);
   useEffect(() => { load() }, []);
 
   const aiHint = useMemo(() => {

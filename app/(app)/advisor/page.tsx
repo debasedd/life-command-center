@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Card, Btn, SectionTitle, ProgressRing, toast, api } from "@/components/ui";
+import { readCache, writeCache } from "@/lib/cache";
 
 interface EvalResult {
   healthScore: number;
@@ -20,9 +21,15 @@ export default function AdvisorPage() {
 
   async function load() {
     const res = await api<{ evaluations: EvalRec[] }>("/api/advisor");
+    writeCache("advisor", res.evaluations);
     setEvals(res.evaluations);
     if (res.evaluations.length) setExpanded(res.evaluations[0].id);
   }
+  // Cache-first paint
+  useLayoutEffect(() => {
+    const c = readCache<EvalRec[]>("advisor");
+    if (c) setEvals(c);
+  }, []);
   useEffect(() => { load() }, []);
 
   async function run() {

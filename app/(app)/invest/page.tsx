@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState, useMemo } from "react";
 import { Card, Btn, Input, SectionTitle, toast, api } from "@/components/ui";
+import { readCache, writeCache } from "@/lib/cache";
 
 interface Asset { name: string; pct: number; rate: number }
 interface Profile { monthlyInvestment: number; years: number; assets: Asset[] }
@@ -50,12 +51,19 @@ function project(monthly: number, assets: Asset[], years: number) {
 
 export default function InvestPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
+
+  // Cache-first paint
+  useLayoutEffect(() => {
+    const c = readCache<Profile>("investProfile");
+    if (c) setProfile(c);
+  }, []);
   const [monthly, setMonthly] = useState("500000");
   const [years, setYears] = useState(10);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api<{ profile: Profile }>("/api/invest").then((r) => {
+      writeCache("investProfile", r.profile);
       setProfile(r.profile);
       setMonthly(String(r.profile.monthlyInvestment));
       setYears(r.profile.years);

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Card, Btn, Input, Select, Textarea, Sheet, SectionTitle, toast, api } from "@/components/ui";
 import { AiTaskSheet, AiStatusBadge, AiAnswerModal } from "@/components/ai-homework";
+import { readCache, writeCache } from "@/lib/cache";
 
 interface Task {
   id: string;
@@ -100,9 +101,15 @@ export default function AcademicPage() {
 
   async function load() {
     const [t, s] = await Promise.all([api<{ tasks: Task[] }>("/api/tasks"), api<{ blocks: Block[] }>("/api/schedule")]);
+    writeCache("academic", { tasks: t.tasks, blocks: s.blocks });
     setTasks(t.tasks);
     setBlocks(s.blocks);
   }
+  // Cache-first paint: hydrate from localStorage before first paint — no empty flash.
+  useLayoutEffect(() => {
+    const c = readCache<{ tasks: Task[]; blocks: Block[] }>("academic");
+    if (c) { setTasks(c.tasks); setBlocks(c.blocks); }
+  }, []);
   useEffect(() => {
     load();
   }, []);

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { Card, SectionTitle, ProgressRing, Btn } from "@/components/ui";
 import PushManager from "@/components/push-manager";
+import { readCache, writeCache, prewarm } from "@/lib/cache";
 
 interface DashData {
   today: string;
@@ -34,13 +35,39 @@ export default function HomeDashboard() {
   const [data, setData] = useState<DashData | null>(null);
   const [waterBusy, setWaterBusy] = useState(false);
 
+  // Cache-first paint: hydrate from localStorage before first paint — no empty flash.
+  useLayoutEffect(() => {
+    const c = readCache<DashData>("dashboard");
+    if (c) setData(c);
+  }, []);
+
   async function load() {
     const res = await fetch("/api/dashboard");
-    if (res.ok) setData(await res.json());
+    if (res.ok) {
+      const d = await res.json();
+      writeCache("dashboard", d);
+      setData(d);
+    }
   }
 
   useEffect(() => {
     load();
+    // Warm other tabs' data in idle time — by the time user taps a tab, cache is hot.
+    prewarm([
+      ["academic", "/api/tasks"],
+      ["academic2", "/api/schedule"],
+      ["finance", "/api/transactions"],
+      ["finance2", "/api/goals"],
+      ["finance3", "/api/categories"],
+      ["health", "/api/workouts?days=35"],
+      ["health2", "/api/water?days=7"],
+      ["health3", "/api/sleep?days=14"],
+      ["health4", "/api/habits"],
+      ["profile", "/api/me"],
+      ["profile2", "/api/settings"],
+      ["profile3", "/api/push/prefs"],
+      ["invest", "/api/invest"],
+    ]);
   }, []);
 
   async function addWater() {

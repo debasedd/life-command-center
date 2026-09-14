@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState, useMemo } from "react";
 import { Card, Btn, Input, Select, Sheet, SectionTitle, ProgressRing, toast, api } from "@/components/ui";
 import { wibToday } from "@/lib/wib";
+import { readCache, writeCache } from "@/lib/cache";
 
 interface Workout { id: string; type: string; durationMinutes: number; intensity: string; day: string }
 interface Habit { id: string; name: string; icon: string; targetPerWeek: number }
@@ -55,12 +56,18 @@ export default function HealthPage() {
       api<{ logs: SleepLog[] }>("/api/sleep?days=14"),
       api<HabitsRes>("/api/habits"),
     ]);
+    writeCache("health", { workouts: w.workouts, stats: w.stats, water: wa, sleep: s.logs, habits: h });
     setWorkouts(w.workouts);
     setWStats(w.stats);
     setWater(wa);
     setSleepLogs(s.logs);
     setHData(h);
   }
+  // Cache-first paint
+  useLayoutEffect(() => {
+    const c = readCache<{ workouts: Workout[]; stats: typeof wStats; water: typeof water; sleep: SleepLog[]; habits: HabitsRes }>("health");
+    if (c) { setWorkouts(c.workouts); setWStats(c.stats); setWater(c.water); setSleepLogs(c.sleep); setHData(c.habits); }
+  }, []);
   useEffect(() => { load() }, []);
 
   async function addWorkout() {

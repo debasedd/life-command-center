@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { Card, Btn, Input, SectionTitle, toast, api } from "@/components/ui";
+import { readCache, writeCache } from "@/lib/cache";
 
 interface Me { id: string; email: string; name: string }
 interface Settings { waterTargetMl: number; glassMl: number; workoutPerWeek: number; quietStartMinute: number; quietEndMinute: number }
@@ -32,6 +33,7 @@ export default function ProfilePage() {
   useEffect(() => {
     Promise.all([api<Me>("/api/me"), api<{ settings: Settings }>("/api/settings"), api<{ prefs: Pref[] }>("/api/push/prefs")]).then(
       ([m, s, p]) => {
+        writeCache("profileBundle", { me: m, settings: s.settings, prefs: p.prefs });
         setMe(m);
         setSettings(s.settings);
         setPrefs(p.prefs);
@@ -40,6 +42,17 @@ export default function ProfilePage() {
         setWorkoutWeek(String(s.settings.workoutPerWeek));
       }
     );
+  }, []);
+
+  // Cache-first paint
+  useLayoutEffect(() => {
+    const c = readCache<{ me: Me; settings: Settings; prefs: Pref[] }>("profileBundle");
+    if (c) {
+      setMe(c.me); setSettings(c.settings); setPrefs(c.prefs);
+      setWaterTargetL(String(c.settings.waterTargetMl / 1000));
+      setGlassMl(String(c.settings.glassMl));
+      setWorkoutWeek(String(c.settings.workoutPerWeek));
+    }
   }, []);
 
   async function saveSettings() {
