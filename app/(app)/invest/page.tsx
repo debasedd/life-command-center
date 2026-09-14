@@ -87,36 +87,39 @@ export default function InvestPage() {
   }
 
   const maxTotal = sim ? Math.max(...sim.series.map((s) => s.total)) : 1;
+  const totalPct = profile ? profile.assets.reduce((s, a) => s + a.pct, 0) : 0;
 
   return (
     <div className="animate-rise">
-      <h1 className="text-xl font-bold mb-1">📈 Proyeksi Portofolio</h1>
-      <p className="text-xs text-zinc-500 mb-4">Simulasi compound growth jangka panjang. Simulasi edukasi — bukan saran investasi.</p>
+      <header className="mb-4 pt-1">
+        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">Proyeksi Portofolio</h1>
+        <p className="text-xs text-[#8a8f98] mt-0.5">Simulasi compound growth jangka panjang. Edukasi — bukan saran investasi.</p>
+      </header>
 
       <Card className="mb-3">
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Investasi rutin bulanan (Rp)</label>
-            <Input type="number" inputMode="numeric" value={monthly} onChange={(e) => setMonthly(e.target.value)} className="!text-lg" />
+            <label className="text-[11px] text-[#8a8f98] mb-1 block">Investasi rutin bulanan (Rp)</label>
+            <Input type="number" inputMode="numeric" value={monthly} onChange={(e) => setMonthly(e.target.value)} className="!text-base tabular-nums" />
             <div className="flex gap-1.5 mt-2">
               {[200000, 500000, 1000000, 2000000].map((v) => (
-                <button key={v} onClick={() => setMonthly(String(v))} className="flex-1 rounded-lg bg-zinc-800 py-1.5 text-[11px] text-zinc-300 active:scale-95">{v / 1000}k</button>
+                <button key={v} onClick={() => setMonthly(String(v))} className="flex-1 rounded-md bg-white/[0.04] border border-white/[0.06] py-1.5 text-[11px] text-[#d0d6e0] card-press">{v / 1000}k</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Durasi: {years} tahun</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Durasi: {years} tahun</label>
             <div className="flex gap-1.5">
               {[3, 5, 10, 20].map((y) => (
-                <button key={y} onClick={() => setYears(y)} className={`flex-1 rounded-lg py-2 text-xs font-bold ${years === y ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>{y} thn</button>
+                <button key={y} onClick={() => setYears(y)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${years === y ? "bg-[#5e6ad2] text-white" : "bg-white/[0.04] border border-white/[0.06] text-[#8a8f98]"}`}>{y} thn</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-2 block">Skenario cepat</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Skenario cepat</label>
             <div className="flex gap-2">
               {Object.keys(PRESETS).map((p) => (
-                <button key={p} onClick={() => applyPreset(p)} className="flex-1 rounded-lg bg-zinc-800 py-2 text-[11px] font-semibold text-zinc-300 active:scale-95">{p}</button>
+                <button key={p} onClick={() => applyPreset(p)} className="flex-1 rounded-md bg-white/[0.04] border border-white/[0.06] py-2 text-[11px] font-medium text-[#d0d6e0] card-press">{p}</button>
               ))}
             </div>
           </div>
@@ -126,14 +129,14 @@ export default function InvestPage() {
       {profile && sim && (
         <>
           <Card className="mb-3">
-            <p className="text-xs font-bold text-zinc-300 mb-3">Alokasi aset (porsi % & return/tahun)</p>
-            <div className="space-y-2.5">
+            <p className="text-[10px] text-[#8a8f98] mb-3">Alokasi aset (porsi % & return/tahun)</p>
+            <div className="space-y-3">
               {profile.assets.map((a, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <div key={i} className="flex items-center gap-2.5">
                   <div className="flex-1 min-w-0">
-                    <div className="text-[11px] font-medium truncate">{a.name}</div>
-                    <div className="h-1.5 rounded-full bg-zinc-800 mt-1">
-                      <div className="h-full rounded-full bg-indigo-500" style={{ width: `${a.pct}%` }} />
+                    <div className="text-[11px] font-medium text-[#d0d6e0] truncate">{a.name}</div>
+                    <div className="h-1 rounded-full bg-white/[0.05] mt-1.5 overflow-hidden">
+                      <div className="h-full rounded-full bg-[#5e6ad2] transition-all duration-300" style={{ width: `${Math.min(100, a.pct)}%` }} />
                     </div>
                   </div>
                   <Input
@@ -146,7 +149,7 @@ export default function InvestPage() {
                       assets[i] = { ...a, pct: Number(e.target.value) || 0 };
                       setProfile({ ...profile, assets });
                     }}
-                    className="!w-16 !py-1.5 !text-xs text-center"
+                    className="!w-14 !py-1.5 !text-xs text-center tabular-nums"
                   />
                   <Input
                     type="number"
@@ -157,13 +160,13 @@ export default function InvestPage() {
                       assets[i] = { ...a, rate: (Number(e.target.value) || 0) / 100 };
                       setProfile({ ...profile, assets });
                     }}
-                    className="!w-16 !py-1.5 !text-xs text-center"
+                    className="!w-14 !py-1.5 !text-xs text-center tabular-nums"
                   />
                 </div>
               ))}
             </div>
-            <p className={`text-[10px] mt-2 ${(profile.assets.reduce((s, a) => s + a.pct, 0)) > 100 ? "text-rose-400" : "text-zinc-600"}`}>
-              Total alokasi: {profile.assets.reduce((s, a) => s + a.pct, 0)}% (maks 100%)
+            <p className={`text-[10px] mt-2.5 ${totalPct > 100 ? "text-[#eb5757]" : "text-[#62666d]"}`}>
+              Total alokasi: {totalPct}% (maks 100%)
             </p>
           </Card>
 
@@ -171,50 +174,50 @@ export default function InvestPage() {
           <Card className="mb-3">
             <div className="grid grid-cols-3 gap-2 text-center mb-4">
               <div>
-                <div className="text-sm font-bold text-zinc-300">{idr(sim.finalPrincipal)}</div>
-                <div className="text-[9px] text-zinc-500">total modal</div>
+                <div className="text-sm font-semibold text-[#d0d6e0] tabular-nums">{idr(sim.finalPrincipal)}</div>
+                <div className="text-[9px] text-[#62666d]">total modal</div>
               </div>
               <div>
-                <div className="text-sm font-bold text-indigo-300">{idr(sim.finalTotal)}</div>
-                <div className="text-[9px] text-zinc-500">nilai akhir</div>
+                <div className="text-sm font-semibold text-[#7170ff] tabular-nums">{idr(sim.finalTotal)}</div>
+                <div className="text-[9px] text-[#62666d]">nilai akhir</div>
               </div>
               <div>
-                <div className="text-sm font-bold text-emerald-400">{idr(sim.finalTotal - sim.finalPrincipal)}</div>
-                <div className="text-[9px] text-zinc-500">uang kerja (gain)</div>
+                <div className="text-sm font-semibold text-[#27a644] tabular-nums">{idr(sim.finalTotal - sim.finalPrincipal)}</div>
+                <div className="text-[9px] text-[#62666d]">uang kerja</div>
               </div>
             </div>
 
             {/* Bar chart per year */}
             <div className="flex items-end gap-1 h-36 mb-2">
               {sim.series.map((s) => (
-                <div key={s.year} className="flex-1 flex flex-col items-center justify-end gap-0.5">
-                  <div className="w-full rounded-t bg-zinc-700 relative" style={{ height: `${(s.total / maxTotal) * 100}%` }}>
-                    <div className="absolute bottom-0 left-0 right-0 rounded-t bg-gradient-to-t from-indigo-600 to-indigo-400" style={{ height: `${s.principal > 0 ? (s.principal / s.total) * 100 : 100}%` }} />
+                <div key={s.year} className="flex-1 flex flex-col items-center justify-end gap-1">
+                  <div className="w-full rounded-t relative overflow-hidden" style={{ height: `${(s.total / maxTotal) * 100}%`, background: "rgba(255,255,255,0.08)" }}>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#5e6ad2] to-[#7170ff]" style={{ height: `${s.principal > 0 ? (s.principal / s.total) * 100 : 100}%` }} />
                   </div>
-                  <span className="text-[7px] text-zinc-600">{s.year}</span>
+                  <span className="text-[8px] text-[#62666d]">{s.year}</span>
                 </div>
               ))}
             </div>
-            <div className="flex gap-3 text-[9px] text-zinc-500 justify-center">
-              <span><span className="inline-block w-2.5 h-2.5 bg-indigo-500 rounded-sm align-middle" /> Modal</span>
-              <span><span className="inline-block w-2.5 h-2.5 bg-zinc-700 rounded-sm align-middle" /> Uang kerja</span>
+            <div className="flex gap-3 text-[9px] text-[#8a8f98] justify-center">
+              <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 bg-[#5e6ad2] rounded-[2px]" /> Modal</span>
+              <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 bg-white/[0.08] rounded-[2px]" /> Uang kerja</span>
             </div>
           </Card>
 
           <Card className="mb-3">
-            <p className="text-xs font-bold text-zinc-300 mb-2">Per tahun</p>
+            <p className="text-[10px] text-[#8a8f98] mb-2">Per tahun</p>
             <div className="max-h-52 overflow-y-auto no-scrollbar">
               <table className="w-full text-[11px]">
-                <thead className="text-zinc-500 sticky top-0 bg-zinc-900">
-                  <tr><th className="text-left py-1">Thn</th><th className="text-right">Modal</th><th className="text-right">Nilai</th><th className="text-right">Gain</th></tr>
+                <thead className="text-[#62666d] sticky top-0 bg-[#191a1b]">
+                  <tr><th className="text-left py-1.5 font-medium">Thn</th><th className="text-right font-medium">Modal</th><th className="text-right font-medium">Nilai</th><th className="text-right font-medium">Gain</th></tr>
                 </thead>
                 <tbody>
                   {sim.series.map((s) => (
-                    <tr key={s.year} className="border-t border-zinc-800/60">
-                      <td className="py-1">{s.year}</td>
-                      <td className="text-right text-zinc-400">{idr(s.principal)}</td>
-                      <td className="text-right font-medium">{idr(s.total)}</td>
-                      <td className="text-right text-emerald-400">+{idr(s.total - s.principal)}</td>
+                    <tr key={s.year} className="border-t border-white/[0.05]">
+                      <td className="py-1.5 text-[#8a8f98]">{s.year}</td>
+                      <td className="text-right text-[#8a8f98] tabular-nums">{idr(s.principal)}</td>
+                      <td className="text-right text-[#f7f8f8] tabular-nums">{idr(s.total)}</td>
+                      <td className="text-right text-[#27a644] tabular-nums">+{idr(s.total - s.principal)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -222,7 +225,7 @@ export default function InvestPage() {
             </div>
           </Card>
 
-          <Btn onClick={save} disabled={saving} className="w-full py-3 mb-6">{saving ? "…" : "💾 Simpan Profil Investasi"}</Btn>
+          <Btn onClick={save} disabled={saving} className="w-full py-2.5 mb-6">{saving ? "…" : "Simpan Profil Investasi"}</Btn>
         </>
       )}
     </div>

@@ -32,15 +32,14 @@ interface Block {
 
 const DAYS = ["Mgg", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 const TYPE_LABEL: Record<string, string> = { SCHOOL: "Sekolah", LESSON: "Les", ACTIVITY: "Kegiatan", PERSONAL: "Pribadi" };
-const TYPE_COLOR: Record<string, string> = {
-  SCHOOL: "border-l-indigo-500 bg-indigo-500/10",
-  LESSON: "border-l-amber-500 bg-amber-500/10",
-  ACTIVITY: "border-l-emerald-500 bg-emerald-500/10",
-  PERSONAL: "border-l-zinc-500 bg-zinc-500/10",
-};
+const TYPE_ACCENT: Record<string, string> = { SCHOOL: "#7170ff", LESSON: "#f5a623", ACTIVITY: "#27a644", PERSONAL: "#62666d" };
+const PRIORITY_DOT: Record<string, string> = { URGENT: "#eb5757", HIGH: "#f5a623", MEDIUM: "#7170ff", LOW: "#62666d" };
 
 function minuteToHHMM(m: number) {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
+function fmtDeadline(s: string) {
+  return new Date(s).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 function groupByDeadline(tasks: Task[]) {
@@ -61,6 +60,16 @@ function groupByDeadline(tasks: Task[]) {
     else g["Nanti"].push(t);
   }
   return g;
+}
+
+function Trash({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="p-1.5 text-[#62666d] hover:text-[#eb5757] transition-colors duration-150" aria-label="Hapus">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">
+        <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+      </svg>
+    </button>
+  );
 }
 
 export default function AcademicPage() {
@@ -99,11 +108,11 @@ export default function AcademicPage() {
   }, []);
 
   async function addTask() {
-    if (!title.trim()) return toast("Judul wajib", "err");
+    if (!title.trim()) return toast("Judul wajib diisi", "err");
     setBusy(true);
     try {
       await api("/api/tasks", { json: { title, subject: subject || null, priority, deadline: deadline || null, description: desc || null, recurring } });
-      toast("Tugas ditambahkan ✅");
+      toast("Tugas ditambahkan");
       setSheet(null);
       setTitle(""); setSubject(""); setDeadline(""); setDesc(""); setRecurring(false);
       await load();
@@ -115,13 +124,13 @@ export default function AcademicPage() {
   }
 
   async function addBlock() {
-    if (!bTitle.trim()) return toast("Judul wajib", "err");
+    if (!bTitle.trim()) return toast("Judul wajib diisi", "err");
     setBusy(true);
     try {
       await api("/api/schedule", {
         json: { title: bTitle, type: bType, startTime: bStart, endTime: bEnd, weekday: bRecurring ? Number(bWeekday) : null, date: bRecurring ? null : bDate || null },
       });
-      toast("Jadwal ditambahkan ✅");
+      toast("Jadwal ditambahkan");
       setSheet(null);
       setBTitle("");
       await load();
@@ -137,7 +146,7 @@ export default function AcademicPage() {
     setTasks((prev) => prev.map((x) => (x.id === t.id ? { ...x, status: next } : x)));
     try {
       await api("/api/tasks", { method: "PATCH", json: { id: t.id, status: next } });
-      if (next === "DONE") toast("Selesai! 🎉");
+      if (next === "DONE") toast("Selesai");
       await load();
     } catch {
       toast("Gagal update", "err");
@@ -157,7 +166,6 @@ export default function AcademicPage() {
     await load();
   }
 
-  // Auto-close answer modal ketika AI selesai (polling selagi modal terbuka & status PENDING)
   useEffect(() => {
     if (!answerTask || answerTask.aiStatus !== "PENDING") return;
     const t = setInterval(async () => {
@@ -171,33 +179,38 @@ export default function AcademicPage() {
 
   async function retryAi(id: string) {
     await api("/api/tasks/ai-retry", { json: { id } });
-    toast("AI dikerjakan ulang…");
+    toast("AI dikerjakan ulang");
     const res = await api<{ tasks: Task[] }>("/api/tasks");
     setTasks(res.tasks);
     setAnswerTask(res.tasks.find((x) => x.id === id) || null);
   }
 
   const grouped = groupByDeadline(tasks);
+  const openCount = tasks.filter((t) => t.status !== "DONE").length;
 
   return (
     <div className="animate-rise">
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-xl font-bold">📚 Akademik</h1>
-        <div className="flex gap-2">
-          <Btn onClick={() => setAiSheet(true)} className="!py-2 !px-3 text-xs">📷 Foto Tugas</Btn>
-          <Btn onClick={() => setSheet(tab === "tasks" ? "task" : "block")} className="!py-2 !px-3 text-xs">
-            ＋ {tab === "tasks" ? "Tugas" : "Jadwal"}
+      <header className="flex items-center justify-between mb-4 pt-1">
+        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">Akademik</h1>
+        <div className="flex gap-1.5">
+          <Btn variant="ghost" onClick={() => setAiSheet(true)} className="!py-1.5 !px-3 text-xs">Foto Tugas</Btn>
+          <Btn onClick={() => setSheet(tab === "tasks" ? "task" : "block")} className="!py-1.5 !px-3 text-xs">
+            {tab === "tasks" ? "Tugas" : "Jadwal"}
           </Btn>
         </div>
-      </div>
+      </header>
 
-      <div className="flex gap-2 mb-4">
-        <button onClick={() => setTab("tasks")} className={`flex-1 rounded-xl py-2 text-sm font-semibold ${tab === "tasks" ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>
-          Tugas ({tasks.filter((t) => t.status !== "DONE").length})
-        </button>
-        <button onClick={() => setTab("schedule")} className={`flex-1 rounded-xl py-2 text-sm font-semibold ${tab === "schedule" ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>
-          Jadwal
-        </button>
+      {/* Segmented control */}
+      <div className="flex rounded-lg bg-white/[0.03] border border-white/[0.06] p-1 mb-4">
+        {(["tasks", "schedule"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`flex-1 rounded-md py-1.5 text-[13px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#f7f8f8]" : "text-[#8a8f98]"}`}
+          >
+            {t === "tasks" ? `Tugas${openCount ? ` · ${openCount}` : ""}` : "Jadwal"}
+          </button>
+        ))}
       </div>
 
       {tab === "tasks" && (
@@ -206,46 +219,57 @@ export default function AcademicPage() {
             items.length === 0 ? null : (
               <div key={group}>
                 <SectionTitle>
-                  {group === "Terlambat" ? "🔴 " : group === "Hari Ini" ? "🟠 " : ""}
-                  {group} ({items.length})
+                  {group}
+                  <span className="ml-1.5 text-[#62666d]">{items.length}</span>
                 </SectionTitle>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {items.map((t) => (
-                    <Card key={t.id} className={`!py-3 ${t.status === "DONE" ? "opacity-50" : ""} ${group === "Terlambat" ? "border-rose-900" : ""}`}>
+                    <Card key={t.id} className={`!py-2.5 ${t.status === "DONE" ? "opacity-45" : ""}`}>
                       <div className="flex items-start gap-3">
-                        <button onClick={() => toggle(t)} className={`mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 ${t.status === "DONE" ? "bg-emerald-600 border-emerald-600" : "border-zinc-600"}`}>
-                          {t.status === "DONE" && <span className="text-xs">✓</span>}
+                        <button
+                          onClick={() => toggle(t)}
+                          aria-label="Toggle selesai"
+                          className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border flex items-center justify-center shrink-0 transition-colors duration-150 ${t.status === "DONE" ? "bg-[#27a644] border-[#27a644]" : "border-white/25 hover:border-white/50"}`}
+                        >
+                          {t.status === "DONE" && (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                          )}
                         </button>
                         <div className="flex-1 min-w-0">
-                          <div className={`text-sm font-semibold ${t.status === "DONE" ? "line-through" : ""}`}>{t.title}</div>
-                          <div className="text-xs text-zinc-500 flex gap-2 flex-wrap mt-0.5">
+                          <div className={`text-sm font-medium leading-snug ${t.status === "DONE" ? "line-through text-[#8a8f98]" : "text-[#f7f8f8]"}`}>{t.title}</div>
+                          <div className="text-[11px] text-[#62666d] flex gap-2.5 flex-wrap mt-0.5">
                             {t.subject && <span>{t.subject}</span>}
-                            {t.deadline && <span>⏰ {new Date(t.deadline).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>}
-                            {t.recurring && <span>🔁 mingguan</span>}
+                            {t.deadline && (
+                              <span className={group === "Terlambat" ? "text-[#eb5757]" : ""}>
+                                {fmtDeadline(t.deadline)}
+                              </span>
+                            )}
+                            {t.recurring && <span>mingguan</span>}
                           </div>
                           {(t.aiStatus !== "NONE" || t.description) && (
                             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                               <AiStatusBadge status={t.aiStatus} />
                               {t.aiStatus === "DONE" && (
-                                <button onClick={() => setAnswerTask(t)} className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded font-bold active:scale-95">
-                                  Lihat Pembahasan →
+                                <button onClick={() => setAnswerTask(t)} className="text-[11px] text-[#7170ff] hover:text-[#828fff] font-medium transition-colors duration-150">
+                                  Lihat pembahasan
                                 </button>
                               )}
                               {t.aiStatus === "FAILED" && (
-                                <button onClick={() => retryAi(t.id)} className="text-[10px] bg-zinc-700 text-zinc-200 px-2 py-0.5 rounded font-bold active:scale-95">
-                                  🔄 Retry
+                                <button onClick={() => retryAi(t.id)} className="text-[11px] text-[#8a8f98] hover:text-[#f7f8f8] font-medium transition-colors duration-150">
+                                  Coba lagi
                                 </button>
                               )}
                             </div>
                           )}
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
-                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${t.priority === "URGENT" ? "bg-rose-500/20 text-rose-300" : t.priority === "HIGH" ? "bg-amber-500/20 text-amber-300" : t.priority === "MEDIUM" ? "bg-sky-500/20 text-sky-300" : "bg-zinc-700 text-zinc-400"}`}>
+                          <span className="flex items-center gap-1 text-[10px] font-medium text-[#8a8f98]">
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: PRIORITY_DOT[t.priority] || "#62666d" }} />
                             {t.priority}
                           </span>
-                          <button onClick={() => delTask(t.id)} className="text-[10px] text-zinc-600">
-                            🗑
-                          </button>
+                          <Trash onClick={() => delTask(t.id)} />
                         </div>
                       </div>
                     </Card>
@@ -254,32 +278,43 @@ export default function AcademicPage() {
               </div>
             )
           )}
-          {tasks.length === 0 && <Card className="text-sm text-zinc-500 text-center py-8">Belum ada tugas. Tap ＋ untuk menambah.</Card>}
+          {tasks.length === 0 && (
+            <div className="text-center py-14">
+              <p className="text-sm text-[#62666d]">Belum ada tugas</p>
+              <p className="text-[11px] text-[#4a4d52] mt-1">Tap tombol Tugas untuk menambah</p>
+            </div>
+          )}
         </div>
       )}
 
       {tab === "schedule" && (
-        <div className="space-y-2">
-          {blocks.length === 0 && <Card className="text-sm text-zinc-500 text-center py-8">Belum ada jadwal. Tap ＋ untuk menambah jadwal rutin.</Card>}
+        <div className="space-y-1.5">
+          {blocks.length === 0 && (
+            <div className="text-center py-14">
+              <p className="text-sm text-[#62666d]">Belum ada jadwal</p>
+              <p className="text-[11px] text-[#4a4d52] mt-1">Tap tombol Jadwal untuk menambah jadwal rutin</p>
+            </div>
+          )}
           {blocks
             .slice()
             .sort((a, b) => (a.weekday ?? 7) - (b.weekday ?? 7) || a.startMinute - b.startMinute)
             .map((b) => (
-              <Card key={b.id} className={`border-l-4 !py-3 ${TYPE_COLOR[b.type] || TYPE_COLOR.PERSONAL}`}>
+              <Card key={b.id} className="!py-2.5 !pl-3" >
                 <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-semibold">{b.title}</div>
-                    <div className="text-xs text-zinc-400">
-                      {b.weekday !== null ? `${DAYS[b.weekday]} ` : b.date ? `${b.date} ` : ""}
-                      {minuteToHHMM(b.startMinute)}–{minuteToHHMM(b.endMinute)}
-                      {b.location ? ` • 📍${b.location}` : ""}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "#62666d" }} />
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-[#f7f8f8] truncate">{b.title}</div>
+                      <div className="text-[11px] text-[#62666d]">
+                        {b.weekday !== null ? `${DAYS[b.weekday]} · ` : b.date ? `${b.date} · ` : ""}
+                        {minuteToHHMM(b.startMinute)}–{minuteToHHMM(b.endMinute)}
+                        {b.location ? ` · ${b.location}` : ""}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="text-[10px] text-zinc-500">{TYPE_LABEL[b.type]}</span>
-                    <button onClick={() => delBlock(b.id)} className="text-[10px] text-zinc-600">
-                      🗑
-                    </button>
+                  <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                    <span className="text-[10px] text-[#62666d]">{TYPE_LABEL[b.type]}</span>
+                    <Trash onClick={() => delBlock(b.id)} />
                   </div>
                 </div>
               </Card>
@@ -294,7 +329,7 @@ export default function AcademicPage() {
           <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Mata pelajaran (opsional)" />
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Prioritas</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Prioritas</label>
               <Select value={priority} onChange={(e) => setPriority(e.target.value)}>
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -303,16 +338,16 @@ export default function AcademicPage() {
               </Select>
             </div>
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Deadline</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Deadline</label>
               <Input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
             </div>
           </div>
           <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Catatan (opsional)" rows={2} />
-          <label className="flex items-center gap-2 text-sm text-zinc-300">
-            <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="w-4 h-4 accent-indigo-600" />
-            🔁 Tugas berulang mingguan (auto-regenerate setelah selesai)
+          <label className="flex items-center gap-2 text-[13px] text-[#d0d6e0]">
+            <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="w-4 h-4 accent-[#5e6ad2]" />
+            Berulang mingguan (auto-regenerate setelah selesai)
           </label>
-          <Btn onClick={addTask} disabled={busy} className="w-full py-3">
+          <Btn onClick={addTask} disabled={busy} className="w-full py-2.5">
             {busy ? "Menyimpan…" : "Simpan Tugas"}
           </Btn>
         </div>
@@ -330,21 +365,21 @@ export default function AcademicPage() {
           </Select>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Mulai</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Mulai</label>
               <Input type="time" value={bStart} onChange={(e) => setBStart(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Selesai</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Selesai</label>
               <Input type="time" value={bEnd} onChange={(e) => setBEnd(e.target.value)} />
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm text-zinc-300">
-            <input type="checkbox" checked={bRecurring} onChange={(e) => setBRecurring(e.target.checked)} className="w-4 h-4 accent-indigo-600" />
-            🔁 Jadwal rutin mingguan
+          <label className="flex items-center gap-2 text-[13px] text-[#d0d6e0]">
+            <input type="checkbox" checked={bRecurring} onChange={(e) => setBRecurring(e.target.checked)} className="w-4 h-4 accent-[#5e6ad2]" />
+            Rutin mingguan
           </label>
           {bRecurring ? (
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Hari</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Hari</label>
               <Select value={bWeekday} onChange={(e) => setBWeekday(e.target.value)}>
                 {DAYS.map((d, i) => (
                   <option key={i} value={i}>
@@ -355,20 +390,17 @@ export default function AcademicPage() {
             </div>
           ) : (
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Tanggal (event sekali)</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Tanggal (event sekali)</label>
               <Input type="date" value={bDate} onChange={(e) => setBDate(e.target.value)} />
             </div>
           )}
-          <Btn onClick={addBlock} disabled={busy} className="w-full py-3">
+          <Btn onClick={addBlock} disabled={busy} className="w-full py-2.5">
             {busy ? "Menyimpan…" : "Simpan Jadwal"}
           </Btn>
         </div>
       </Sheet>
 
-      {/* AI photo-to-task sheet */}
       <AiTaskSheet open={aiSheet} onClose={() => setAiSheet(false)} onCreated={load} />
-
-      {/* AI answer modal */}
       <AiAnswerModal task={answerTask} onClose={() => setAnswerTask(null)} onRetry={retryAi} />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Card, Btn, Input, Select, Sheet, SectionTitle, ProgressRing, toast, api } from "@/components/ui";
+import { wibToday } from "@/lib/wib";
 
 interface Workout { id: string; type: string; durationMinutes: number; intensity: string; day: string }
 interface Habit { id: string; name: string; icon: string; targetPerWeek: number }
@@ -9,10 +10,16 @@ interface SleepLog { id: string; day: string; bedMinute: number; wakeMinute: num
 interface HabitsRes { habits: Habit[]; checkins: { habitId: string; day: string }[]; streaks: Record<string, { current: number; best: number }>; weeklyCount: Record<string, number> }
 
 const WORKOUT_TYPES = ["Jogging", "Lari", "Push-up & Sit-up", "Gym / Angkat Beban", "Sepeda", "Futsal", "Basket", "Renang", "Yoga", "Jalan Kaki"];
-const TYPE_EMOJI: Record<string, string> = {
-  Jogging: "🏃", Lari: "🏃‍♂️", "Push-up & Sit-up": "💪", "Gym / Angkat Beban": "🏋️", Sepeda: "🚴",
-  Futsal: "⚽", Basket: "🏀", Renang: "🏊", Yoga: "🧘", "Jalan Kaki": "🚶",
-};
+
+function Trash({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="p-1.5 text-[#62666d] hover:text-[#eb5757] transition-colors duration-150" aria-label="Hapus">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">
+        <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+      </svg>
+    </button>
+  );
+}
 
 export default function HealthPage() {
   const [tab, setTab] = useState<"workout" | "water" | "sleep" | "habits">("workout");
@@ -33,7 +40,7 @@ export default function HealthPage() {
   // sleep form
   const [sBed, setSBed] = useState("22:30");
   const [sWake, setSWake] = useState("05:30");
-  const [sQual, setSQual] = useState(4);
+  const [sQuality, setSQuality] = useState(4);
   const [sDay, setSDay] = useState("");
 
   // habit form
@@ -60,7 +67,7 @@ export default function HealthPage() {
     setBusy(true);
     try {
       await api("/api/workouts", { json: { type: wType, durationMinutes: wDur, intensity: wInt, day: wDay || undefined } });
-      toast("Workout dicatat 💪");
+      toast("Workout dicatat");
       setSheet(null); setWDay("");
       await load();
     } catch (e) { toast(e instanceof Error ? e.message : "Gagal", "err") } finally { setBusy(false) }
@@ -80,20 +87,18 @@ export default function HealthPage() {
     setBusy(true);
     try {
       await api("/api/sleep", { json: { bedTime: sBed, wakeTime: sWake, quality: sQuality, day: sDay || undefined } });
-      toast("Tidur dicatat 😴");
+      toast("Tidur dicatat");
       setSheet(null); setSDay("");
       await load();
     } catch (e) { toast(e instanceof Error ? e.message : "Gagal", "err") } finally { setBusy(false) }
   }
 
-  const [sQuality, setSQuality] = useState(4);
-
   async function addHabit() {
-    if (!hName.trim()) return toast("Nama habit wajib", "err");
+    if (!hName.trim()) return toast("Nama habit wajib diisi", "err");
     setBusy(true);
     try {
       await api("/api/habits", { json: { name: hName, icon: hIcon, targetPerWeek: hTarget } });
-      toast("Habit dibuat ✅");
+      toast("Habit dibuat");
       setSheet(null); setHName("");
       await load();
     } catch (e) { toast(e instanceof Error ? e.message : "Gagal", "err") } finally { setBusy(false) }
@@ -110,68 +115,78 @@ export default function HealthPage() {
     await load();
   }
 
-  const today = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+  const today = wibToday();
 
-  // heatmap last 28 days
   const heat = useMemo(() => {
     const days: { day: string; has: boolean; minutes: number }[] = [];
     for (let i = 27; i >= 0; i--) {
-      const d = new Date(Date.now() + 7 * 3600 * 1000);
+      const d = new Date(today + "T00:00:00Z");
       d.setUTCDate(d.getUTCDate() - i);
       const ds = d.toISOString().slice(0, 10);
       const w = workouts.filter((x) => x.day === ds);
       days.push({ day: ds, has: w.length > 0, minutes: w.reduce((s, x) => s + x.durationMinutes, 0) });
     }
     return days;
-  }, [workouts]);
+  }, [workouts, today]);
 
   const waterPct = water.target > 0 ? water.todayMl / water.target : 0;
   const glasses = Math.round(water.target / water.glassMl);
   const todayGlasses = Math.round(water.todayMl / water.glassMl);
 
+  const TAB_LABEL = { workout: "Olahraga", water: "Air", sleep: "Tidur", habits: "Habit" } as const;
+
   return (
     <div className="animate-rise">
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-xl font-bold">💪 Kesehatan</h1>
-        <Btn onClick={() => setSheet(tab === "workout" ? "workout" : tab === "sleep" ? "sleep" : tab === "habits" ? "habit" : null)} className="!py-2 !px-3 text-xs" disabled={tab === "water"}>
-          ＋ {tab === "workout" ? "Workout" : tab === "sleep" ? "Tidur" : tab === "habits" ? "Habit" : "Air"}
+      <header className="flex items-center justify-between mb-4 pt-1">
+        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">Kesehatan</h1>
+        <Btn
+          onClick={() => setSheet(tab === "workout" ? "workout" : tab === "sleep" ? "sleep" : tab === "habits" ? "habit" : null)}
+          className="!py-1.5 !px-3 text-xs"
+          disabled={tab === "water"}
+        >
+          {`Tambah ${TAB_LABEL[tab]}`}
         </Btn>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-4 gap-1.5 mb-4">
+      {/* Segmented control */}
+      <div className="grid grid-cols-4 gap-1 rounded-lg bg-white/[0.03] border border-white/[0.06] p-1 mb-4">
         {(["workout", "water", "sleep", "habits"] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={`rounded-xl py-2 text-[11px] font-semibold ${tab === t ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>
-            {t === "workout" ? "💪 Olahraga" : t === "water" ? "💧 Air" : t === "sleep" ? "😴 Tidur" : "✅ Habit"}
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`rounded-md py-1.5 text-[11px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#f7f8f8]" : "text-[#8a8f98]"}`}
+          >
+            {TAB_LABEL[t]}
           </button>
         ))}
       </div>
 
       {tab === "workout" && (
         <>
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="grid grid-cols-3 gap-2 mb-3">
             <Card className="text-center !py-3">
-              <div className="text-2xl font-bold text-emerald-400">{wStats.thisWeekCount}</div>
-              <p className="text-[10px] text-zinc-500">sesi minggu ini</p>
+              <div className="text-xl font-semibold text-[#f7f8f8] tabular-nums">{wStats.thisWeekCount}</div>
+              <p className="text-[10px] text-[#8a8f98]">sesi minggu ini</p>
             </Card>
             <Card className="text-center !py-3">
-              <div className="text-2xl font-bold text-amber-400">{wStats.thisWeekMinutes}</div>
-              <p className="text-[10px] text-zinc-500">menit minggu ini</p>
+              <div className="text-xl font-semibold text-[#f7f8f8] tabular-nums">{wStats.thisWeekMinutes}</div>
+              <p className="text-[10px] text-[#8a8f98]">menit minggu ini</p>
             </Card>
             <Card className="text-center !py-3">
-              <div className="text-2xl font-bold text-rose-400">🔥{wStats.streak}</div>
-              <p className="text-[10px] text-zinc-500">hari beruntun</p>
+              <div className="text-xl font-semibold text-[#f5a623] tabular-nums">{wStats.streak}</div>
+              <p className="text-[10px] text-[#8a8f98]">hari beruntun</p>
             </Card>
           </div>
 
-          <Card className="mb-4">
-            <p className="text-[10px] text-zinc-500 uppercase mb-2">Konsistensi 4 minggu</p>
-            <div className="grid grid-cols-14 gap-1" style={{ gridTemplateColumns: "repeat(14, 1fr)" }}>
+          <Card className="mb-3">
+            <p className="text-[10px] text-[#8a8f98] mb-2">Konsistensi 4 minggu</p>
+            <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(14, 1fr)" }}>
               {heat.map((h) => (
                 <div
                   key={h.day}
                   title={`${h.day}: ${h.minutes} menit`}
-                  className="aspect-square rounded-sm"
-                  style={{ background: h.has ? (h.minutes >= 45 ? "#10b981" : h.minutes >= 25 ? "#34d399" : "#6ee7b7") : "#27272a" }}
+                  className="aspect-square rounded-[3px] transition-colors duration-300"
+                  style={{ background: h.has ? (h.minutes >= 45 ? "#27a644" : h.minutes >= 25 ? "#4d9f68" : "#3d5c4a") : "rgba(255,255,255,0.05)" }}
                 />
               ))}
             </div>
@@ -181,51 +196,52 @@ export default function HealthPage() {
           {workouts.slice(0, 15).map((w) => (
             <Card key={w.id} className="!py-2.5 mb-1.5 flex items-center justify-between">
               <div>
-                <div className="text-sm font-semibold">{TYPE_EMOJI[w.type] || "🏃"} {w.type}</div>
-                <div className="text-[11px] text-zinc-500">{w.day} • {w.durationMinutes} mnt • {w.intensity}</div>
+                <div className="text-sm font-medium text-[#f7f8f8]">{w.type}</div>
+                <div className="text-[11px] text-[#62666d]">{w.day} · {w.durationMinutes} mnt · {w.intensity.toLowerCase()}</div>
               </div>
-              <button
-                onClick={async () => { await api(`/api/workouts?id=${w.id}`, { method: "DELETE" }); await load(); }}
-                className="text-[10px] text-zinc-600"
-              >
-                🗑
-              </button>
+              <Trash onClick={async () => { await api(`/api/workouts?id=${w.id}`, { method: "DELETE" }); await load(); }} />
             </Card>
           ))}
-          {workouts.length === 0 && <Card className="text-sm text-zinc-500 text-center py-8">Belum ada workout.</Card>}
+          {workouts.length === 0 && (
+            <div className="text-center py-14">
+              <p className="text-sm text-[#62666d]">Belum ada workout</p>
+            </div>
+          )}
         </>
       )}
 
       {tab === "water" && (
         <>
-          <Card className="text-center py-6 mb-4">
-            <ProgressRing value={waterPct} size={140} stroke={12} color="#38bdf8">
-              <div>
-                <div className="text-3xl font-bold">{(water.todayMl / 1000).toFixed(2)}L</div>
-                <div className="text-xs text-zinc-500">dari {(water.target / 1000).toFixed(1)}L</div>
-              </div>
-            </ProgressRing>
+          <Card className="text-center py-7 mb-3">
+            <div className="flex justify-center">
+              <ProgressRing value={waterPct} size={140} stroke={10} color="#7170ff">
+                <div>
+                  <div className="text-2xl font-semibold text-[#f7f8f8] tabular-nums">{(water.todayMl / 1000).toFixed(2)}L</div>
+                  <div className="text-[11px] text-[#8a8f98]">dari {(water.target / 1000).toFixed(1)}L</div>
+                </div>
+              </ProgressRing>
+            </div>
             <div className="flex justify-center gap-1 mt-4">
               {Array.from({ length: glasses }).map((_, i) => (
-                <span key={i} className="text-xl">{i < todayGlasses ? "🥛" : "🥃"}</span>
+                <span key={i} className={`w-2 h-4 rounded-[2px] ${i < todayGlasses ? "bg-[#7170ff]" : "bg-white/[0.08]"}`} />
               ))}
             </div>
             <div className="flex justify-center gap-2 mt-5">
-              <Btn onClick={() => quickWater(1)} className="px-8">💧 +1 Gelas</Btn>
+              <Btn onClick={() => quickWater(1)} className="px-8">+1 Gelas</Btn>
               <Btn variant="ghost" onClick={() => quickWater(2)}>+2</Btn>
-              <Btn variant="ghost" onClick={undoWater} className="text-xs">↩ Undo</Btn>
+              <Btn variant="ghost" onClick={undoWater} className="text-xs">Undo</Btn>
             </div>
           </Card>
 
           <SectionTitle>7 Hari Terakhir</SectionTitle>
           {water.history.slice().reverse().map((h) => (
             <Card key={h.day} className="!py-2.5 mb-1.5 flex items-center justify-between">
-              <span className="text-sm">{new Date(h.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</span>
-              <div className="flex items-center gap-2">
-                <div className="w-28 h-2 rounded-full bg-zinc-800 overflow-hidden">
-                  <div className="h-full bg-sky-400" style={{ width: `${Math.min(100, (h.ml / water.target) * 100)}%` }} />
+              <span className="text-sm text-[#d0d6e0]">{new Date(h.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-28 h-1 rounded-full bg-white/[0.05] overflow-hidden">
+                  <div className="h-full bg-[#7170ff] transition-all duration-300" style={{ width: `${Math.min(100, (h.ml / water.target) * 100)}%` }} />
                 </div>
-                <span className={`text-xs font-bold ${h.hit ? "text-emerald-400" : "text-zinc-500"}`}>{(h.ml / 1000).toFixed(1)}L {h.hit ? "✓" : ""}</span>
+                <span className={`text-xs font-medium tabular-nums w-14 text-right ${h.hit ? "text-[#27a644]" : "text-[#62666d]"}`}>{(h.ml / 1000).toFixed(1)}L</span>
               </div>
             </Card>
           ))}
@@ -234,31 +250,40 @@ export default function HealthPage() {
 
       {tab === "sleep" && (
         <>
-          <Btn onClick={() => setSheet("sleep")} className="w-full mb-3">😴 Catat Tidur Malam Ini</Btn>
           {sleepLogs.map((s) => {
             const dur = s.wakeMinute > s.bedMinute ? s.wakeMinute - s.bedMinute : 1440 - s.bedMinute + s.wakeMinute;
             const good = dur >= 420 && dur <= 540;
+            const hh = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
             return (
               <Card key={s.id} className="!py-3 mb-2 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-semibold">{new Date(s.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</div>
-                  <div className="text-[11px] text-zinc-500">
-                    🌙 {String(Math.floor(s.bedMinute / 60)).padStart(2, "0")}:{String(s.bedMinute % 60).padStart(2, "0")} → ☀️ {String(Math.floor(s.wakeMinute / 60)).padStart(2, "0")}:{String(s.wakeMinute % 60).padStart(2, "0")} • kualitas {"⭐".repeat(s.quality || 0)}
+                  <div className="text-sm font-medium text-[#f7f8f8]">{new Date(s.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</div>
+                  <div className="text-[11px] text-[#62666d] mt-0.5">
+                    {hh(s.bedMinute)} – {hh(s.wakeMinute)} · kualitas {s.quality ?? "-"}/5
                   </div>
                 </div>
-                <span className={`text-sm font-bold ${good ? "text-emerald-400" : dur < 420 ? "text-rose-400" : "text-amber-400"}`}>
+                <span className={`text-sm font-semibold tabular-nums ${good ? "text-[#27a644]" : dur < 420 ? "text-[#eb5757]" : "text-[#f5a623]"}`}>
                   {Math.floor(dur / 60)}j {dur % 60}m
                 </span>
               </Card>
             );
           })}
-          {sleepLogs.length === 0 && <Card className="text-sm text-zinc-500 text-center py-8">Belum ada log tidur.</Card>}
+          {sleepLogs.length === 0 && (
+            <div className="text-center py-14">
+              <p className="text-sm text-[#62666d]">Belum ada log tidur</p>
+            </div>
+          )}
         </>
       )}
 
       {tab === "habits" && hData && (
         <>
-          {hData.habits.length === 0 && <Card className="text-sm text-zinc-500 text-center py-8 mb-3">Belum ada habit. Buat satu!</Card>}
+          {hData.habits.length === 0 && (
+            <div className="text-center py-14">
+              <p className="text-sm text-[#62666d]">Belum ada habit</p>
+              <p className="text-[11px] text-[#4a4d52] mt-1">Tap Tambah Habit untuk membuat</p>
+            </div>
+          )}
           {hData.habits.map((h) => {
             const checkedToday = hData.checkins?.some((c) => c.habitId === h.id && c.day === today) ?? false;
             const streak = hData.streaks[h.id] || { current: 0, best: 0 };
@@ -268,17 +293,24 @@ export default function HealthPage() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => toggleHabit(h.id)}
-                    className={`w-12 h-12 rounded-2xl text-xl flex items-center justify-center border-2 shrink-0 transition ${checkedToday ? "bg-emerald-600 border-emerald-600" : "border-zinc-700 bg-zinc-800"}`}
+                    aria-label="Toggle habit hari ini"
+                    className={`w-11 h-11 rounded-lg text-lg flex items-center justify-center border shrink-0 transition-colors duration-150 ${checkedToday ? "bg-[#27a644] border-[#27a644]" : "border-white/[0.1] bg-white/[0.03] hover:border-white/25"}`}
                   >
-                    {checkedToday ? "✓" : h.icon}
+                    {checkedToday ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    ) : (
+                      h.icon
+                    )}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold">{h.name}</div>
-                    <div className="text-[11px] text-zinc-500">
-                      🔥 {streak.current} hari (best {streak.best}) • minggu ini {week}/{h.targetPerWeek}
+                    <div className="text-sm font-medium text-[#f7f8f8]">{h.name}</div>
+                    <div className="text-[11px] text-[#62666d]">
+                      streak {streak.current} hari (best {streak.best}) · minggu ini {week}/{h.targetPerWeek}
                     </div>
                   </div>
-                  <button onClick={() => delHabit(h.id)} className="text-[10px] text-zinc-600">🗑</button>
+                  <Trash onClick={() => delHabit(h.id)} />
                 </div>
               </Card>
             );
@@ -290,32 +322,32 @@ export default function HealthPage() {
       <Sheet open={sheet === "workout"} onClose={() => setSheet(null)} title="Catat Workout">
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Jenis</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1 block">Jenis</label>
             <Select value={wType} onChange={(e) => setWType(e.target.value)}>
               {WORKOUT_TYPES.map((t) => <option key={t}>{t}</option>)}
             </Select>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Durasi: {wDur} menit</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Durasi: {wDur} menit</label>
             <div className="flex gap-1.5">
               {[15, 20, 30, 45, 60, 90].map((d) => (
-                <button key={d} onClick={() => setWDur(d)} className={`flex-1 rounded-lg py-2 text-xs font-bold ${wDur === d ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>{d}′</button>
+                <button key={d} onClick={() => setWDur(d)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wDur === d ? "bg-[#5e6ad2] text-white" : "bg-white/[0.04] border border-white/[0.06] text-[#8a8f98]"}`}>{d}′</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Intensitas</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Intensitas</label>
             <div className="flex gap-1.5">
               {["RINGAN", "SEDANG", "BERAT"].map((i) => (
-                <button key={i} onClick={() => setWInt(i)} className={`flex-1 rounded-lg py-2 text-xs font-bold ${wInt === i ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>{i}</button>
+                <button key={i} onClick={() => setWInt(i)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wInt === i ? "bg-[#5e6ad2] text-white" : "bg-white/[0.04] border border-white/[0.06] text-[#8a8f98]"}`}>{i}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Tanggal (opsional — default hari ini)</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1 block">Tanggal (opsional — default hari ini)</label>
             <Input type="date" value={wDay} onChange={(e) => setWDay(e.target.value)} />
           </div>
-          <Btn onClick={addWorkout} disabled={busy} className="w-full py-3">{busy ? "…" : "Simpan"}</Btn>
+          <Btn onClick={addWorkout} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Simpan"}</Btn>
         </div>
       </Sheet>
 
@@ -324,23 +356,23 @@ export default function HealthPage() {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Jam tidur</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Jam tidur</label>
               <Input type="time" value={sBed} onChange={(e) => setSBed(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-zinc-400 mb-1 block">Jam bangun</label>
+              <label className="text-[11px] text-[#8a8f98] mb-1 block">Jam bangun</label>
               <Input type="time" value={sWake} onChange={(e) => setSWake(e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Kualitas: {"⭐".repeat(sQuality)}</label>
-            <input type="range" min={1} max={5} value={sQuality} onChange={(e) => setSQuality(Number(e.target.value))} className="w-full accent-indigo-600" />
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Kualitas: {sQuality}/5</label>
+            <input type="range" min={1} max={5} value={sQuality} onChange={(e) => setSQuality(Number(e.target.value))} className="w-full accent-[#5e6ad2]" />
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Tanggal (opsional)</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1 block">Tanggal (opsional)</label>
             <Input type="date" value={sDay} onChange={(e) => setSDay(e.target.value)} />
           </div>
-          <Btn onClick={saveSleep} disabled={busy} className="w-full py-3">{busy ? "…" : "Simpan"}</Btn>
+          <Btn onClick={saveSleep} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Simpan"}</Btn>
         </div>
       </Sheet>
 
@@ -349,18 +381,18 @@ export default function HealthPage() {
         <div className="space-y-3">
           <Input value={hName} onChange={(e) => setHName(e.target.value)} placeholder="Nama habit, mis: Baca 15 menit" />
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Ikon</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Ikon</label>
             <div className="flex gap-2 flex-wrap">
               {["✅", "📖", "🧘", "🦷", "🙏", "🚭", "🎸", "🧹"].map((i) => (
-                <button key={i} onClick={() => setHIcon(i)} className={`w-11 h-11 rounded-xl text-xl flex items-center justify-center border ${hIcon === i ? "border-indigo-500 bg-indigo-500/15" : "border-zinc-800"}`}>{i}</button>
+                <button key={i} onClick={() => setHIcon(i)} className={`w-11 h-11 rounded-md text-lg flex items-center justify-center border transition-colors duration-150 ${hIcon === i ? "border-[#7170ff] bg-[#7170ff]/10" : "border-white/[0.08] bg-white/[0.02]"}`}>{i}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Target per minggu: {hTarget}× </label>
-            <input type="range" min={1} max={7} value={hTarget} onChange={(e) => setHTarget(Number(e.target.value))} className="w-full accent-indigo-600" />
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Target per minggu: {hTarget}×</label>
+            <input type="range" min={1} max={7} value={hTarget} onChange={(e) => setHTarget(Number(e.target.value))} className="w-full accent-[#5e6ad2]" />
           </div>
-          <Btn onClick={addHabit} disabled={busy} className="w-full py-3">{busy ? "…" : "Buat Habit"}</Btn>
+          <Btn onClick={addHabit} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Buat Habit"}</Btn>
         </div>
       </Sheet>
     </div>

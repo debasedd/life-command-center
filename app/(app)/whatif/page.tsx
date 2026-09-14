@@ -19,6 +19,12 @@ interface Result {
 
 function idr(n: number) { return "Rp" + Math.round(n).toLocaleString("id-ID") }
 
+const VERDICT_META: Record<string, { color: string; border: string; dot: string }> = {
+  AMAN: { color: "text-[#27a644]", border: "border-[#27a644]/30", dot: "#27a644" },
+  "HATI-HATI": { color: "text-[#f5a623]", border: "border-[#f5a623]/30", dot: "#f5a623" },
+  BERISIKO: { color: "text-[#eb5757]", border: "border-[#eb5757]/30", dot: "#eb5757" },
+};
+
 export default function WhatIfPage() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -37,58 +43,74 @@ export default function WhatIfPage() {
     } catch (e) { toast(e instanceof Error ? e.message : "Gagal", "err") } finally { setBusy(false) }
   }
 
-  const verdictStyle: Record<string, string> = {
-    AMAN: "bg-emerald-500/20 text-emerald-300 border-emerald-800",
-    "HATI-HATI": "bg-amber-500/20 text-amber-300 border-amber-800",
-    BERISIKO: "bg-rose-500/20 text-rose-300 border-rose-800",
-  };
+  const meta = result ? VERDICT_META[result.verdict] || VERDICT_META.AMAN : null;
 
   return (
     <div className="animate-rise">
-      <h1 className="text-xl font-bold mb-1">🔮 What-If Simulator</h1>
-      <p className="text-xs text-zinc-500 mb-4">Simulasi dampak pembelian terhadap target finansial — sebelum kamu menyesal.</p>
+      <header className="mb-4 pt-1">
+        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">What-If Simulator</h1>
+        <p className="text-xs text-[#8a8f98] mt-0.5">Simulasi dampak pembelian ke target finansial — sebelum menyesal.</p>
+      </header>
 
       <Card className="mb-4">
         <div className="space-y-3">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Barang apa? mis: Sepatu Nike" />
-          <Input type="number" inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Harga (Rp)" className="!text-xl !py-3" />
+          <Input type="number" inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Harga (Rp)" className="!text-lg !py-3 tabular-nums" />
           <div>
-            <label className="text-xs text-zinc-400 mb-1 block">Metode</label>
+            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Metode</label>
             <div className="flex gap-2">
-              <button onClick={() => setMonths(0)} className={`flex-1 rounded-xl py-2.5 text-sm font-semibold ${months === 0 ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>Cash lunas</button>
-              <button onClick={() => setMonths(3)} className={`flex-1 rounded-xl py-2.5 text-sm font-semibold ${months === 3 ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>Cicil 3× </button>
-              <button onClick={() => setMonths(6)} className={`flex-1 rounded-xl py-2.5 text-sm font-semibold ${months === 6 ? "bg-indigo-600" : "bg-zinc-800 text-zinc-400"}`}>Cicil 6×</button>
+              {([["Cash lunas", 0], ["Cicil 3×", 3], ["Cicil 6×", 6]] as [string, number][]).map(([label, m]) => (
+                <button
+                  key={m}
+                  onClick={() => setMonths(m)}
+                  className={`flex-1 rounded-md py-2 text-[13px] font-medium transition-colors duration-150 ${months === m ? "bg-[#5e6ad2] text-white" : "bg-white/[0.03] border border-white/[0.08] text-[#8a8f98]"}`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
-          <Btn onClick={simulate} disabled={busy} className="w-full py-3">{busy ? "Menghitung…" : "Simulasikan Dampak"}</Btn>
+          <Btn onClick={simulate} disabled={busy} className="w-full py-2.5">{busy ? "Menghitung…" : "Simulasikan Dampak"}</Btn>
         </div>
       </Card>
 
-      {result && (
+      {result && meta && (
         <div className="animate-rise space-y-3">
-          <Card className={`border ${verdictStyle[result.verdict]}`}>
+          <Card className={`border ${meta.border}`}>
             <div className="flex items-center gap-3">
-              <span className="text-3xl">{result.verdict === "AMAN" ? "🟢" : result.verdict === "HATI-HATI" ? "🟡" : "🔴"}</span>
+              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: meta.dot }} />
               <div>
-                <div className="text-lg font-bold">{result.verdict}</div>
-                <div className="text-xs text-zinc-300">
-                  {result.itemName} • {idr(result.price)}{result.installmentMonths > 0 ? ` (cicilan ${idr(result.price / result.installmentMonths)}/bln × ${result.installmentMonths})` : ""}
+                <div className="text-base font-semibold text-[#f7f8f8]">{result.verdict}</div>
+                <div className="text-[11px] text-[#8a8f98] tabular-nums">
+                  {result.itemName} · {idr(result.price)}
+                  {result.installmentMonths > 0 ? ` (cicilan ${idr(result.price / result.installmentMonths)}/bln × ${result.installmentMonths})` : ""}
                 </div>
               </div>
             </div>
-            <ul className="mt-3 space-y-1">
+            <ul className="mt-3 space-y-1.5">
               {result.reasons.map((r, i) => (
-                <li key={i} className="text-xs text-zinc-300 flex gap-2"><span>→</span>{r}</li>
+                <li key={i} className="text-xs text-[#d0d6e0] leading-relaxed flex gap-2">
+                  <span className="text-[#62666d] shrink-0">—</span>{r}
+                </li>
               ))}
             </ul>
           </Card>
 
           <Card>
-            <p className="text-xs font-bold text-zinc-300 mb-2">📊 Arus kas bulanan kamu</p>
+            <p className="text-[10px] text-[#8a8f98] mb-2.5">Arus kas bulanan</p>
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div><div className="text-sm font-bold text-emerald-400">{idr(result.monthlyIncome)}</div><div className="text-[9px] text-zinc-500">masuk</div></div>
-              <div><div className="text-sm font-bold text-rose-400">{idr(result.monthlyExpense)}</div><div className="text-[9px] text-zinc-500">keluar</div></div>
-              <div><div className={`text-sm font-bold ${result.monthlySurplus >= 0 ? "text-sky-400" : "text-rose-500"}`}>{idr(result.monthlySurplus)}</div><div className="text-[9px] text-zinc-500">surplus</div></div>
+              <div>
+                <div className="text-sm font-semibold text-[#2fbd50] tabular-nums">{idr(result.monthlyIncome)}</div>
+                <div className="text-[10px] text-[#62666d]">masuk</div>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-[#eb5757] tabular-nums">{idr(result.monthlyExpense)}</div>
+                <div className="text-[10px] text-[#62666d]">keluar</div>
+              </div>
+              <div>
+                <div className={`text-sm font-semibold tabular-nums ${result.monthlySurplus >= 0 ? "text-[#f7f8f8]" : "text-[#eb5757]"}`}>{idr(result.monthlySurplus)}</div>
+                <div className="text-[10px] text-[#62666d]">surplus</div>
+              </div>
             </div>
           </Card>
 
@@ -98,17 +120,17 @@ export default function WhatIfPage() {
               {result.goalImpacts.map((g, i) => (
                 <Card key={i} className="!py-3">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-semibold">{g.icon} {g.name}</div>
-                      <div className="text-[11px] text-zinc-500">ritme nabung {idr(g.monthlyDeposit)}/bln • = {g.pctOfGoal}% dari target</div>
+                    <div className="min-w-0 pr-2">
+                      <div className="text-sm font-medium text-[#f7f8f8]">{g.icon} {g.name}</div>
+                      <div className="text-[11px] text-[#62666d]">ritme nabung {idr(g.monthlyDeposit)}/bln · {g.pctOfGoal}% dari target</div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
                       {g.monthsDelayed !== null ? (
-                        <div className={`text-sm font-bold ${(g.monthsDelayed || 0) > 3 ? "text-rose-400" : (g.monthsDelayed || 0) > 0 ? "text-amber-400" : "text-emerald-400"}`}>
-                          {g.monthsDelayed === 0 ? "tidak tertunda" : `+${g.monthsDelayed} bln`}
+                        <div className={`text-sm font-semibold tabular-nums ${(g.monthsDelayed || 0) > 3 ? "text-[#eb5757]" : (g.monthsDelayed || 0) > 0 ? "text-[#f5a623]" : "text-[#27a644]"}`}>
+                          {g.monthsDelayed === 0 ? "aman" : `+${g.monthsDelayed} bln`}
                         </div>
                       ) : (
-                        <div className="text-[10px] text-zinc-600">belum ada ritme setoran</div>
+                        <div className="text-[10px] text-[#62666d]">belum ada ritme</div>
                       )}
                     </div>
                   </div>
@@ -119,14 +141,14 @@ export default function WhatIfPage() {
 
           <SectionTitle>Opportunity Cost</SectionTitle>
           <Card>
-            <p className="text-sm">
-              Kalau uang <b>{idr(result.price)}</b> ini diinvestasikan 10 tahun dengan return 8%/tahun:
+            <p className="text-[13px] text-[#d0d6e0] leading-relaxed">
+              Kalau <b className="text-[#f7f8f8]">{idr(result.price)}</b> diinvestasikan 10 tahun dengan return 8%/tahun:
             </p>
-            <div className="text-center my-3">
-              <div className="text-2xl font-bold text-indigo-300">{idr(result.opportunity10y)}</div>
-              <div className="text-[10px] text-zinc-500">nilai masa depan (compound bulanan)</div>
+            <div className="text-center my-4">
+              <div className="text-2xl font-semibold text-[#7170ff] tabular-nums">{idr(result.opportunity10y)}</div>
+              <div className="text-[10px] text-[#62666d]">nilai masa depan (compound bulanan)</div>
             </div>
-            <p className="text-[11px] text-zinc-500">Simulasi edukasi — bukan saran investasi. Return tidak dijamin.</p>
+            <p className="text-[10px] text-[#4a4d52]">Simulasi edukasi — bukan saran investasi. Return tidak dijamin.</p>
           </Card>
         </div>
       )}
