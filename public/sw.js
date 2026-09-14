@@ -1,9 +1,13 @@
 /* Life Command Center — Service Worker */
-const VERSION = "lcc-v1.0.0";
+const VERSION = "lcc-v2.0.0";
 const SHELL_CACHE = `${VERSION}-shell`;
 const DATA_CACHE = `${VERSION}-data`;
 
 const SHELL_ASSETS = ["/", "/manifest.json", "/icon.svg", "/offline-ready"];
+
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
+});
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
