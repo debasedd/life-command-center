@@ -122,8 +122,8 @@ export async function extractFromPhoto(base64: string, mime: string): Promise<Ex
   };
 }
 
-/** Step 2: soal → pembahasan lengkap. */
-export async function solveQuestion(question: string): Promise<SolveResult> {
+/** Step 2: soal → pembahasan lengkap. timeoutMs default 50s (serverless-safe). */
+export async function solveQuestion(question: string, timeoutMs = 50000): Promise<SolveResult> {
   const content = await chat(
     {
       messages: [
@@ -133,7 +133,7 @@ export async function solveQuestion(question: string): Promise<SolveResult> {
       max_tokens: 4000,
       temperature: 0.2,
     },
-    150000
+    timeoutMs
   );
   if (!content || content.trim().length < 30) {
     return { ok: false, error: "AI gagal mengerjakan soal. Coba lagi nanti." };

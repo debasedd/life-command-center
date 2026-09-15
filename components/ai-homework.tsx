@@ -40,7 +40,8 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal memproses foto");
-      toast("Tugas dibuat! AI sedang mengerjakan…");
+      if (data.task?.aiStatus === "DONE") toast("Pembahasan siap — buka di daftar tugas");
+      else toast("Dibuat. AI gagal — tap Coba lagi di tugas", "err");
       setPreview(null);
       onClose();
       onCreated();
@@ -62,7 +63,8 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal memproses teks");
-      toast("Tugas dibuat! AI sedang mengerjakan…");
+      if (data.task?.aiStatus === "DONE") toast("Pembahasan siap — buka di daftar tugas");
+      else toast("Dibuat. AI gagal — tap Coba lagi di tugas", "err");
       setText("");
       onClose();
       onCreated();

@@ -3,6 +3,9 @@ import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { solveQuestion } from "@/lib/ai-homework";
 
+// Hobby plan max: function lives 60s, long enough to await the solve inline.
+export const maxDuration = 60;
+
 /** POST /api/tasks/ai-retry — retry the AI solve for a failed task. Body: {id} */
 export async function POST(req: NextRequest) {
   const userId = await getAuthUserId();
@@ -15,26 +18,18 @@ export async function POST(req: NextRequest) {
 
   await prisma.task.update({ where: { id: task.id }, data: { aiStatus: "PENDING", aiError: null } });
 
-  void (async () => {
-    try {
-      const result = await solveQuestion(task.description!);
-      if (result.ok) {
-        await prisma.task.update({
-          where: { id: task.id },
-          data: { aiAnswer: result.answer!, aiStatus: "DONE", aiAnswerAt: new Date(), aiError: null },
-        });
-      } else {
-        await prisma.task.update({
-          where: { id: task.id },
-          data: { aiStatus: "FAILED", aiError: result.error || "unknown" },
-        });
-      }
-    } catch (e) {
-      await prisma.task
-        .update({ where: { id: task.id }, data: { aiStatus: "FAILED", aiError: e instanceof Error ? e.message : "unknown" } })
-        .catch(() => {});
-    }
-  })();
+  const result = await solveQuestion(task.description!, 50000);
+  if (result.ok) {
+    const done = await prisma.task.update({
+      where: { id: task.id },
+      data: { aiAnswer: result.answer!, aiStatus: "DONE", aiAnswerAt: new Date(), aiError: null },
+    });
+    return NextResponse.json({ ok: true, aiStatus: done.aiStatus, aiAnswer: done.aiAnswer });
+  }
 
-  return NextResponse.json({ ok: true });
+  await prisma.task.update({
+    where: { id: task.id },
+    data: { aiStatus: "FAILED", aiError: result.error || "unknown" },
+  });
+  return NextResponse.json({ ok: false, error: result.error });
 }

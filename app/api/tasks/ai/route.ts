@@ -3,11 +3,14 @@ import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { extractFromPhoto, solveQuestion, parseDataUrl } from "@/lib/ai-homework";
 
+// Hobby plan max: function lives 60s, long enough to await the solve inline.
+export const maxDuration = 60;
+
 /**
  * POST /api/tasks/ai
  * Body: { photo: "data:image/jpeg;base64,..." }
  * 1) Vision AI extracts the assignment from the photo → creates the task
- * 2) Fire-and-forget: AI writes the full worked solution, saved to the task
+ * 2) Solve awaited inline so the answer is usually ready in the same request.
  */
 export async function POST(req: NextRequest) {
   const userId = await getAuthUserId();
@@ -38,27 +41,22 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Background solve (fire-and-forget — endpoint returns immediately)
-  void (async () => {
-    try {
-      const result = await solveQuestion(extracted.question!);
-      if (result.ok) {
-        await prisma.task.update({
-          where: { id: task.id },
-          data: { aiAnswer: result.answer!, aiStatus: "DONE", aiAnswerAt: new Date(), aiError: null },
-        });
-      } else {
-        await prisma.task.update({
-          where: { id: task.id },
-          data: { aiStatus: "FAILED", aiError: result.error || "unknown" },
-        });
-      }
-    } catch (e) {
-      await prisma.task
-        .update({ where: { id: task.id }, data: { aiStatus: "FAILED", aiError: e instanceof Error ? e.message : "unknown" } })
-        .catch(() => {});
-    }
-  })();
+  // Awaited solve: serverless kills fire-and-forget work after the response.
+  const result = await solveQuestion(extracted.question!, 50000);
+  if (result.ok) {
+    const done = await prisma.task.update({
+      where: { id: task.id },
+      data: { aiAnswer: result.answer!, aiStatus: "DONE", aiAnswerAt: new Date(), aiError: null },
+    });
+    return NextResponse.json({ task: { id: done.id, title: done.title, subject: done.subject, aiStatus: done.aiStatus, aiAnswer: done.aiAnswer } });
+  }
 
-  return NextResponse.json({ task: { id: task.id, title: task.title, subject: task.subject, aiStatus: task.aiStatus } });
+  await prisma.task.update({
+    where: { id: task.id },
+    data: { aiStatus: "FAILED", aiError: result.error || "unknown" },
+  });
+  return NextResponse.json({
+    task: { id: task.id, title: task.title, aiStatus: "FAILED" },
+    error: result.error,
+  });
 }
