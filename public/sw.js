@@ -29,7 +29,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // App shell: cache-first for navigations when offline
+  // App shell: network-first for navigations; offline fallback = dedicated page (never "/", it redirects to /home)
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
@@ -38,7 +38,11 @@ self.addEventListener("fetch", (event) => {
           caches.open(SHELL_CACHE).then((c) => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then((hit) => hit || caches.match("/")))
+        .catch(() =>
+          caches
+            .match(req)
+            .then((hit) => hit || caches.match("/offline-ready").then((off) => off || Response.error()))
+        )
     );
     return;
   }
