@@ -13,14 +13,17 @@ export function Card({
   children,
   className = "",
   onClick,
+  style,
 }: {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
+  style?: React.CSSProperties;
 }) {
   return (
     <div
       onClick={onClick}
+      style={style}
       className={`rounded-lg bg-white/[0.02] border border-white/[0.08] p-4 ${
         onClick ? "cursor-pointer select-none card-press" : ""
       } ${className}`}
