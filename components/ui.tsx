@@ -152,8 +152,8 @@ export function Sheet({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/85 animate-fade" onClick={onClose} />
-      <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-md animate-sheet rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] max-h-[85vh] overflow-y-auto no-scrollbar">
+      <div className="absolute inset-0 bg-black/85" onClick={onClose} />
+      <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-md rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] max-h-[85vh] overflow-y-auto no-scrollbar">
         <div className="sticky top-0 bg-[#191a1b] rounded-t-xl px-4 pt-3 pb-2 flex items-center justify-between border-b border-white/[0.06]">
           <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
           <h3 className="text-base font-semibold mt-1 text-[#f7f8f8]">{title}</h3>
