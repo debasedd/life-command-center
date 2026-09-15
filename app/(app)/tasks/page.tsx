@@ -81,6 +81,7 @@ export default function AcademicPage() {
   const [aiSheet, setAiSheet] = useState(false);
   const [answerTask, setAnswerTask] = useState<Task | null>(null);
   const [busy, setBusy] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   // task form
   const [title, setTitle] = useState("");
@@ -247,7 +248,10 @@ export default function AcademicPage() {
                             </svg>
                           )}
                         </button>
-                        <div className="flex-1 min-w-0">
+                        <div
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() => setExpanded(expanded === t.id ? null : t.id)}
+                        >
                           <div className={`text-sm font-medium leading-snug ${t.status === "DONE" ? "line-through text-[#8a8f98]" : "text-[#f7f8f8]"}`}>{t.title}</div>
                           <div className="text-[11px] text-[#62666d] flex gap-2.5 flex-wrap mt-0.5">
                             {t.subject && <span>{t.subject}</span>}
@@ -258,6 +262,18 @@ export default function AcademicPage() {
                             )}
                             {t.recurring && <span>mingguan</span>}
                           </div>
+                          {expanded === t.id && (
+                            <div className="mt-2 rounded-md bg-white/[0.03] border border-white/[0.06] p-2.5">
+                              {t.description ? (
+                                <p className="text-[12px] text-[#d0d6e0] whitespace-pre-wrap leading-relaxed">{t.description}</p>
+                              ) : (
+                                <p className="text-[12px] text-[#62666d]">Tidak ada detail soal.</p>
+                              )}
+                              {t.estimatedMinutes != null && (
+                                <p className="text-[10px] text-[#62666d] mt-1.5">Estimasi: {t.estimatedMinutes} menit</p>
+                              )}
+                            </div>
+                          )}
                           {(t.aiStatus !== "NONE" || t.description) && (
                             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                               <AiStatusBadge status={t.aiStatus} />
