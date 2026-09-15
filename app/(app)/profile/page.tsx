@@ -103,6 +103,7 @@ export default function ProfilePage() {
       <SectionTitle>Menu</SectionTitle>
       <div className="space-y-1.5 mb-3">
         {([
+          ["/share", "Tangkap dari Share", "Share dari app lain, langsung tercatat"],
           ["/advisor", "AI Financial Advisor", "Evaluasi kesehatan keuangan"],
           ["/whatif", "What-If Simulator", "Dampak pembelian ke target"],
           ["/invest", "Proyeksi Portofolio", "Compound growth jangka panjang"],

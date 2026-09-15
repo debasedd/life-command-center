@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
-import { Card, SectionTitle, ProgressRing, Btn } from "@/components/ui";
+import { Card, SectionTitle, Btn } from "@/components/ui";
 import PushManager from "@/components/push-manager";
 import { readCache, writeCache } from "@/lib/cache";
 
@@ -130,48 +130,61 @@ export default function HomeDashboard() {
         </div>
       </Card>
 
-      {/* Quick stats */}
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <Card className="text-center !p-3">
-          <div className="flex justify-center">
-            <ProgressRing value={waterPct} size={52} color="#7170ff">
-              <span className="text-[11px] font-semibold text-[#f7f8f8] tabular-nums">{Math.round(waterPct * 100)}%</span>
-            </ProgressRing>
+      {/* Hari ini — composed summary, no icon boxes */}
+      <SectionTitle>Hari Ini</SectionTitle>
+      <Card className="mb-3">
+        <div className="space-y-4">
+          {/* Air */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between text-[13px] mb-1.5">
+                <span className="text-[#f7f8f8] font-medium">Minum air</span>
+                <span className="text-[#8a8f98] tabular-nums">{(data.water.todayMl / 1000).toFixed(1)} / {(data.water.target / 1000).toFixed(1)} L</span>
+              </div>
+              <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="h-full rounded-full bg-[#7170ff] transition-all duration-300" style={{ width: `${Math.min(100, waterPct * 100)}%` }} />
+              </div>
+            </div>
+            <button
+              onClick={addWater}
+              disabled={waterBusy}
+              className="shrink-0 text-[11px] text-[#7170ff] border border-[#7170ff]/30 rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-[#7170ff]/10 disabled:opacity-50"
+            >
+              + Gelas
+            </button>
           </div>
-          <p className="text-[10px] text-[#8a8f98] mt-1.5">Air {(data.water.todayMl / 1000).toFixed(1)}L</p>
-          <button
-            onClick={addWater}
-            disabled={waterBusy}
-            className="mt-1.5 text-[10px] text-[#7170ff] border border-[#7170ff]/30 rounded-md px-2 py-1 font-medium transition-colors duration-150 hover:bg-[#7170ff]/10 disabled:opacity-50"
-          >
-            +1 Gelas
-          </button>
-        </Card>
-        <Card className="text-center !p-3">
-          <div className="flex justify-center">
-            <ProgressRing value={data.habits.total ? data.habits.done / data.habits.total : 0} size={52} color="#27a644">
-              <span className="text-[11px] font-semibold text-[#f7f8f8] tabular-nums">
-                {data.habits.done}/{data.habits.total}
-              </span>
-            </ProgressRing>
+          {/* Habit */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between text-[13px] mb-1.5">
+                <span className="text-[#f7f8f8] font-medium">Habit</span>
+                <span className="text-[#8a8f98] tabular-nums">{data.habits.done}/{data.habits.total}</span>
+              </div>
+              <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="h-full rounded-full bg-[#27a644] transition-all duration-300" style={{ width: `${data.habits.total ? (data.habits.done / data.habits.total) * 100 : 0}%` }} />
+              </div>
+            </div>
+            <Link href="/health" className="shrink-0 text-[11px] text-[#8a8f98] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
+              Buka
+            </Link>
           </div>
-          <p className="text-[10px] text-[#8a8f98] mt-1.5">Habit</p>
-          <Link href="/health" className="mt-1.5 inline-block text-[10px] text-[#8a8f98] border border-white/[0.08] rounded-md px-2 py-1 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
-            Cek
-          </Link>
-        </Card>
-        <Card className="text-center !p-3">
-          <div className="flex justify-center">
-            <ProgressRing value={Math.min(1, data.workout.weekCount / Math.max(1, data.workout.target))} size={52} color="#f5a623">
-              <span className="text-[11px] font-semibold text-[#f7f8f8] tabular-nums">{data.workout.weekCount}</span>
-            </ProgressRing>
+          {/* Olahraga */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between text-[13px] mb-1.5">
+                <span className="text-[#f7f8f8] font-medium">Olahraga minggu ini</span>
+                <span className="text-[#8a8f98] tabular-nums">{data.workout.weekCount}/{data.workout.target}</span>
+              </div>
+              <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="h-full rounded-full bg-[#f5a623] transition-all duration-300" style={{ width: `${Math.min(100, (data.workout.weekCount / Math.max(1, data.workout.target)) * 100)}%` }} />
+              </div>
+            </div>
+            <Link href="/health" className="shrink-0 text-[11px] text-[#8a8f98] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
+              Log
+            </Link>
           </div>
-          <p className="text-[10px] text-[#8a8f98] mt-1.5">Olahraga/mgg</p>
-          <Link href="/health" className="mt-1.5 inline-block text-[10px] text-[#8a8f98] border border-white/[0.08] rounded-md px-2 py-1 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
-            Log
-          </Link>
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       {/* Tugas */}
       <SectionTitle action={<Link href="/tasks" className="text-xs text-[#7170ff] hover:text-[#828fff] transition-colors duration-150">Semua</Link>}>Tugas Sekolah</SectionTitle>
@@ -270,9 +283,9 @@ export default function HomeDashboard() {
         <>
           <SectionTitle>Skor Keuangan</SectionTitle>
           <Card className="flex items-center gap-4">
-            <ProgressRing value={data.latestEval.healthScore / 100} size={60} color={data.latestEval.healthScore >= 75 ? "#27a644" : data.latestEval.healthScore >= 50 ? "#f5a623" : "#eb5757"}>
-              <span className="text-sm font-semibold text-[#f7f8f8]">{data.latestEval.healthScore}</span>
-            </ProgressRing>
+            <div className="shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center" style={{ borderColor: data.latestEval.healthScore >= 75 ? "#27a644" : data.latestEval.healthScore >= 50 ? "#f5a623" : "#eb5757" }}>
+              <span className="text-sm font-semibold text-[#f7f8f8] tabular-nums">{data.latestEval.healthScore}</span>
+            </div>
             <div className="text-xs text-[#8a8f98]">
               Skor kesehatan keuangan terakhir.
               <Link href="/advisor" className="block text-[#7170ff] font-medium mt-1 hover:text-[#828fff] transition-colors duration-150">

@@ -3,36 +3,51 @@
 import { useEffect, useState } from "react";
 import { api } from "@/components/ui";
 
-/** Web Push enablement UI — iOS ≥16.4 requires installed PWA + user gesture. */
+/**
+ * Web Push enablement — iOS ≥16.4: requires installed PWA + user gesture.
+ * Flow: request permission → subscribe with VAPID → save → test push on demand.
+ */
 export default function PushManager() {
   const [supported, setSupported] = useState(true);
+  const [standalone, setStandalone] = useState(true);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
+  const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [testMsg, setTestMsg] = useState("");
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const ok = "serviceWorker" in navigator && "PushManager" in window;
     setSupported(ok);
+    setStandalone(window.matchMedia("(display-mode: standalone)").matches || (window.navigator as Navigator & { standalone?: boolean }).standalone === true);
     if (!ok) return;
-    if ("Notification" in window) setPermission(Notification.permission);
-    else setPermission("unsupported");
+    if ("Notification" in window) {
+      setPermission(Notification.permission);
+      if (Notification.permission === "granted") {
+        navigator.serviceWorker.ready
+          .then((reg) => reg.pushManager.getSubscription())
+          .then((sub) => setSubscribed(!!sub))
+          .catch(() => {});
+      }
+    } else {
+      setPermission("unsupported");
+    }
   }, []);
 
   async function enable() {
     setBusy(true);
-    setTestMsg("");
+    setMsg("");
     try {
       const perm = await Notification.requestPermission();
       setPermission(perm);
       if (perm !== "granted") {
-        setTestMsg("Permission ditolak. Buka Settings iPhone → Safari → Notifications untuk mengaktifkan.");
+        setMsg("Permission ditolak. Buka Settings iPhone → Safari (atau app LifeCC) → Notifications.");
         return;
       }
       const reg = await navigator.serviceWorker.register("/sw.js");
       const vapidRes = await api<{ publicKey: string | null }>("/api/push/vapid");
       if (!vapidRes.publicKey) {
-        setTestMsg("Server belum punya VAPID key — notifikasi belum bisa dikirim.");
+        setMsg("Server belum punya VAPID key — notifikasi belum bisa dikirim.");
         return;
       }
       const existing = await reg.pushManager.getSubscription();
@@ -42,52 +57,59 @@ export default function PushManager() {
           userVisibleOnly: true,
           applicationServerKey: vapidRes.publicKey,
         }));
-      const json = sub.toJSON();
-      await api("/api/push/subscribe", { json });
-      setTestMsg("✅ Notifikasi aktif!");
+      await api("/api/push/subscribe", { json: sub.toJSON() });
+      setSubscribed(true);
+      setMsg("Notifikasi aktif. Kirim Test untuk memastikan sampai di iPhone.");
     } catch (e) {
-      setTestMsg(e instanceof Error ? e.message : "Gagal mengaktifkan notifikasi");
+      setMsg(e instanceof Error ? e.message : "Gagal mengaktifkan notifikasi");
     } finally {
       setBusy(false);
     }
   }
 
   async function testPush() {
-    setTestMsg("Mengirim…");
+    setMsg("Mengirim…");
     try {
       await api("/api/push/test", { json: {} });
-      setTestMsg("Test terkirim — cek notifikasi!");
+      setMsg("Test terkirim — cek notifikasi di iPhone.");
     } catch (e) {
-      setTestMsg(e instanceof Error ? e.message : "Gagal kirim");
+      setMsg(e instanceof Error ? e.message : "Gagal kirim");
     }
   }
 
   if (!supported) return null;
 
-  if (permission === "granted") {
+  if (subscribed) {
     return (
-      <div className="mb-3 flex items-center justify-between rounded-2xl bg-zinc-900 border border-zinc-800 px-4 py-3">
-        <span className="text-sm text-zinc-300">🔔 Notifikasi aktif</span>
-        <button onClick={testPush} className="text-xs bg-zinc-800 rounded-lg px-3 py-1.5 text-zinc-300 active:scale-95">
-          Test
+      <div className="mb-3 flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/[0.08] px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#27a644]" />
+          <span className="text-[13px] text-[#d0d6e0]">Notifikasi aktif</span>
+        </div>
+        <button onClick={testPush} className="text-xs text-[#7170ff] border border-[#7170ff]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[#7170ff]/10">
+          Kirim test
         </button>
+        {msg && <p className="sr-only">{msg}</p>}
       </div>
     );
   }
 
   return (
-    <div className="mb-3 rounded-2xl bg-gradient-to-br from-indigo-950 to-zinc-900 border border-indigo-900 px-4 py-3">
+    <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.08] px-4 py-3">
       <div className="flex items-center gap-3">
-        <span className="text-2xl">🔔</span>
-        <div className="flex-1">
-          <p className="text-sm font-semibold">Aktifkan pengingat</p>
-          <p className="text-[11px] text-zinc-400">Tugas, minum air, olahraga & rekap harian langsung ke iPhone.</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] font-medium text-[#f7f8f8]">Aktifkan pengingat</p>
+          <p className="text-[11px] text-[#8a8f98] mt-0.5 leading-relaxed">
+            {standalone || permission !== "granted"
+              ? "Tugas, minum air, olahraga & rekap harian langsung ke iPhone."
+              : "Install app ke Home Screen dulu (Share → Add to Home Screen), lalu aktifkan dari sini."}
+          </p>
         </div>
-        <button onClick={enable} disabled={busy} className="bg-indigo-600 rounded-xl px-3 py-2 text-xs font-bold disabled:opacity-50 active:scale-95">
+        <button onClick={enable} disabled={busy} className="shrink-0 bg-[#5e6ad2] hover:bg-[#6975e0] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
           {busy ? "…" : "Aktifkan"}
         </button>
       </div>
-      {testMsg && <p className="text-[11px] text-zinc-400 mt-2">{testMsg}</p>}
+      {msg && <p className="text-[11px] text-[#8a8f98] mt-2">{msg}</p>}
     </div>
   );
 }

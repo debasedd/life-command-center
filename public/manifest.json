@@ -1,13 +1,24 @@
 {
   "name": "Life Command Center",
   "short_name": "LifeCC",
+  "id": "/",
   "description": "Personal Life & Fitness Command Center — produktivitas, keuangan, kesehatan dalam satu app.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#09090b",
-  "theme_color": "#09090b",
+  "background_color": "#08090a",
+  "theme_color": "#08090a",
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "icons": [
     {
       "src": "/icon.svg",

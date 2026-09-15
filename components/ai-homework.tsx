@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Sheet, Btn, toast } from "@/components/ui";
+import { Sheet, Btn, Textarea, toast } from "@/components/ui";
 
 /** Foto soal → AI ekstrak & kerjakan. Hasil masuk daftar tugas otomatis. */
 export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: () => void }) {
@@ -10,6 +10,8 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
   const cameraRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [tab, setTab] = useState<"photo" | "text">("photo");
+  const [text, setText] = useState("");
 
   function pick(mode: "camera" | "gallery") {
     (mode === "camera" ? cameraRef : fileRef).current?.click();
@@ -38,7 +40,7 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal memproses foto");
-      toast("Tugas dibuat! 🤖 AI sedang mengerjakan…");
+      toast("Tugas dibuat! AI sedang mengerjakan…");
       setPreview(null);
       onClose();
       onCreated();
@@ -49,30 +51,83 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
     }
   }
 
-  return (
-    <Sheet open={open} onClose={onClose} title="📷 Foto Tugas">
-      <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={onFile} className="hidden" />
-      <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
+  async function submitText() {
+    if (text.trim().length < 3) return toast("Tulis soalnya dulu", "err");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/tasks/ai-text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal memproses teks");
+      toast("Tugas dibuat! AI sedang mengerjakan…");
+      setText("");
+      onClose();
+      onCreated();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Gagal", "err");
+    } finally {
+      setBusy(false);
+    }
+  }
 
-      {preview ? (
+  return (
+    <Sheet open={open} onClose={onClose} title="Tugas dari AI">
+      <div className="flex rounded-md bg-white/[0.03] border border-white/[0.06] p-1 mb-3">
+        {(["photo", "text"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#f7f8f8]" : "text-[#8a8f98]"}`}
+          >
+            {t === "photo" ? "Foto soal" : "Ketik manual"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "photo" && (
+        <>
+          <input ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={onFile} className="hidden" />
+          <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
+
+          {preview ? (
+            <div className="space-y-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={preview} alt="preview soal" className="w-full rounded-lg border border-white/[0.08] max-h-72 object-contain bg-black/40" />
+              <p className="text-[11px] text-[#8a8f98] text-center">Pastikan semua soal & angka terbaca jelas.</p>
+              <div className="flex gap-2">
+                <Btn variant="ghost" onClick={() => setPreview(null)} className="flex-1">Ulangi</Btn>
+                <Btn onClick={submit} disabled={busy} className="flex-1">
+                  {busy ? "AI membaca soal…" : "Kirim ke AI"}
+                </Btn>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              <p className="text-sm text-[#d0d6e0] leading-relaxed">
+                Foto soal tugas. AI membaca soal, memasukkan ke daftar tugas, lalu mengerjakannya.
+              </p>
+              <Btn onClick={() => pick("camera")} className="w-full !py-3">Buka Kamera</Btn>
+              <Btn variant="ghost" onClick={() => pick("gallery")} className="w-full !py-2.5">Pilih dari Galeri</Btn>
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === "text" && (
         <div className="space-y-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="preview soal" className="w-full rounded-2xl border border-zinc-800 max-h-72 object-contain bg-black/40" />
-          <p className="text-[11px] text-zinc-400 text-center">Pastikan semua soal & angka terbaca jelas.</p>
-          <div className="flex gap-2">
-            <Btn variant="ghost" onClick={() => setPreview(null)} className="flex-1">Ulangi</Btn>
-            <Btn onClick={submit} disabled={busy} className="flex-1">
-              {busy ? "🤖 AI membaca soal…" : "Kirim ke AI"}
-            </Btn>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-2.5">
-          <p className="text-sm text-zinc-300">
-            Foto soal tugas kamu. AI akan membaca soal, memasukkan ke daftar tugas, dan langsung mengerjakannya.
-          </p>
-          <Btn onClick={() => pick("camera")} className="w-full py-4 text-base">📸 Buka Kamera</Btn>
-          <Btn variant="ghost" onClick={() => pick("gallery")} className="w-full py-3">🖼️ Pilih dari Galeri</Btn>
+          <Textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Ketik atau tempel soal di sini, mis:&#10;Hitung integral dari 2x dx&#10;atau soal fisika lengkap"
+            rows={7}
+          />
+          <p className="text-[11px] text-[#62666d]">AI mengerjakan soal & simpan pembahasannya ke tugas.</p>
+          <Btn onClick={submitText} disabled={busy} className="w-full py-2.5">
+            {busy ? "AI mengerjakan…" : "Kerjakan dengan AI"}
+          </Btn>
         </div>
       )}
     </Sheet>
@@ -82,13 +137,28 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
 /** Badge status AI di kartu tugas. */
 export function AiStatusBadge({ status }: { status: string }) {
   if (status === "PENDING") {
-    return <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold animate-pulse">🤖 AI mengerjakan…</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#7170ff] border border-[#7170ff]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[#7170ff] pulse" />
+        AI mengerjakan
+      </span>
+    );
   }
   if (status === "DONE") {
-    return <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">🤖 Ada pembahasan</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#27a644] border border-[#27a644]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[#27a644]" />
+        Pembahasan siap
+      </span>
+    );
   }
   if (status === "FAILED") {
-    return <span className="text-[9px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-bold">🤖 Gagal — tap retry</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#eb5757] border border-[#eb5757]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[#eb5757]" />
+        Gagal — coba lagi
+      </span>
+    );
   }
   return null;
 }
