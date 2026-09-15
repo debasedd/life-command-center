@@ -58,33 +58,30 @@ export default async function SharePage({
 
   if (amount && amount >= 500) {
     const lower = text.toLowerCase();
-    const type = INCOME_WORDS.some((w) => lower.includes(w)) ? "INCOME" : "EXPENSE";
+    const type = INCOME_WORDS.some((w) => lower.includes(w)) ? ("INCOME" as const) : ("EXPENSE" as const);
     const categories = await prisma.category.findMany({ where: { userId } });
-    let categoryId: string | null = null;
-    if (categories.length > 0) {
-      const r = ruleCategorize(text, type, categories);
-      categoryId = r.categoryId;
-      if (!categoryId) {
-        const misc = categories.find((c) => c.name === "Lain-lain");
-        categoryId = (misc || categories[0]).id;
-      }
+    const r = categories.length > 0 ? ruleCategorize(text, type, categories) : null;
+    const misc = categories.find((c) => c.name === "Lain-lain") || categories[0];
+    const categoryId = r?.categoryId || misc?.id;
+    if (categoryId) {
+      await prisma.transaction.create({
+        data: {
+          userId,
+          type,
+          amount,
+          categoryId,
+          note:
+            text
+              .replace(/rp\s*[\d.,]+/gi, "")
+              .replace(/\b\d+([.,]\d+)?\s*(juta|jt|rb|ribu|k)\b/gi, "")
+              .trim()
+              .slice(0, 120) || text.slice(0, 120),
+          day: wibToday(),
+          aiCategorized: true,
+        },
+      });
+      redirect("/finance");
     }
-    await prisma.transaction.create({
-      data: {
-        userId,
-        type,
-        amount,
-        categoryId,
-        note: text
-          .replace(/rp\s*[\d.,]+/gi, "")
-          .replace(/\b\d+([.,]\d+)?\s*(juta|jt|rb|ribu|k)\b/gi, "")
-          .trim()
-          .slice(0, 120) || text.slice(0, 120),
-        day: wibToday(),
-        aiCategorized: true,
-      },
-    });
-    redirect("/finance");
   }
 
   const firstLine = text.split("\n").find((l: string) => l.trim()) || text;
