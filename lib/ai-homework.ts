@@ -52,7 +52,10 @@ async function chat(body: Record<string, unknown>, timeoutMs = 120000): Promise<
       body: JSON.stringify({ model: MODEL, ...body }),
       signal: AbortSignal.timeout(timeoutMs),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[ai-homework] chat failed: HTTP ${res.status} ${(await res.text().catch(() => "")).slice(0, 200)}`);
+      return null;
+    }
     const text = await res.text();
     // 9router kadang menambahkan whitespace/`data: [DONE]` di sekitar body JSON — ambil objek utamanya saja
     let data: {
@@ -69,7 +72,8 @@ async function chat(body: Record<string, unknown>, timeoutMs = 120000): Promise<
     const msg = data.choices?.[0]?.message;
     // glm thinking models put prose in reasoning when content is null; prefer content
     return typeof msg?.content === "string" && msg.content.trim() ? msg.content : (msg?.reasoning ?? null);
-  } catch {
+  } catch (e) {
+    console.error("[ai-homework] chat error:", e instanceof Error ? e.message : e);
     return null;
   }
 }
