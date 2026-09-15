@@ -90,6 +90,7 @@ export default function AcademicPage() {
   const [deadline, setDeadline] = useState("");
   const [desc, setDesc] = useState("");
   const [recurring, setRecurring] = useState(false);
+  const [aiKerjakan, setAiKerjakan] = useState(false);
 
   // block form
   const [bTitle, setBTitle] = useState("");
@@ -122,10 +123,17 @@ export default function AcademicPage() {
     if (!title.trim()) return toast("Judul wajib diisi", "err");
     setBusy(true);
     try {
-      await api("/api/tasks", { json: { title, subject: subject || null, priority, deadline: deadline || null, description: desc || null, recurring } });
-      toast("Tugas ditambahkan");
+      const created = await api<{ task: { id: string } }>("/api/tasks", {
+        json: { title, subject: subject || null, priority, deadline: deadline || null, description: desc || null, recurring },
+      });
+      // Auto-solve: jika toggle AI aktif dan ada soal, kerjakan langsung (tanpa antrian manual).
+      if (aiKerjakan && desc.trim() && created.task?.id) {
+        setBusy(true);
+        await api("/api/tasks/ai-retry", { json: { id: created.task.id } }).catch(() => null);
+      }
+      toast(aiKerjakan && desc.trim() ? "Tugas dibuat — pembahasan AI disimpan" : "Tugas ditambahkan");
       setSheet(null);
-      setTitle(""); setSubject(""); setDeadline(""); setDesc(""); setRecurring(false);
+      setTitle(""); setSubject(""); setDeadline(""); setDesc(""); setRecurring(false); setAiKerjakan(false);
       await load();
     } catch (e) {
       toast(e instanceof Error ? e.message : "Gagal", "err");
@@ -277,6 +285,11 @@ export default function AcademicPage() {
                           {(t.aiStatus !== "NONE" || t.description) && (
                             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                               <AiStatusBadge status={t.aiStatus} />
+                              {t.aiStatus === "PENDING" && (
+                                <div className="h-0.5 w-16 rounded-full bg-white/[0.06] overflow-hidden">
+                                  <div className="h-full w-1/3 bg-[#7170ff] splash-bar" />
+                                </div>
+                              )}
                               {t.aiStatus === "DONE" && (
                                 <button onClick={() => setAnswerTask(t)} className="text-[11px] text-[#7170ff] hover:text-[#828fff] font-medium transition-colors duration-150">
                                   Lihat pembahasan
@@ -368,13 +381,27 @@ export default function AcademicPage() {
               <Input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
             </div>
           </div>
-          <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Catatan (opsional)" rows={2} />
+          <Textarea
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            placeholder="Soal / catatan — isi soal di sini untuk dikerjakan AI"
+            rows={3}
+          />
+          <label className="flex items-center gap-2 text-[13px] text-[#d0d6e0]">
+            <input
+              type="checkbox"
+              checked={aiKerjakan}
+              onChange={(e) => setAiKerjakan(e.target.checked)}
+              className="w-4 h-4 accent-[#5e6ad2]"
+            />
+            Kerjakan dengan AI (butuh soal di atas, ± 30–50 detik)
+          </label>
           <label className="flex items-center gap-2 text-[13px] text-[#d0d6e0]">
             <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="w-4 h-4 accent-[#5e6ad2]" />
             Berulang mingguan (auto-regenerate setelah selesai)
           </label>
           <Btn onClick={addTask} disabled={busy} className="w-full py-2.5">
-            {busy ? "Menyimpan…" : "Simpan Tugas"}
+            {busy ? (aiKerjakan ? "AI mengerjakan…" : "Menyimpan…") : aiKerjakan ? "Simpan + Kerjakan AI" : "Simpan Tugas"}
           </Btn>
         </div>
       </Sheet>

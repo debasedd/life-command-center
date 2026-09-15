@@ -59,22 +59,41 @@ function ShareInner() {
   const [taskTitle, setTaskTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [busy, setBusy] = useState(false);
+  const [clip, setClip] = useState("");
 
   useEffect(() => {
-    if (!shared) return;
-    const amt = parseAmount(shared);
+    if (shared) prefill(shared);
+  }, [shared]);
+
+  useEffect(() => {
+    if (clip) prefill(clip);
+  }, [clip]);
+
+  function prefill(t: string) {
+    const amt = parseAmount(t);
     if (amt && amt >= 500) {
       setMode("tx");
-      setType(detectType(shared));
+      setType(detectType(t));
       setAmount(String(amt));
-      setNote(shared.replace(/rp\s*[\d.,]+/gi, "").replace(/\b\d+([.,]\d+)?\s*(juta|jt|rb|ribu|k)\b/gi, "").trim().slice(0, 120) || shared.slice(0, 120));
+      setNote(t.replace(/rp\s*[\d.,]+/gi, "").replace(/\b\d+([.,]\d+)?\s*(juta|jt|rb|ribu|k)\b/gi, "").trim().slice(0, 120) || t.slice(0, 120));
     } else {
       setMode("task");
-      const firstLine = shared.split("\n").find((l) => l.trim()) || shared;
+      const firstLine = t.split("\n").find((l: string) => l.trim()) || t;
       setTaskTitle(firstLine.slice(0, 80));
-      setDesc(shared);
+      setDesc(t);
     }
-  }, [shared]);
+  }
+
+  async function readClipboard() {
+    try {
+      const t = await navigator.clipboard.readText();
+      if (!t.trim()) return toast("Clipboard kosong", "err");
+      setClip(t.trim());
+      toast("Teks dari clipboard dimuat");
+    } catch {
+      toast("Gak bisa baca clipboard — izinkan paste atau tempel manual", "err");
+    }
+  }
 
   async function saveTx() {
     if (!amount || Number(amount) <= 0) return toast("Nominal harus lebih dari 0", "err");
@@ -147,7 +166,9 @@ function ShareInner() {
     </>
   );
 
-  if (!shared) {
+  const active = shared || clip;
+
+  if (!active) {
     return (
       <div className="text-center py-10">
         <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">Bagikan ke LifeCC</h1>
@@ -155,6 +176,11 @@ function ShareInner() {
           Share teks atau catatan dari app lain ke "Life Command Center" untuk langsung dicatat.
         </p>
         <p className="text-[11px] text-[#4a4d52] mt-3">Wajib install ke Home Screen dulu (Share → Add to Home Screen).</p>
+        <div className="mt-4 flex justify-center">
+          <button onClick={readClipboard} className="text-xs text-[#7170ff] border border-[#7170ff]/30 rounded-md px-4 py-2 font-medium transition-colors duration-150 hover:bg-[#7170ff]/10">
+            Ambil dari Clipboard
+          </button>
+        </div>
         <div className="text-left mt-4 px-4">{shortcutGuide}</div>
       </div>
     );
@@ -164,10 +190,16 @@ function ShareInner() {
     <div className="animate-rise">
       <header className="mb-4 pt-1">
         <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">Tangkap dari Share</h1>
-        <p className="text-xs text-[#8a8f98] mt-0.5 truncate">"{shared.slice(0, 80)}{shared.length > 80 ? "…" : ""}"</p>
+        <p className="text-xs text-[#8a8f98] mt-0.5 truncate">"{active.slice(0, 80)}{active.length > 80 ? "…" : ""}"</p>
       </header>
 
       {/* Mode switch */}
+      <div className="flex items-center gap-2 mb-3">
+        <button onClick={readClipboard} className="text-[11px] text-[#7170ff] border border-[#7170ff]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[#7170ff]/10">
+          Ambil dari Clipboard
+        </button>
+        {clip && <span className="text-[10px] text-[#27a644]">clipboard dimuat</span>}
+      </div>
       <div className="flex rounded-lg bg-white/[0.03] border border-white/[0.06] p-1 mb-3">
         {(["tx", "task"] as const).map((m) => (
           <button
