@@ -4,6 +4,9 @@ import { prisma } from "@/lib/db";
 import { ruleCategorize } from "@/lib/ai-categorize";
 import { wibToday } from "@/lib/wib";
 
+// Per-request capture: reads searchParams + writes DB — never prerender.
+export const dynamic = "force-dynamic";
+
 /**
  * Share target untuk iOS Shortcut:
  * /share?text=<teks yang di-share>
