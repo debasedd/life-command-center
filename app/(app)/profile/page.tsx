@@ -163,7 +163,8 @@ export default function ProfilePage() {
               <li>Buka app <b className="text-[#f7f8f8]">Shortcuts</b> → <b className="text-[#f7f8f8]">+</b></li>
               <li>Tap <b className="text-[#f7f8f8]">i</b> → aktifkan <b className="text-[#f7f8f8]">Show in Share Sheet</b>, tipe: <b className="text-[#f7f8f8]">Images</b> & <b className="text-[#f7f8f8]">Files</b></li>
               <li>Action 1: <b className="text-[#f7f8f8]">Base64 Encode</b> → input: Shortcut Input</li>
-              <li>Action 2: <b className="text-[#f7f8f8]">Text</b> → isi: <code className="text-[10px] text-[#8a8f98] break-all">{'{"photo":"data:image/jpeg;base64,"}'}</code> lalu tempel variabel Base64 Encoded di dalam tanda kutip</li>
+              <li>Action 2: <b className="text-[#f7f8f8]">Text</b> → ketik persis: <code className="text-[10px] text-[#8a8f98] break-all">{'{"photo":"data:image/jpeg;base64,"}'}</code></li>
+              <li>Di Text itu, tap di <b className="text-[#f7f8f8]">tengah baris, tepat setelah tulisan base64,</b> (sebelum tanda kutip terakhir) → pilih variabel <b className="text-[#f7f8f8]">Base64 Encoded</b>. Hasil akhir harus: <code className="text-[10px] text-[#8a8f98] break-all">{'{"photo":"data:image/jpeg;base64[Base64 Encoded]"}'}</code></li>
               <li>Action 3: <b className="text-[#f7f8f8]">Get Contents of URL</b> → URL: <code className="text-[10px] text-[#8a8f98] break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → Method: <b className="text-[#f7f8f8]">POST</b> → Request Body: <b className="text-[#f7f8f8]">JSON</b> → tambah field <b className="text-[#f7f8f8]">photo</b> = Text dari action 2</li>
               <li>Action 4: <b className="text-[#f7f8f8]">Show Result</b> → pilih Contents of URL</li>
               <li>Nama: <b className="text-[#f7f8f8]">Foto ke LifeCC</b></li>
