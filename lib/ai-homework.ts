@@ -35,7 +35,7 @@ Untuk soal tugas:
 Untuk keuangan:
 {"kind":"keuangan","title":null,"subject":null,"question":null,"amount":<angka rupiah penuh>,"txType":"INCOME" atau "EXPENSE","note":"<deskripsi singkat: merchant / keterangan transfer>"}
 
-Aturan keuangan: struk/kuitansi/pembayaran/belanja = "EXPENSE". Transfer diterima/gaji/uang masuk/uang jajan = "INCOME". Jika foto bukan keduanya, pilih "tugas" dengan question berisi deskripsi foto.`;
+Aturan keuangan: Screenshot aplikasi bank/m-banking (BCA, Mandiri, GoPay, OVO, DANA, dll), struk/kuitansi/pembayaran/belanja = "EXPENSE". Transfer diterima/gaji/uang masuk/uang jajan = "INCOME". amount wajib angka rupiah penuh dari teks yang terlihat. Jika foto bukan keduanya, pilih "tugas" dengan question berisi deskripsi foto.`;
 
 const SOLVE_SYSTEM = `Kamu guru privat Indonesia yang mengerjakan soal tugas sekolah (SD-SMA).
 Untuk setiap soal, tulis pembahasan lengkap dalam bahasa Indonesia dengan format markdown:
@@ -149,6 +149,13 @@ export async function extractFromPhoto(base64: string, mime: string): Promise<Ex
 
   if (!parsed.title || !parsed.question) {
     return { ok: false, error: "Foto tidak terbaca sebagai soal tugas. Coba foto ulang lebih dekat & terang." };
+  }
+  // Guard: input cuma nama file (foto dibagikan lewat shortcut teks) — jangan jadi task junk.
+  const looksLikeFilename = /^(IMG|PHOTO|PXL|MVIMG|image|photo|screenshot|screen)[-_ ]?\d*[\s.]*$/i.test(
+    String(parsed.title).trim()
+  );
+  if (looksLikeFilename) {
+    return { ok: false, error: "YANG DIKIRIM NAMA FILE, BUKAN FOTO. Share foto pake shortcut 'Foto ke LifeCC' (lihat Profil)." };
   }
   return {
     ok: true,

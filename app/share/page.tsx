@@ -88,6 +88,21 @@ export default async function SharePage({
   }
 
   const firstLine = text.split("\n").find((l: string) => l.trim()) || text;
+
+  // Guard: shortcut teks dipakai untuk share FOTO → iOS kirim nama file, bukan isi.
+  if (/^(IMG|PHOTO|PXL|MVIMG|image|photo|screenshot|screen)[-_ ]?\d*[a-z.]*(\.(jpg|jpeg|png|heic|webp))?$/i.test(firstLine)) {
+    return (
+      <div className="mx-auto max-w-md min-h-screen flex flex-col items-center justify-center px-4 text-center">
+        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">Yang kamu share nama file, bukan foto</h1>
+        <p className="text-sm text-[#8a8f98] mt-2 leading-relaxed">
+          Shortcut "Catat ke LifeCC" tipenya teks. Untuk foto struk/soal, pakai shortcut "Foto ke LifeCC" — setup-nya ada di Profil.
+        </p>
+        <a href="/profile" className="mt-4 text-xs text-[#7170ff] border border-[#7170ff]/30 rounded-md px-3 py-1.5 font-medium">
+          Buka panduan di Profil
+        </a>
+      </div>
+    );
+  }
   await prisma.task.create({
     data: {
       userId,
