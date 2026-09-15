@@ -142,6 +142,37 @@ export default function ProfilePage() {
         ))}
       </div>
 
+      <SectionTitle>Cara Share ke LifeCC</SectionTitle>
+      <Card className="mb-3">
+        <div className="space-y-4 text-[12px] text-[#d0d6e0] leading-relaxed">
+          <div>
+            <p className="font-medium text-[#f7f8f8] mb-1.5">Share teks (catatan / soal)</p>
+            <ol className="space-y-1.5 list-decimal pl-4">
+              <li>Buka app <b className="text-[#f7f8f8]">Shortcuts</b> → <b className="text-[#f7f8f8]">+</b></li>
+              <li>Tap <b className="text-[#f7f8f8]">i</b> → aktifkan <b className="text-[#f7f8f8]">Show in Share Sheet</b>, tipe: <b className="text-[#f7f8f8]">Text</b> & <b className="text-[#f7f8f8]">URL</b></li>
+              <li>Action 1: <b className="text-[#f7f8f8]">Encode URL</b> → input: Shortcut Input</li>
+              <li>Action 2: <b className="text-[#f7f8f8]">Text</b> → isi template: <code className="text-[10px] text-[#8a8f98] break-all">https://life-command-center-red.vercel.app/share?text=[Encoded Text]</code></li>
+              <li>Action 3: <b className="text-[#f7f8f8]">Open URLs</b> → pilih Text dari action 2</li>
+              <li>Nama: <b className="text-[#f7f8f8]">Catat ke LifeCC</b></li>
+            </ol>
+          </div>
+          <div className="pt-3 border-t border-white/[0.06]">
+            <p className="font-medium text-[#f7f8f8] mb-1.5">Share foto (struk / soal)</p>
+            <p className="text-[11px] text-[#8a8f98] mb-1.5">AI otomatis memutuskan: tugas atau catatan keuangan (nominal, masuk/keluar, kategori).</p>
+            <ol className="space-y-1.5 list-decimal pl-4">
+              <li>Buka app <b className="text-[#f7f8f8]">Shortcuts</b> → <b className="text-[#f7f8f8]">+</b></li>
+              <li>Tap <b className="text-[#f7f8f8]">i</b> → aktifkan <b className="text-[#f7f8f8]">Show in Share Sheet</b>, tipe: <b className="text-[#f7f8f8]">Images</b> & <b className="text-[#f7f8f8]">Files</b></li>
+              <li>Action 1: <b className="text-[#f7f8f8]">Base64 Encode</b> → input: Shortcut Input</li>
+              <li>Action 2: <b className="text-[#f7f8f8]">Text</b> → isi: <code className="text-[10px] text-[#8a8f98] break-all">{'{"photo":"data:image/jpeg;base64,"}'}</code> lalu tempel variabel Base64 Encoded di dalam tanda kutip</li>
+              <li>Action 3: <b className="text-[#f7f8f8]">Get Contents of URL</b> → URL: <code className="text-[10px] text-[#8a8f98] break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → Method: <b className="text-[#f7f8f8]">POST</b> → Request Body: <b className="text-[#f7f8f8]">JSON</b> → tambah field <b className="text-[#f7f8f8]">photo</b> = Text dari action 2</li>
+              <li>Action 4: <b className="text-[#f7f8f8]">Show Result</b> → pilih Contents of URL</li>
+              <li>Nama: <b className="text-[#f7f8f8]">Foto ke LifeCC</b></li>
+            </ol>
+            <p className="text-[10px] text-[#4a4d52] mt-2">Hasil muncul di alert: catatan keuangan langsung tercatat, soal tugas dikerjakan AI.</p>
+          </div>
+        </div>
+      </Card>
+
       <SectionTitle>Target Harian</SectionTitle>
       <Card className="mb-3">
         <div className="space-y-3">
