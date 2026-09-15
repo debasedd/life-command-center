@@ -2,7 +2,8 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
-import { Card, Btn, Input, SectionTitle, PushManager, toast, api } from "@/components/ui";
+import { Card, Btn, Input, SectionTitle, toast, api } from "@/components/ui";
+import PushManager from "@/components/push-manager";
 import { readCache, writeCache } from "@/lib/cache";
 
 interface Me { id: string; email: string; name: string }
