@@ -123,13 +123,22 @@ export default function AcademicPage() {
   // toggle ada) langsung dikirim ke AI sekali saat halaman dibuka.
   useEffect(() => {
     if (!tasks.length) return;
+    // 1) Auto-heal: task dengan soal yang belum pernah dikerjakan AI.
     const orphans = tasks.filter((t) => t.description && t.aiStatus === "NONE");
-    if (orphans.length === 0) return;
+    // 2) Foto dari shortcut yang belum diproses AI.
+    const photoPending = tasks.filter(
+      (t) => t.photoData && !t.description && (t.aiStatus === "PENDING" || t.aiStatus === "FAILED")
+    );
+    if (orphans.length === 0 && photoPending.length === 0) return;
     let cancelled = false;
     (async () => {
       for (const t of orphans) {
         if (cancelled) return;
         await api("/api/tasks/ai-retry", { json: { id: t.id } }).catch(() => null);
+      }
+      for (const t of photoPending) {
+        if (cancelled) return;
+        await api("/api/tasks/ai-process", { json: { id: t.id } }).catch(() => null);
       }
       if (!cancelled) await load();
     })();
@@ -138,9 +147,16 @@ export default function AcademicPage() {
     };
   }, [tasks.length]);
 
-  // Auto-poll: selama ada task PENDING, refresh tiap 8 detik sampai AI selesai.
+  // Auto-poll: selama ada task yang masih diproses AI, refresh tiap 8 detik.
   useEffect(() => {
-    if (!tasks.some((t) => t.aiStatus === "PENDING")) return;
+    if (!tasks.some((t) => t.aiStatus === "PENDING" || t.aiStatus === "PROCESSING")) return;
+    const iv = setInterval(() => load(), 8000);
+    return () => clearInterval(iv);
+  }, [tasks]);
+
+  // Auto-poll: selama ada task yang masih diproses AI, refresh tiap 8 detik.
+  useEffect(() => {
+    if (!tasks.some((t) => t.aiStatus === "PENDING" || t.aiStatus === "PROCESSING")) return;
     const iv = setInterval(() => load(), 8000);
     return () => clearInterval(iv);
   }, [tasks]);

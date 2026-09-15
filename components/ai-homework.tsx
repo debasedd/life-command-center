@@ -140,7 +140,7 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
 
 /** Badge status AI di kartu tugas. */
 export function AiStatusBadge({ status }: { status: string }) {
-  if (status === "PENDING") {
+  if (status === "PENDING" || status === "PROCESSING") {
     return (
       <span className="inline-flex items-center gap-1.5 text-[10px] text-[#7170ff] border border-[#7170ff]/30 rounded-full px-2 py-0.5 font-medium">
         <span className="w-1 h-1 rounded-full bg-[#7170ff] pulse" />
