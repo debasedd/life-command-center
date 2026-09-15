@@ -19,14 +19,47 @@ export async function POST(req: NextRequest) {
   const userId = await getAuthUserId();
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const body = await req.json().catch(() => null);
-  if (!body || typeof body.photo !== "string" || body.photo.length === 0) {
+  if (!body || typeof body !== "object") {
     return NextResponse.json(
-      { error: 'Body JSON kosong — di shortcut "Get Contents of URL": set Method POST + Request Body JSON, tambah field photo = Text' },
+      { error: 'Body JSON kosong — di shortcut "Get Contents of URL": set Method POST + Request Body JSON, field photo (foto) atau text (teks soal)' },
       { status: 400 }
     );
   }
-  // Toleran whitespace: Shortcuts sering menyelipkan baris baru di base64 panjang.
-  const photo = body.photo.replace(/\s+/g, "");
+  const photoRaw = typeof body.photo === "string" ? body.photo.trim() : "";
+  const text = typeof body.text === "string" && body.text.trim().length >= 3 ? body.text.trim() : "";
+
+  // --- Teks (dari shortcut /share atau ketik manual): task + solve inline ---
+  if (!photoRaw && text) {
+    const firstLine = text.split("\n").find((l: string) => l.trim().length > 0) || text;
+    const task = await prisma.task.create({
+      data: {
+        userId,
+        title: firstLine.slice(0, 80),
+        description: text.slice(0, 5000),
+        priority: "MEDIUM",
+        aiStatus: "PENDING",
+      },
+    });
+    const result = await solveQuestion(text, 50000);
+    if (result.ok) {
+      const done = await prisma.task.update({
+        where: { id: task.id },
+        data: { aiAnswer: result.answer!, aiStatus: "DONE", aiAnswerAt: new Date(), aiError: null },
+      });
+      return NextResponse.json({ kind: "task", task: { id: done.id, title: done.title, aiStatus: done.aiStatus, aiAnswer: done.aiAnswer } });
+    }
+    await prisma.task.update({ where: { id: task.id }, data: { aiStatus: "FAILED", aiError: result.error || "unknown" } });
+    return NextResponse.json({ kind: "task", task: { id: task.id, title: task.title, aiStatus: "FAILED" }, error: result.error });
+  }
+
+  // --- Foto: vision → auto-mutu tugas atau keuangan ---
+  const photo = photoRaw.replace(/\s+/g, "");
+  if (!photo) {
+    return NextResponse.json(
+      { error: 'Field photo atau text wajib — photo (data URL foto) atau text (teks soal/catatan)' },
+      { status: 400 }
+    );
+  }
   const parsed = parseDataUrl(photo);
   if (!parsed) {
     const head = photo.slice(0, 50);
