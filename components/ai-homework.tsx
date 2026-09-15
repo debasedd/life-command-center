@@ -31,58 +31,50 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
 
   async function submit() {
     if (!preview) return;
-    setBusy(true);
-    try {
-      const res = await fetch("/api/tasks/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ photo: preview }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal memproses foto");
+    // AI di background: tutup sheet langsung, kartu menampilkan progress sendiri.
+    toast("Foto dikirim — AI memproses di background");
+    onClose();
+    onCreated();
 
-      if (data.kind === "transaction") {
-        const t = data.transaction;
-        toast(`Tercatat: ${t.type === "INCOME" ? "Masuk" : "Keluar"} Rp${Number(t.amount).toLocaleString("id-ID")} · ${t.categoryName}`);
-        onClose();
-        onCreated();
-        window.location.assign("/finance");
-        return;
-      }
-
-      if (data.task?.aiStatus === "DONE") toast("Pembahasan siap — buka di daftar tugas");
-      else toast("Dibuat. AI gagal — tap Coba lagi di tugas", "err");
-      setPreview(null);
-      onClose();
-      onCreated();
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Gagal", "err");
-    } finally {
-      setBusy(false);
-    }
+    fetch("/api/tasks/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo: preview }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.kind === "transaction") {
+          const t = data.transaction;
+          toast(`Tercatat: ${t.type === "INCOME" ? "Masuk" : "Keluar"} Rp${Number(t.amount).toLocaleString("id-ID")} · ${t.categoryName}`);
+          window.location.assign("/finance");
+        } else if (data.task?.aiStatus === "DONE") {
+          toast("Pembahasan siap — buka di daftar tugas");
+        } else if (data.error) {
+          toast(data.error, "err");
+        }
+      })
+      .catch(() => toast("Gagal memproses foto", "err"));
   }
 
   async function submitText() {
     if (text.trim().length < 3) return toast("Tulis soalnya dulu", "err");
-    setBusy(true);
-    try {
-      const res = await fetch("/api/tasks/ai-text", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal memproses teks");
-      if (data.task?.aiStatus === "DONE") toast("Pembahasan siap — buka di daftar tugas");
-      else toast("Dibuat. AI gagal — tap Coba lagi di tugas", "err");
-      setText("");
-      onClose();
-      onCreated();
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Gagal", "err");
-    } finally {
-      setBusy(false);
-    }
+    // AI di background: sheet tutup langsung, polling di daftar tugas menampilkan hasil.
+    toast("Tugas dibuat — AI mengerjakan di background");
+    setText("");
+    onClose();
+    onCreated();
+
+    fetch("/api/tasks/ai-text", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.task?.aiStatus === "DONE") toast("Pembahasan siap — buka di daftar tugas");
+        else if (data.error) toast(data.error, "err");
+      })
+      .catch(() => toast("Gagal memproses teks", "err"));
   }
 
   return (

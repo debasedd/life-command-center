@@ -138,27 +138,35 @@ export default function AcademicPage() {
     };
   }, [tasks.length]);
 
+  // Auto-poll: selama ada task PENDING, refresh tiap 8 detik sampai AI selesai.
+  useEffect(() => {
+    if (!tasks.some((t) => t.aiStatus === "PENDING")) return;
+    const iv = setInterval(() => load(), 8000);
+    return () => clearInterval(iv);
+  }, [tasks]);
+
   async function addTask() {
     if (!title.trim()) return toast("Judul wajib diisi", "err");
-    setBusy(true);
-    try {
-      const created = await api<{ task: { id: string } }>("/api/tasks", {
-        json: { title, subject: subject || null, priority, deadline: deadline || null, description: desc || null, recurring },
-      });
-      // Auto-solve: jika toggle AI aktif dan ada soal, kerjakan langsung (tanpa antrian manual).
-      if (aiKerjakan && desc.trim() && created.task?.id) {
-        setBusy(true);
-        await api("/api/tasks/ai-retry", { json: { id: created.task.id } }).catch(() => null);
-      }
-      toast(aiKerjakan && desc.trim() ? "Tugas dibuat — pembahasan AI disimpan" : "Tugas ditambahkan");
-      setSheet(null);
-      setTitle(""); setSubject(""); setDeadline(""); setDesc(""); setRecurring(false); setAiKerjakan(false);
-      await load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "Gagal", "err");
-    } finally {
-      setBusy(false);
+    const created = await api<{ task: { id: string } }>("/api/tasks", {
+      json: { title, subject: subject || null, priority, deadline: deadline || null, description: desc || null, recurring },
+    }).catch(() => null);
+    if (!created?.task?.id) return toast("Gagal membuat tugas", "err");
+
+    // AI di background: jangan tunggu — kartu tugas menampilkan progress sendiri.
+    if (aiKerjakan && desc.trim()) {
+      toast("Tugas dibuat — AI mengerjakan di background");
+      fetch("/api/tasks/ai-retry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: created.task.id }),
+      }).then(() => load()).catch(() => {});
+    } else {
+      toast("Tugas ditambahkan");
     }
+
+    setSheet(null);
+    setTitle(""); setSubject(""); setDeadline(""); setDesc(""); setRecurring(false); setAiKerjakan(false);
+    if (!(aiKerjakan && desc.trim())) await load();
   }
 
   async function addBlock() {

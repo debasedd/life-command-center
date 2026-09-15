@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
-import { Card, Btn, Input, SectionTitle, toast, api } from "@/components/ui";
+import { Card, Btn, Input, SectionTitle, PushManager, toast, api } from "@/components/ui";
 import { readCache, writeCache } from "@/lib/cache";
 
 interface Me { id: string; email: string; name: string }
@@ -99,6 +99,9 @@ export default function ProfilePage() {
           <div className="text-[11px] text-[#62666d] truncate">{me?.email || ""}</div>
         </div>
       </Card>
+
+      <SectionTitle>Notifikasi iPhone</SectionTitle>
+      <PushManager />
 
       <SectionTitle>Menu</SectionTitle>
       <div className="space-y-1.5 mb-3">

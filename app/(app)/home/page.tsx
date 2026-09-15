@@ -3,7 +3,6 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
 import { Card, SectionTitle, Btn } from "@/components/ui";
-import PushManager from "@/components/push-manager";
 import { readCache, writeCache } from "@/lib/cache";
 
 interface DashData {
@@ -105,8 +104,6 @@ export default function HomeDashboard() {
           F
         </Link>
       </header>
-
-      <PushManager />
 
       {/* Sekarang */}
       <Card className="mb-3">
