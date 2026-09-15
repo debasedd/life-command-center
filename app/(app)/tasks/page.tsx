@@ -233,8 +233,8 @@ export default function AcademicPage() {
                   <span className="ml-1.5 text-[#62666d]">{items.length}</span>
                 </SectionTitle>
                 <div className="space-y-1.5">
-                  {items.map((t) => (
-                    <Card key={t.id} className={`!py-2.5 ${t.status === "DONE" ? "opacity-45" : ""}`}>
+                  {items.map((t, idx) => (
+                    <Card key={t.id} className={`stagger-item !py-2.5 ${t.status === "DONE" ? "opacity-45" : ""}`} style={{ "--i": idx } as React.CSSProperties}>
                       <div className="flex items-start gap-3">
                         <button
                           onClick={() => toggle(t)}

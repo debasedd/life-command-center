@@ -172,8 +172,8 @@ export function AiAnswerModal({ task, onClose, onRetry }: { task: { id: string; 
   return (
     createPortal(
       <div className="fixed inset-0 z-50">
-        <div className="absolute inset-0 bg-black/85" onClick={onClose} />
-        <div className="absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] flex flex-col">
+        <div className="sheet-backdrop absolute inset-0 bg-black/85" onClick={onClose} />
+        <div className="modal-panel absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] flex flex-col">
           <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-white/[0.06]">
             <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
             <h3 className="text-sm font-semibold mt-1 truncate pr-2 text-[#f7f8f8]">Pembahasan: {task.title}</h3>

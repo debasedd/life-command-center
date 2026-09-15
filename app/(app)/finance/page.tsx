@@ -256,8 +256,8 @@ export default function FinancePage() {
                 {new Date(d + "T00:00:00").toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "short" })}
               </p>
               <div className="space-y-1.5">
-                {items.map((tx) => (
-                  <Card key={tx.id} className="!py-2.5 flex items-center gap-3">
+                {items.map((tx, idx) => (
+                  <Card key={tx.id} className="stagger-item !py-2.5 flex items-center gap-3" style={{ "--i": idx } as React.CSSProperties}>
                     <span className="text-lg w-7 text-center shrink-0">{tx.category?.icon ?? "📦"}</span>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium text-[#f7f8f8] truncate">{tx.note || tx.category?.name || "Transaksi"}</div>
