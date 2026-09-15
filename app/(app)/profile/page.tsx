@@ -102,8 +102,23 @@ export default function ProfilePage() {
 
       <SectionTitle>Menu</SectionTitle>
       <div className="space-y-1.5 mb-3">
+        <a
+          href="https://www.icloud.com/shortcuts/cb55e47c797843fe86d414d979982dfa"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block card-press rounded-lg"
+        >
+          <Card className="!py-3 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-[#f7f8f8]">Shortcut iOS — Share ke LifeCC</div>
+              <div className="text-[11px] text-[#62666d]">Tap di iPhone untuk auto-install shortcut</div>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#62666d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+              <path d="M7 17 17 7M7 7h10v10" />
+            </svg>
+          </Card>
+        </a>
         {([
-          ["/share", "Tangkap dari Share", "Share dari app lain, langsung tercatat"],
           ["/advisor", "AI Financial Advisor", "Evaluasi kesehatan keuangan"],
           ["/whatif", "What-If Simulator", "Dampak pembelian ke target"],
           ["/invest", "Proyeksi Portofolio", "Compound growth jangka panjang"],

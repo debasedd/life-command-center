@@ -7,9 +7,13 @@ const MODEL = process.env.AI_MODEL || "openrouter/z-ai/glm-5.3-flash";
 
 export interface ExtractResult {
   ok: boolean;
+  kind?: "tugas" | "keuangan";
   title?: string;
   subject?: string;
   question?: string; // soal lengkap hasil OCR
+  amount?: number | null;
+  txType?: "INCOME" | "EXPENSE" | null;
+  note?: string | null;
   error?: string;
 }
 
@@ -19,10 +23,19 @@ export interface SolveResult {
   error?: string;
 }
 
-const EXTRACT_SYSTEM = `Kamu asisten yang mengekstrak soal tugas sekolah dari foto.
-Baca foto itu, lalu balas HANYA JSON:
-{"title": "<judul singkat tugas, max 8 kata>", "subject": "<mapel jika terlihat, else null>", "question": "<salin utuh semua soal & angka dari foto, pertahankan format>"}
-Jika foto bukan soal tugas, balas {"title": null, "subject": null, "question": null}.`;
+const EXTRACT_SYSTEM = `Kamu asisten yang membaca foto dan memutuskan isinya. Dua kemungkinan:
+A) Soal tugas sekolah → kind "tugas"
+B) Bukti keuangan: kuitansi, struk belanja, transfer, notifikasi pembayaran/uang masuk → kind "keuangan"
+
+Balas HANYA JSON, pilih satu format:
+
+Untuk soal tugas:
+{"kind":"tugas","title":"<judul singkat max 8 kata>","subject":"<mapel atau null>","question":"<salin utuh semua soal & angka>","amount":null,"txType":null,"note":null}
+
+Untuk keuangan:
+{"kind":"keuangan","title":null,"subject":null,"question":null,"amount":<angka rupiah penuh>,"txType":"INCOME" atau "EXPENSE","note":"<deskripsi singkat: merchant / keterangan transfer>"}
+
+Aturan keuangan: struk/kuitansi/pembayaran/belanja = "EXPENSE". Transfer diterima/gaji/uang masuk/uang jajan = "INCOME". Jika foto bukan keduanya, pilih "tugas" dengan question berisi deskripsi foto.`;
 
 const SOLVE_SYSTEM = `Kamu guru privat Indonesia yang mengerjakan soal tugas sekolah (SD-SMA).
 Untuk setiap soal, tulis pembahasan lengkap dalam bahasa Indonesia dengan format markdown:
@@ -111,11 +124,33 @@ export async function extractFromPhoto(base64: string, mime: string): Promise<Ex
   );
   if (!content) return { ok: false, error: "AI tidak merespon saat membaca foto" };
   const parsed = parseJsonLoose(content);
-  if (!parsed || !parsed.title || !parsed.question) {
+  if (!parsed) {
+    return { ok: false, error: "Foto tidak terbaca. Coba foto ulang lebih dekat & terang." };
+  }
+
+  const kind = parsed.kind === "keuangan" ? "keuangan" : "tugas";
+  if (kind === "keuangan") {
+    const amount = Number(parsed.amount);
+    const txType = parsed.txType === "INCOME" ? "INCOME" : "EXPENSE";
+    if (!amount || amount <= 0) {
+      return { ok: false, error: "Foto keuangan terbaca tapi nominal tidak jelas. Foto ulang atau isi manual." };
+    }
+    return {
+      ok: true,
+      kind,
+      amount,
+      txType: txType as "INCOME" | "EXPENSE",
+      note: parsed.note ? String(parsed.note).slice(0, 120) : null,
+      title: parsed.note ? String(parsed.note).slice(0, 80) : "Dari foto",
+    };
+  }
+
+  if (!parsed.title || !parsed.question) {
     return { ok: false, error: "Foto tidak terbaca sebagai soal tugas. Coba foto ulang lebih dekat & terang." };
   }
   return {
     ok: true,
+    kind: "tugas",
     title: String(parsed.title).slice(0, 120),
     subject: parsed.subject ? String(parsed.subject).slice(0, 40) : undefined,
     question: String(parsed.question),

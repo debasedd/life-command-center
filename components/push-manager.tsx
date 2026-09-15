@@ -68,7 +68,7 @@ export default function PushManager() {
   }
 
   async function testPush() {
-    setMsg("Mengirim…");
+    setMsg("Notifikasi dikirim 5 detik lagi — tutup app sekarang.");
     try {
       await api("/api/push/test", { json: {} });
       setMsg("Test terkirim — cek notifikasi di iPhone.");
