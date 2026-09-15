@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Sheet, Btn, toast } from "@/components/ui";
 
 /** Foto soal → AI ekstrak & kerjakan. Hasil masuk daftar tugas otomatis. */
@@ -94,35 +95,38 @@ export function AiStatusBadge({ status }: { status: string }) {
 
 /** Modal pembahasan AI — dibuka pas user senggang, tinggal disalin ke buku. */
 export function AiAnswerModal({ task, onClose, onRetry }: { task: { id: string; title: string; aiAnswer: string | null; aiStatus: string; aiError: string | null } | null; onClose: () => void; onRetry: (id: string) => void }) {
-  if (!task) return null;
+  if (!task || typeof document === "undefined") return null;
+  // Portal to body: page-root transform (animate-rise) breaks position:fixed inside.
   return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-3xl bg-zinc-900 border-t border-zinc-800 flex flex-col animate-sheet">
-        <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-zinc-800">
-          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-zinc-700" />
-          <h3 className="text-sm font-bold mt-1 truncate pr-2">🤖 Pembahasan: {task.title}</h3>
-          <button onClick={onClose} className="text-zinc-500 mt-1 text-xl px-2">✕</button>
+    createPortal(
+      <div className="fixed inset-0 z-50">
+        <div className="absolute inset-0 bg-black/85" onClick={onClose} />
+        <div className="absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] flex flex-col">
+          <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-white/[0.06]">
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
+            <h3 className="text-sm font-semibold mt-1 truncate pr-2 text-[#f7f8f8]">Pembahasan: {task.title}</h3>
+            <button onClick={onClose} className="text-[#8a8f98] mt-1 text-xl px-2 hover:text-[#f7f8f8] transition-colors duration-150">✕</button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar">
+            {task.aiStatus === "PENDING" && (
+              <div className="text-center py-12 text-[#8a8f98]">
+                <div className="text-4xl mb-3 pulse">🤖</div>
+                AI sedang mengerjakan…<br />
+                <span className="text-xs text-[#62666d]">Tinggalin dulu, balik lagi nanti. Hasilnya kesimpen.</span>
+              </div>
+            )}
+            {task.aiStatus === "FAILED" && (
+              <div className="text-center py-12">
+                <p className="text-sm text-[#8a8f98] mb-4">{task.aiError || "AI gagal mengerjakan."}</p>
+                <Btn onClick={() => onRetry(task.id)}>Coba Lagi</Btn>
+              </div>
+            )}
+            {task.aiStatus === "DONE" && task.aiAnswer && <AnswerMarkdown text={task.aiAnswer} />}
+          </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar">
-          {task.aiStatus === "PENDING" && (
-            <div className="text-center py-12 text-zinc-400">
-              <div className="text-4xl animate-bounce mb-3">🤖</div>
-              AI sedang mengerjakan…<br />
-              <span className="text-xs text-zinc-500">Tinggalin dulu, balik lagi nanti. Hasilnya kesimpen.</span>
-            </div>
-          )}
-          {task.aiStatus === "FAILED" && (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-3">😵</div>
-              <p className="text-sm text-zinc-400 mb-4">{task.aiError || "AI gagal mengerjakan."}</p>
-              <Btn onClick={() => onRetry(task.id)}>🔄 Coba Lagi</Btn>
-            </div>
-          )}
-          {task.aiStatus === "DONE" && task.aiAnswer && <AnswerMarkdown text={task.aiAnswer} />}
-        </div>
-      </div>
-    </div>
+      </div>,
+      document.body
+    )
   );
 }
 

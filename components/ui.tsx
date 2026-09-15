@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 /* ---------- Shared primitives (Linear-inspired) ----------
  * Surfaces: white @ 2-5% opacity over #08090a. Borders: white @ 5-8%.
@@ -150,7 +151,9 @@ export function Sheet({
   children: React.ReactNode;
 }) {
   if (!open) return null;
-  return (
+  // Portal to body: page roots animate `transform` (animate-rise), which turns
+  // position:fixed into absolute vs that ancestor and throws the sheet offscreen.
+  const content = (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/85" onClick={onClose} />
       <div className="absolute bottom-0 left-0 right-0 mx-auto max-w-md rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] max-h-[85vh] overflow-y-auto no-scrollbar">
@@ -165,6 +168,8 @@ export function Sheet({
       </div>
     </div>
   );
+  if (typeof document === "undefined") return null;
+  return createPortal(content, document.body);
 }
 
 /* ---------- Toast ---------- */
