@@ -250,17 +250,42 @@ function AnswerMarkdown({ text }: { text: string }) {
   return <div>{out}</div>;
 }
 
-function inline(text: string): React.ReactNode {
-  // Strip LaTeX $$..$$ & \frac yang dibuat model math jadi bentuk plain-text yang enak dibaca
-  let t = text
-    .replace(/\$\$([^$]+)\$\$/g, "$1")
-    .replace(/\\\((.+?)\\\)/g, "$1")
-    .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "$1 / $2")
+/** LaTeX + markup sisa AI → teks biasa yang bisa disalin ke buku. */
+function plainMath(s: string): string {
+  let out = s
+    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+    .replace(/\$([^$\n]*?)\$/g, "$1")
+    // desimal gaya LaTeX {,}07 / {.07} → bersihkan dulu, buka jalan untuk \mathbf dsb.
+    .replace(/\{,\}/g, ",")
+    .replace(/\{\.(\d+)\}/g, ".$1");
+  for (let i = 0; i < 3; i++) {
+    out = out.replace(/\\[dt]?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, " $1/$2");
+    out = out.replace(/\\(?:text|mathrm|mathbf|mathit|mathcal|bold)\s*\{([^{}]*)\}/g, "$1");
+    out = out.replace(/\\(?:sqrt|radical)\s*\{([^{}]*)\}/g, "√($1)");
+  }
+  return out
+    .replace(/\\approx|\\approxeq/g, "≈")
     .replace(/\\times/g, "×")
     .replace(/\\div/g, "÷")
-    .replace(/\\leq/g, "≤")
-    .replace(/\\geq/g, "≥")
-    .replace(/\\cdot/g, "·");
+    .replace(/\\cdot/g, "·")
+    .replace(/\\leq|\\le/g, "≤")
+    .replace(/\\geq|\\ge/g, "≥")
+    .replace(/\\neq|\\ne/g, "≠")
+    .replace(/\\pm/g, "±")
+    .replace(/\\(left|right)/g, "")
+    .replace(/\\%/g, "%")
+    // pecahan: buang kurung mubazir angka/desimal (12)/(4) → 12/4
+    .replace(/\((-?\d+(?:\.\d+)?)\)\/\((-?\d+(?:\.\d+)?)\)/g, "$1/$2")
+    .replace(/\\quad|\\qquad|\\,/g, " ")
+    .replace(/\\[a-zA-Z]+/g, " ")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+function inline(text: string): React.ReactNode {
+  // Bersihkan LaTeX sisa AI pakai plainMath, lalu pecah bold markdown
+  let t = plainMath(text)
+    .replace(/\\\((.+?)\\\)/g, "$1");
   const parts = t.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((p, i) =>
     p.startsWith("**") && p.endsWith("**") ? <b key={i}>{p.slice(2, -2)}</b> : <span key={i}>{p}</span>

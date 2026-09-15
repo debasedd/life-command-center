@@ -52,7 +52,9 @@ Untuk setiap soal, tulis pembahasan lengkap dalam bahasa Indonesia dengan format
 
 ---
 
-Kerjakan SEMUA soal yang ada. Jangan melewatkan satu pun. Jika soal tidak lengkap/terpotong, sebutkan asumsi yang kamu pakai. Jangan memberi kode program kecuali diminta.`;
+Kerjakan SEMUA soal yang ada. Jangan melewatkan satu pun. Jika soal tidak lengkap/terpotong, sebutkan asumsi yang kamu pakai. Jangan memberi kode program kecuali diminta.
+
+FORMAT MATEMATIKA WAJIB teks biasa untuk ditulis ke buku: pakai simbol × ÷ ≈ ≤ ≥ ± √, pecahan tulis a/b, desimal pakai koma. DILARANG pakai LaTeX apa pun: tanpa \\frac, \\quad, \\approx, \\times, \\text, $...$, \\mathbf, \\dfrac. Contoh benar: "45.745 4/57 ≈ 45.745,07". Contoh salah: "45.745\\tfrac{4}{57} \\approx 45.745{,}07".`;
 
 async function chat(body: Record<string, unknown>, timeoutMs = 120000): Promise<string | null> {
   try {
