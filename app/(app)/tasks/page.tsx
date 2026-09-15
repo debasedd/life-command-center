@@ -18,6 +18,8 @@ interface Task {
   aiStatus: string;
   aiAnswer: string | null;
   aiError: string | null;
+  photoData: string | null;
+  photoMime: string | null;
 }
 
 interface Block {
