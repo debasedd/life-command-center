@@ -18,10 +18,23 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   const userId = await getAuthUserId();
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const body = await req.json().catch(() => ({}));
-  const photo = typeof body.photo === "string" ? body.photo : "";
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body.photo !== "string" || body.photo.length === 0) {
+    return NextResponse.json(
+      { error: 'Body JSON kosong — di shortcut "Get Contents of URL": set Method POST + Request Body JSON, tambah field photo = Text' },
+      { status: 400 }
+    );
+  }
+  // Toleran whitespace: Shortcuts sering menyelipkan baris baru di base64 panjang.
+  const photo = body.photo.replace(/\s+/g, "");
   const parsed = parseDataUrl(photo);
-  if (!parsed) return NextResponse.json({ error: "Foto tidak valid" }, { status: 400 });
+  if (!parsed) {
+    const head = photo.slice(0, 50);
+    return NextResponse.json(
+      { error: `Format data URL salah — harus diawali "data:image/jpeg;base64," lalu isi base64 tanpa dipisah baris. Diterima: "${head}"` },
+      { status: 400 }
+    );
+  }
   if (parsed.base64.length > 7_000_000) {
     return NextResponse.json({ error: "Foto terlalu besar (maks ~5MB). Kompres dulu." }, { status: 400 });
   }
