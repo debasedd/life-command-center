@@ -119,6 +119,25 @@ export default function AcademicPage() {
     load();
   }, []);
 
+  // Auto-heal: task dengan soal yang belum pernah dikerjakan AI (created sebelum
+  // toggle ada) langsung dikirim ke AI sekali saat halaman dibuka.
+  useEffect(() => {
+    if (!tasks.length) return;
+    const orphans = tasks.filter((t) => t.description && t.aiStatus === "NONE");
+    if (orphans.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      for (const t of orphans) {
+        if (cancelled) return;
+        await api("/api/tasks/ai-retry", { json: { id: t.id } }).catch(() => null);
+      }
+      if (!cancelled) await load();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tasks.length]);
+
   async function addTask() {
     if (!title.trim()) return toast("Judul wajib diisi", "err");
     setBusy(true);
