@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, Btn, Input, Textarea, toast, api } from "@/components/ui";
+import { Card, Btn, Input, Textarea, SectionTitle, toast, api } from "@/components/ui";
 
 /**
  * Share target: iOS/Android share sheet → /share?title=..&text=..&url=..
