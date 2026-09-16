@@ -166,23 +166,23 @@ export async function extractFromPhoto(base64: string, mime: string): Promise<Ex
   };
 }
 
-/** Step 2: soal → pembahasan lengkap. timeoutMs default 50s (serverless-safe). */
-export async function solveQuestion(question: string, timeoutMs = 50000): Promise<SolveResult> {
-  const content = await chat(
-    {
-      messages: [
-        { role: "system", content: SOLVE_SYSTEM },
-        { role: "user", content: `Kerjakan tugas berikut:\n\n${question}` },
-      ],
-      max_tokens: 4000,
-      temperature: 0.2,
-    },
-    timeoutMs
-  );
-  if (!content || content.trim().length < 30) {
-    return { ok: false, error: "AI gagal mengerjakan soal. Coba lagi nanti." };
+/** Step 2: soal → pembahasan lengkap. 2 attempt × 25s (provider kadang ngeblank). */
+export async function solveQuestion(question: string, timeoutMs = 25000): Promise<SolveResult> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const content = await chat(
+      {
+        messages: [
+          { role: "system", content: SOLVE_SYSTEM },
+          { role: "user", content: `Kerjakan tugas berikut:\n\n${question}` },
+        ],
+        max_tokens: 4000,
+        temperature: 0.2,
+      },
+      timeoutMs
+    );
+    if (content && content.trim().length >= 30) return { ok: true, answer: content };
   }
-  return { ok: true, answer: content };
+  return { ok: false, error: "AI gagal mengerjakan soal. Coba lagi nanti." };
 }
 
 /** Pisahkan dataURL → {base64, mime}. */
