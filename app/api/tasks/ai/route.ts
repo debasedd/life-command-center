@@ -79,7 +79,8 @@ export async function POST(req: NextRequest) {
 
   // --- Foto: vision → auto-mutu tugas atau keuangan ---
   // Shortcuts kirim base64 mentah (tanpa prefix data URL) — bungkus otomatis.
-  const photo = photoRaw.replace(/\s+/g, "");
+  // Shortcuts kirim base64 mentah (tanpa prefix data URL) — bungkus otomatis.
+  let photo = photoRaw.replace(/\s+/g, "");
   if (!photo) {
     return NextResponse.json(
       { error: 'Field photo atau text wajib — photo (base64/data URL foto) atau text (teks soal/catatan)' },
