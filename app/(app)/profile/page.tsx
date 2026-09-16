@@ -146,30 +146,25 @@ export default function ProfilePage() {
       <Card className="mb-3">
         <div className="space-y-4 text-[12px] text-[#d0d6e0] leading-relaxed">
           <div>
-            <p className="font-medium text-[#f7f8f8] mb-1.5">Share teks (catatan / soal)</p>
+            <p className="font-medium text-[#f7f8f8] mb-1.5">Share teks (catatan / soal) — 2 action aja</p>
             <ol className="space-y-1.5 list-decimal pl-4">
               <li>Buka app <b className="text-[#f7f8f8]">Shortcuts</b> → <b className="text-[#f7f8f8]">+</b></li>
-              <li>Tap <b className="text-[#f7f8f8]">i</b> → aktifkan <b className="text-[#f7f8f8]">Show in Share Sheet</b>, tipe: <b className="text-[#f7f8f8]">Text</b> & <b className="text-[#f7f8f8]">URL</b></li>
-              <li>Action 1: <b className="text-[#f7f8f8]">Encode URL</b> → input: Shortcut Input</li>
-              <li>Action 2: <b className="text-[#f7f8f8]">Text</b> → isi template: <code className="text-[10px] text-[#8a8f98] break-all">https://life-command-center-red.vercel.app/share?text=[Encoded Text]</code></li>
-              <li>Action 3: <b className="text-[#f7f8f8]">Open URLs</b> → pilih Text dari action 2</li>
+              <li>Tap <b className="text-[#f7f8f8]">i</b> → aktifkan <b className="text-[#f7f8f8]">Show in Share Sheet</b>, tipe: <b className="text-[#f7f8f8]">Text</b></li>
+              <li>Tambah action <b className="text-[#f7f8f8]">Get Contents of URL</b> → URL: <code className="text-[10px] text-[#8a8f98] break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → tap panah di card → <b className="text-[#f7f8f8]">Method: POST</b> → <b className="text-[#f7f8f8]">Request Body: Form</b> → Add New Field: nama <b className="text-[#f7f8f8]">text</b>, isi: <b className="text-[#f7f8f8]">Shortcut Input</b></li>
               <li>Nama: <b className="text-[#f7f8f8]">Catat ke LifeCC</b></li>
             </ol>
           </div>
           <div className="pt-3 border-t border-white/[0.06]">
-            <p className="font-medium text-[#f7f8f8] mb-1.5">Share foto (struk / soal)</p>
-            <p className="text-[11px] text-[#8a8f98] mb-1.5">AI otomatis memutuskan: tugas atau catatan keuangan (nominal, masuk/keluar, kategori).</p>
+            <p className="font-medium text-[#f7f8f8] mb-1.5">Share foto (struk / soal) — AI auto-mutu</p>
+            <p className="text-[11px] text-[#8a8f98] mb-1.5">AI otomatis memutuskan: tugas (dikerjakan AI) atau catatan keuangan (nominal, masuk/keluar, kategori).</p>
             <ol className="space-y-1.5 list-decimal pl-4">
               <li>Buka app <b className="text-[#f7f8f8]">Shortcuts</b> → <b className="text-[#f7f8f8]">+</b></li>
               <li>Tap <b className="text-[#f7f8f8]">i</b> → aktifkan <b className="text-[#f7f8f8]">Show in Share Sheet</b>, tipe: <b className="text-[#f7f8f8]">Images</b> & <b className="text-[#f7f8f8]">Files</b></li>
               <li>Action 1: <b className="text-[#f7f8f8]">Base64 Encode</b> → input: Shortcut Input</li>
-              <li>Action 2: <b className="text-[#f7f8f8]">Text</b> → ketik persis: <code className="text-[10px] text-[#8a8f98] break-all">{'{"photo":"data:image/jpeg;base64,"}'}</code> — perhatikan <b className="text-[#f7f8f8]">koma</b> setelah base64</li>
-              <li>Tap di baris itu, <b className="text-[#f7f8f8]">tepat setelah koma</b> (sebelum tanda kutip terakhir) → insert variabel <b className="text-[#f7f8f8]">Base64 Encoded</b>. Semua harus <b className="text-[#f7f8f8]">satu baris nyambung</b>, hasil akhir: <code className="text-[10px] text-[#8a8f98] break-all">{'{"photo":"data:image/jpeg;base64[Base64 Encoded]"}'}</code>. Kalau variabelnya pindah baris sendiri, JSON rusak.</li>
-              <li>Action 3: <b className="text-[#f7f8f8]">Get Contents of URL</b> → URL: <code className="text-[10px] text-[#8a8f98] break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → WAJIB set <b className="text-[#f7f8f8]">Method: POST</b> → <b className="text-[#f7f8f8]">Request Body: JSON</b> → tambah field <b className="text-[#f7f8f8]">photo</b> = Text dari action 2 (tanpa ini muncul "Body JSON kosong")</li>
-              <li>Action 4: <b className="text-[#f7f8f8]">Show Result</b> → pilih Contents of URL</li>
+              <li>Action 2: <b className="text-[#f7f8f8]">Get Contents of URL</b> → URL: <code className="text-[10px] text-[#8a8f98] break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → <b className="text-[#f7f8f8]">Method: POST</b> → <b className="text-[#f7f8f8]">Request Body: Form</b> → Add New Field: nama <b className="text-[#f7f8f8]">photo</b>, isi: <b className="text-[#f7f8f8]">Base64 Encoded</b></li>
               <li>Nama: <b className="text-[#f7f8f8]">Foto ke LifeCC</b></li>
             </ol>
-            <p className="text-[10px] text-[#4a4d52] mt-2">Hasil muncul di alert: catatan keuangan langsung tercatat, soal tugas dikerjakan AI.</p>
+            <p className="text-[10px] text-[#4a4d52] mt-2">Hasil muncul di alert: catatan keuangan langsung tercatat, soal tugas dikerjakan AI. Hapus shortcut LifeCC2 lama yang pakai JSON — resep baru ini gak pake kutip-kutipan.</p>
           </div>
         </div>
       </Card>

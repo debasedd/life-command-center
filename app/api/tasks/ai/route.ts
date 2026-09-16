@@ -10,23 +10,48 @@ export const maxDuration = 60;
 
 /**
  * POST /api/tasks/ai
- * Body: { photo: "data:image/jpeg;base64,..." }
- * AI reads the photo and decides:
- * - kind "keuangan" → creates a transaction (amount + INCOME/EXPENSE auto-decided, AI-categorized)
- * - kind "tugas"    → creates the task, then solves inline so the answer is ready in the same request.
+ * Terima JSON ({photo} atau {text}) ATAU form-urlencoded (field photo/image/base64/text)
+ * ATAU raw text — biar Shortcut iOS gampang dibikin tanpa format JSON yang rapuh.
+ * AI membaca dan memutuskan: tugas (dikerjakan inline) atau keuangan (langsung jadi transaksi).
  */
 export async function POST(req: NextRequest) {
   const userId = await getAuthUserId();
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object") {
+
+  const ct = (req.headers.get("content-type") || "").toLowerCase();
+  let photoRaw = "";
+  let text = "";
+
+  if (ct.includes("form-urlencoded")) {
+    const form = await req.formData().catch(() => null);
+    if (form) {
+      photoRaw = String(form.get("photo") ?? form.get("image") ?? form.get("base64") ?? "");
+      text = String(form.get("text") ?? "").trim();
+    }
+  } else {
+    const rawText = await req.text();
+    let j: Record<string, unknown> | null = null;
+    if (rawText.trim().startsWith("{")) {
+      try {
+        j = JSON.parse(rawText);
+      } catch {
+        j = null;
+      }
+    }
+    if (j && typeof j === "object") {
+      photoRaw = String(j.photo ?? j.image ?? j.base64 ?? "").trim();
+      text = String(j.text ?? "").trim();
+    } else {
+      text = rawText.trim();
+    }
+  }
+
+  if (!photoRaw && text.length < 3) {
     return NextResponse.json(
-      { error: 'Body JSON kosong — di shortcut "Get Contents of URL": set Method POST + Request Body JSON, field photo (foto) atau text (teks soal)' },
+      { error: 'Body kosong — kirim field "text" (teks soal) atau "photo"/"image" (base64 foto), JSON atau Form' },
       { status: 400 }
     );
   }
-  const photoRaw = typeof body.photo === "string" ? body.photo.trim() : "";
-  const text = typeof body.text === "string" && body.text.trim().length >= 3 ? body.text.trim() : "";
 
   // --- Teks (dari shortcut /share atau ketik manual): task + solve inline ---
   if (!photoRaw && text) {
