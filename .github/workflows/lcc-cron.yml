@@ -14,7 +14,7 @@ jobs:
       - name: Ping cron endpoint
         run: |
           for i in 1 2 3; do
-            out=$(curl -sS -m 90 "https://life-command-center-red.vercel.app/api/cron?secret=${{ secrets.CRON_SECRET }}") && echo "$out" | head -c 500 && exit 0
+            out=$(curl -fsS -m 90 "https://life-command-center-red.vercel.app/api/cron?secret=${{ secrets.CRON_SECRET }}") && echo "$out" | head -c 500 && exit 0
             echo "attempt $i gagal, retry..."; sleep 10
           done
           exit 1

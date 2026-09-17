@@ -89,6 +89,8 @@ function check(name, cond, detail) {
     r = await call("GET", "/api/goals");
     const g2 = r.json?.goals?.find((g) => g.id === goal.id);
     check("goals deposit reflected", g2 && g2.currentAmount >= 100000, "amount=" + g2?.currentAmount);
+    r = await call("DELETE", "/api/goals?id=" + goal.id);
+    check("goals DELETE cleanup", r.status === 200, String(r.status));
   }
 
   // 7. WATER
