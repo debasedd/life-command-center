@@ -2,6 +2,7 @@ name: LifeCC cron
 
 # Fallback scheduler: Vercel Hobby hanya boleh cron harian,
 # jadi reminder (air/olahraga/recap) dipicu dari sini tiap 10 menit.
+# Secret dikirim via header Authorization (bebas masalah URL-encoding).
 on:
   schedule:
     - cron: "*/10 * * * *"
@@ -12,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping cron endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           for i in 1 2 3; do
-            out=$(curl -fsS -m 90 "https://life-command-center-red.vercel.app/api/cron?secret=${{ secrets.CRON_SECRET }}") && echo "$out" | head -c 500 && exit 0
+            out=$(curl -fsS -m 90 -H "Authorization: Bearer $CRON_SECRET" "https://life-command-center-red.vercel.app/api/cron") && echo "$out" | head -c 500 && exit 0
             echo "attempt $i gagal, retry..."; sleep 10
           done
           exit 1
