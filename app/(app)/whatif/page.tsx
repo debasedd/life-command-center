@@ -46,7 +46,7 @@ export default function WhatIfPage() {
   const meta = result ? VERDICT_META[result.verdict] || VERDICT_META.AMAN : null;
 
   return (
-    <div className="animate-rise">
+    <div className="fade-rise">
       <header className="mb-5 pt-1">
         <p className="kicker">Simulasi</p>
         <h1 className="display mt-1">What-If Simulator</h1>
@@ -64,7 +64,7 @@ export default function WhatIfPage() {
                 <button
                   key={m}
                   onClick={() => setMonths(m)}
-                  className={`flex-1 rounded-md py-2 text-[13px] font-medium transition-colors duration-150 ${months === m ? "bg-[color:var(--ui-primary)] text-white" : "bg-black/[0.03] border border-lineSoft text-muted"}`}
+                  className={`flex-1 rounded-md py-2 text-[13px] font-medium transition-colors duration-[180ms] ${months === m ? "bg-[color:var(--ui-primary)] text-white" : "bg-black/[0.03] border border-lineSoft text-muted"}`}
                 >
                   {label}
                 </button>
@@ -76,7 +76,7 @@ export default function WhatIfPage() {
       </Card>
 
       {result && meta && (
-        <div className="animate-rise space-y-3">
+        <div className="fade-rise space-y-3">
           <Card className={`border ${meta.border}`}>
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: meta.dot }} />

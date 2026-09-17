@@ -86,7 +86,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="animate-rise">
+    <div className="fade-rise">
       <header className="mb-5 pt-1">
         <p className="kicker">Akun</p>
         <h1 className="display mt-1">Profil</h1>

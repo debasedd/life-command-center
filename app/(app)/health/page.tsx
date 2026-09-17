@@ -149,7 +149,7 @@ export default function HealthPage() {
   const TAB_LABEL = { workout: "Olahraga", water: "Air", sleep: "Tidur", habits: "Habit" } as const;
 
   return (
-    <div className="animate-rise">
+    <div className="fade-rise">
       <header className="flex items-end justify-between gap-3 mb-5 pt-1">
         <div>
           <p className="kicker">Tubuh & Kebiasaan</p>

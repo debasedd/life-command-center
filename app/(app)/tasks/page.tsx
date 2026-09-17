@@ -246,7 +246,7 @@ export default function AcademicPage() {
   const openCount = tasks.filter((t) => t.status !== "DONE").length;
 
   return (
-    <div className="animate-rise">
+    <div className="fade-rise">
       <header className="flex items-end justify-between gap-3 mb-5 pt-1">
         <div>
           <p className="kicker">Tugas & Jadwal</p>
@@ -324,7 +324,7 @@ export default function AcademicPage() {
                               <AiStatusBadge status={t.aiStatus} />
                               {t.aiStatus === "PENDING" && (
                                 <div className="h-0.5 w-16 rounded-full bg-black/[0.06] overflow-hidden">
-                                  <div className="h-full w-1/3 bg-[color:var(--ui-text)] splash-bar" />
+                                  <div className="h-full w-1/3 bg-[color:var(--ui-text)] sweep" />
                                 </div>
                               )}
                               {t.aiStatus === "DONE" && (

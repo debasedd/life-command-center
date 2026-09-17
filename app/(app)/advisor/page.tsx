@@ -48,7 +48,7 @@ export default function AdvisorPage() {
     v === "SUDAH IDEAL" ? "text-[color:var(--ui-positive)] border-[color:var(--ui-positive)]/30" : v === "PERLU PERBAIKAN" ? "text-[color:var(--ui-warning)] border-[color:var(--ui-warning)]/30" : "text-[color:var(--ui-danger)] border-[color:var(--ui-danger)]/30";
 
   return (
-    <div className="animate-rise">
+    <div className="fade-rise">
       <header className="mb-5 pt-1">
         <p className="kicker">Evaluasi Keuangan</p>
         <h1 className="display mt-1">AI Financial Advisor</h1>

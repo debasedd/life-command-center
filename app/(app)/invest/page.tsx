@@ -98,7 +98,7 @@ export default function InvestPage() {
   const totalPct = profile ? profile.assets.reduce((s, a) => s + a.pct, 0) : 0;
 
   return (
-    <div className="animate-rise">
+    <div className="fade-rise">
       <header className="mb-5 pt-1">
         <p className="kicker">Proyeksi</p>
         <h1 className="display mt-1">Proyeksi Portofolio</h1>
@@ -112,7 +112,7 @@ export default function InvestPage() {
             <Input type="number" inputMode="numeric" value={monthly} onChange={(e) => setMonthly(e.target.value)} className="!text-base tabular-nums" />
             <div className="flex gap-1.5 mt-2">
               {[200000, 500000, 1000000, 2000000].map((v) => (
-                <button key={v} onClick={() => setMonthly(String(v))} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-1.5 text-[11px] text-soft card-press">{v / 1000}k</button>
+                <button key={v} onClick={() => setMonthly(String(v))} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-1.5 text-[11px] text-soft press">{v / 1000}k</button>
               ))}
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function InvestPage() {
             <label className="text-[11px] text-muted mb-1.5 block">Durasi: {years} tahun</label>
             <div className="flex gap-1.5">
               {[3, 5, 10, 20].map((y) => (
-                <button key={y} onClick={() => setYears(y)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${years === y ? "bg-[color:var(--ui-primary)] text-white" : "bg-black/[0.04] border border-lineSoft text-muted"}`}>{y} thn</button>
+                <button key={y} onClick={() => setYears(y)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-[180ms] ${years === y ? "bg-[color:var(--ui-primary)] text-white" : "bg-black/[0.04] border border-lineSoft text-muted"}`}>{y} thn</button>
               ))}
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function InvestPage() {
             <label className="text-[11px] text-muted mb-1.5 block">Skenario cepat</label>
             <div className="flex gap-2">
               {Object.keys(PRESETS).map((p) => (
-                <button key={p} onClick={() => applyPreset(p)} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-2 text-[11px] font-medium text-soft card-press">{p}</button>
+                <button key={p} onClick={() => applyPreset(p)} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-2 text-[11px] font-medium text-soft press">{p}</button>
               ))}
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function InvestPage() {
                 </thead>
                 <tbody>
                   {sim.series.map((s) => (
-                    <tr key={s.year} className="border-t border-white/[0.05]">
+                    <tr key={s.year} className="border-t border-[color:var(--ui-border)]">
                       <td className="py-1.5 text-muted">{s.year}</td>
                       <td className="text-right text-muted tabular-nums">{idr(s.principal)}</td>
                       <td className="text-right text-ink tabular-nums">{idr(s.total)}</td>

@@ -86,7 +86,7 @@ export default function PushManager() {
           <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--ui-positive)]" />
           <span className="text-[13px] text-soft">Notifikasi aktif</span>
         </div>
-        <button onClick={testPush} className="text-xs text-[color:var(--ui-text)] border border-[color:var(--ui-text)]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[color:var(--ui-text)]/10">
+        <button onClick={testPush} className="text-xs text-[color:var(--ui-text)] border border-[color:var(--ui-text)]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-[180ms] hover:bg-[color:var(--ui-text)]/10">
           Kirim test
         </button>
         {msg && <p className="sr-only">{msg}</p>}
@@ -105,7 +105,7 @@ export default function PushManager() {
               : "Install app ke Home Screen dulu (Share → Add to Home Screen), lalu aktifkan dari sini."}
           </p>
         </div>
-        <button onClick={enable} disabled={busy} className="shrink-0 bg-[color:var(--ui-primary)] hover:bg-[color:var(--ui-text)] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
+        <button onClick={enable} disabled={busy} className="shrink-0 bg-[color:var(--ui-primary)] hover:bg-[color:var(--ui-text)] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-[180ms] disabled:opacity-40">
           {busy ? "…" : "Aktifkan"}
         </button>
       </div>

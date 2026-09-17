@@ -13,7 +13,7 @@ function idr(n: number) { return "Rp" + n.toLocaleString("id-ID") }
 
 function Trash({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="p-1.5 text-muted hover:text-[color:var(--ui-danger)] transition-colors duration-150" aria-label="Hapus">
+    <button onClick={onClick} className="p-1.5 text-muted hover:text-[color:var(--ui-danger)] transition-colors duration-[180ms]" aria-label="Hapus">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">
         <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
       </svg>
@@ -169,7 +169,7 @@ export default function FinancePage() {
   }, [filtered]);
 
   return (
-    <div className="animate-rise">
+    <div className="fade-rise">
       <header className="flex items-end justify-between gap-3 mb-5 pt-1">
         <div>
           <p className="kicker">Buku Kas</p>
@@ -187,7 +187,7 @@ export default function FinancePage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded-md py-1.5 text-[13px] font-medium transition-colors duration-150 ${tab === t ? "bg-black/[0.07] text-ink" : "text-muted"}`}
+            className={`flex-1 rounded-md py-1.5 text-[13px] font-medium transition-colors duration-[180ms] ${tab === t ? "bg-black/[0.07] text-ink" : "text-muted"}`}
           >
             {t === "ledger" ? "Buku Kas" : `Target${goals?.some((g) => g.status === "ACTIVE") ? ` · ${goals.filter((g) => g.status === "ACTIVE").length}` : ""}`}
           </button>
@@ -202,7 +202,7 @@ export default function FinancePage() {
                 <button
                   key={r}
                   onClick={() => setRange(r)}
-                  className={`flex-1 rounded py-1 text-[11px] font-medium transition-colors duration-150 ${range === r ? "bg-black/[0.07] text-ink" : "text-muted"}`}
+                  className={`flex-1 rounded py-1 text-[11px] font-medium transition-colors duration-[180ms] ${range === r ? "bg-black/[0.07] text-ink" : "text-muted"}`}
                 >
                   {r === "today" ? "Hari ini" : r === "week" ? "7 hari" : "30 hari"}
                 </button>
@@ -333,15 +333,15 @@ export default function FinancePage() {
       <Sheet open={addSheet} onClose={() => setAddSheet(false)} title="Catat Transaksi">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setType("EXPENSE")} className={`rounded-md py-2.5 font-medium text-sm transition-colors duration-150 ${type === "EXPENSE" ? "bg-[color:var(--ui-danger)] text-white" : "bg-black/[0.03] border border-lineSoft text-muted"}`}>Keluar</button>
-            <button onClick={() => setType("INCOME")} className={`rounded-md py-2.5 font-medium text-sm transition-colors duration-150 ${type === "INCOME" ? "bg-[color:var(--ui-positive)] text-white" : "bg-black/[0.03] border border-lineSoft text-muted"}`}>Masuk</button>
+            <button onClick={() => setType("EXPENSE")} className={`rounded-md py-2.5 font-medium text-sm transition-colors duration-[180ms] ${type === "EXPENSE" ? "bg-[color:var(--ui-danger)] text-white" : "bg-black/[0.03] border border-lineSoft text-muted"}`}>Keluar</button>
+            <button onClick={() => setType("INCOME")} className={`rounded-md py-2.5 font-medium text-sm transition-colors duration-[180ms] ${type === "INCOME" ? "bg-[color:var(--ui-positive)] text-white" : "bg-black/[0.03] border border-lineSoft text-muted"}`}>Masuk</button>
           </div>
           <div>
             <label className="text-[11px] text-muted mb-1 block">Nominal (Rp)</label>
             <Input type="number" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="25000" className="!text-xl !font-semibold !py-3 text-center tabular-nums" />
             <div className="flex gap-1.5 mt-2">
               {[5000, 10000, 20000, 50000, 100000].map((v) => (
-                <button key={v} onClick={() => setAmount(String(v))} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-1.5 text-[11px] text-soft card-press">{v / 1000}k</button>
+                <button key={v} onClick={() => setAmount(String(v))} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-1.5 text-[11px] text-soft press">{v / 1000}k</button>
               ))}
             </div>
           </div>
@@ -413,7 +413,7 @@ export default function FinancePage() {
           <Input type="number" inputMode="numeric" value={depAmount} onChange={(e) => setDepAmount(e.target.value)} placeholder="Nominal setoran (Rp)" className="!text-lg !py-3 text-center tabular-nums" />
           <div className="flex gap-1.5">
             {[20000, 50000, 100000, 200000].map((v) => (
-              <button key={v} onClick={() => setDepAmount(String(v))} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-2 text-[11px] text-soft card-press">{v / 1000}k</button>
+              <button key={v} onClick={() => setDepAmount(String(v))} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-2 text-[11px] text-soft press">{v / 1000}k</button>
             ))}
           </div>
           <Btn onClick={deposit} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Setor Sekarang"}</Btn>
@@ -434,7 +434,7 @@ export default function FinancePage() {
                     await load();
                   } catch (e) { toast(e instanceof Error ? e.message : "Gagal", "err") }
                 }}
-                className="text-muted hover:text-[color:var(--ui-danger)] transition-colors duration-150 p-1"
+                className="text-muted hover:text-[color:var(--ui-danger)] transition-colors duration-[180ms] p-1"
                 aria-label="Hapus kategori"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">

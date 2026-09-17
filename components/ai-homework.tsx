@@ -144,7 +144,7 @@ export function AiStatusBadge({ status }: { status: string }) {
   if (status === "PENDING" || status === "PROCESSING") {
     return (
       <span className="inline-flex items-center gap-1.5 text-[10px] text-[color:var(--ui-text)] border border-[color:var(--ui-text)]/30 rounded-full px-2 py-0.5 font-medium">
-        <span className="w-1 h-1 rounded-full bg-[color:var(--ui-text)] pulse" />
+        <span className="w-1 h-1 rounded-full bg-[color:var(--ui-text)] breathe" />
         AI mengerjakan
       </span>
     );
@@ -171,7 +171,7 @@ export function AiStatusBadge({ status }: { status: string }) {
 /** Modal pembahasan AI — dibuka pas user senggang, tinggal disalin ke buku. */
 export function AiAnswerModal({ task, onClose, onRetry }: { task: { id: string; title: string; aiAnswer: string | null; aiStatus: string; aiError: string | null } | null; onClose: () => void; onRetry: (id: string) => void }) {
   if (!task || typeof document === "undefined") return null;
-  // Portal to body: page-root transform (animate-rise) breaks position:fixed inside.
+  // Portal to body: page-root transform (fade-rise) breaks position:fixed inside.
   return (
     createPortal(
       <div className="fixed inset-0 z-50">
