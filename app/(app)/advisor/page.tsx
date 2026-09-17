@@ -45,13 +45,13 @@ export default function AdvisorPage() {
   const latest = evals.at(0);
   const scoreColor = (s: number) => (s >= 75 ? "#609f89" : s >= 50 ? "#eab38a" : "#f87171");
   const verdictColor = (v: string) =>
-    v === "SUDAH IDEAL" ? "text-[color:var(--vr-positive)] border-[color:var(--vr-positive)]/30" : v === "PERLU PERBAIKAN" ? "text-[color:var(--vr-warning)] border-[color:var(--vr-warning)]/30" : "text-[color:var(--vr-danger)] border-[color:var(--vr-danger)]/30";
+    v === "SUDAH IDEAL" ? "text-[color:var(--ui-positive)] border-[color:var(--ui-positive)]/30" : v === "PERLU PERBAIKAN" ? "text-[color:var(--ui-warning)] border-[color:var(--ui-warning)]/30" : "text-[color:var(--ui-danger)] border-[color:var(--ui-danger)]/30";
 
   return (
     <div className="animate-rise">
       <header className="mb-5 pt-1">
-        <p className="vr-kicker">Evaluasi Keuangan</p>
-        <h1 className="vr-display mt-1">AI Financial Advisor</h1>
+        <p className="kicker">Evaluasi Keuangan</p>
+        <h1 className="display mt-1">AI Financial Advisor</h1>
         <p className="text-xs text-muted mt-1">Evaluasi otomatis alokasi keuangan & tabungan.</p>
       </header>
 
@@ -83,7 +83,7 @@ export default function AdvisorPage() {
             <ul className="space-y-2">
               {latest.result.diagnosis.map((d, i) => (
                 <li key={i} className="text-[13px] text-soft leading-relaxed flex gap-2.5">
-                  <span className="text-[color:var(--vr-warning)] mt-0.5 shrink-0">•</span>{d}
+                  <span className="text-[color:var(--ui-warning)] mt-0.5 shrink-0">•</span>{d}
                 </li>
               ))}
             </ul>
@@ -94,7 +94,7 @@ export default function AdvisorPage() {
             {latest.result.recommendations.map((r, i) => (
               <Card key={i} className="!py-3">
                 <p className="text-[13px] font-medium text-ink leading-snug">{r.text}</p>
-                {r.impact && <p className="text-[11px] text-[color:var(--vr-positive)] mt-1">{r.impact}</p>}
+                {r.impact && <p className="text-[11px] text-[color:var(--ui-positive)] mt-1">{r.impact}</p>}
               </Card>
             ))}
           </div>

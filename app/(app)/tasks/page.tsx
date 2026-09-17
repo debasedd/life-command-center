@@ -35,9 +35,9 @@ interface Block {
 
 const DAYS = ["Mgg", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 const TYPE_LABEL: Record<string, string> = { SCHOOL: "Sekolah", LESSON: "Les", ACTIVITY: "Kegiatan", PERSONAL: "Pribadi" };
-const TYPE_ACCENT: Record<string, string> = { SCHOOL: "var(--vr-accent)", LESSON: "var(--vr-warning)", ACTIVITY: "var(--vr-positive)", PERSONAL: "var(--vr-text-muted)" };
+const TYPE_ACCENT: Record<string, string> = { SCHOOL: "var(--ui-text)", LESSON: "var(--ui-warning)", ACTIVITY: "var(--ui-positive)", PERSONAL: "var(--ui-text-muted)" };
 const PRIORITY_TONE: Record<string, "danger" | "warning" | "accent" | "neutral"> = { URGENT: "danger", HIGH: "warning", MEDIUM: "accent", LOW: "neutral" };
-const PRIORITY_TONE_SOLID: Record<string, string> = { URGENT: "var(--vr-danger)", HIGH: "var(--vr-warning)", MEDIUM: "var(--vr-accent)", LOW: "var(--vr-text-muted)" };
+const PRIORITY_TONE_SOLID: Record<string, string> = { URGENT: "var(--ui-danger)", HIGH: "var(--ui-warning)", MEDIUM: "var(--ui-text)", LOW: "var(--ui-text-muted)" };
 
 function minuteToHHMM(m: number) {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -68,7 +68,7 @@ function groupByDeadline(tasks: Task[]) {
 
 function Trash({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="p-1.5 text-muted hover:text-[color:var(--vr-danger)] transition-colors duration-[160ms]" aria-label="Hapus">
+    <button onClick={onClick} className="p-1.5 text-muted hover:text-[color:var(--ui-danger)] transition-colors duration-[160ms]" aria-label="Hapus">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">
         <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
       </svg>
@@ -249,8 +249,8 @@ export default function AcademicPage() {
     <div className="animate-rise">
       <header className="flex items-end justify-between gap-3 mb-5 pt-1">
         <div>
-          <p className="vr-kicker">Tugas & Jadwal</p>
-          <h1 className="vr-display mt-1">Akademik</h1>
+          <p className="kicker">Tugas & Jadwal</p>
+          <h1 className="display mt-1">Akademik</h1>
         </div>
         <div className="flex gap-2 mb-1">
           <Btn variant="ghost" onClick={() => setAiSheet(true)} className="!py-1.5 !px-3 text-xs">Foto Tugas</Btn>
@@ -267,7 +267,7 @@ export default function AcademicPage() {
             key={t}
             onClick={() => setTab(t)}
             aria-pressed={tab === t}
-            className={`flex-1 rounded-control py-1.5 text-[13px] font-medium transition-colors duration-[160ms] ${tab === t ? "bg-white/[0.08] text-ink" : "text-muted"}`}
+            className={`flex-1 rounded-control py-1.5 text-[13px] font-medium transition-colors duration-[160ms] ${tab === t ? "bg-black/[0.07] text-ink" : "text-muted"}`}
           >
             {t === "tasks" ? `Tugas${openCount ? ` · ${openCount}` : ""}` : "Jadwal"}
           </button>
@@ -280,7 +280,7 @@ export default function AcademicPage() {
             items.length === 0 ? null : (
               <div key={group}>
                 <SectionTitle>
-                  <span className={group === "Terlambat" ? "text-[color:var(--vr-danger)]" : ""}>
+                  <span className={group === "Terlambat" ? "text-[color:var(--ui-danger)]" : ""}>
                     {group} <span className="text-muted normal-case tracking-normal">{items.length}</span>
                   </span>
                 </SectionTitle>
@@ -292,10 +292,10 @@ export default function AcademicPage() {
                           onClick={() => toggle(t)}
                           aria-label={t.status === "DONE" ? "Tandai belum selesai" : "Tandai selesai"}
                           aria-pressed={t.status === "DONE"}
-                          className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border flex items-center justify-center shrink-0 transition-colors duration-[160ms] ${t.status === "DONE" ? "bg-[color:var(--vr-positive)] border-[color:var(--vr-positive)]" : "border-white/25 hover:border-white/50"}`}
+                          className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border flex items-center justify-center shrink-0 transition-colors duration-[160ms] ${t.status === "DONE" ? "bg-[color:var(--ui-positive)] border-[color:var(--ui-positive)]" : "border-black/20 hover:border-black/40"}`}
                         >
                           {t.status === "DONE" && (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--vr-canvas)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ui-canvas)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
                               <path d="M20 6 9 17l-5-5" />
                             </svg>
                           )}
@@ -304,11 +304,11 @@ export default function AcademicPage() {
                           <div className={`text-sm font-medium leading-snug ${t.status === "DONE" ? "line-through text-muted" : "text-ink"}`}>{t.title}</div>
                           <div className="text-[11px] text-muted flex gap-2.5 flex-wrap mt-0.5">
                             {t.subject && <span>{t.subject}</span>}
-                            {t.deadline && <span className={group === "Terlambat" ? "text-[color:var(--vr-danger)]" : ""}>{fmtDeadline(t.deadline)}</span>}
+                            {t.deadline && <span className={group === "Terlambat" ? "text-[color:var(--ui-danger)]" : ""}>{fmtDeadline(t.deadline)}</span>}
                             {t.recurring && <span>mingguan</span>}
                           </div>
                           {expanded === t.id && (
-                            <div className="mt-2 rounded-control bg-[color:var(--vr-surface)] border border-lineSoft p-2.5">
+                            <div className="mt-2 rounded-control bg-[color:var(--ui-surface)] border border-lineSoft p-2.5">
                               {t.description ? (
                                 <p className="text-[12px] text-soft whitespace-pre-wrap leading-relaxed">{t.description}</p>
                               ) : (
@@ -323,12 +323,12 @@ export default function AcademicPage() {
                             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                               <AiStatusBadge status={t.aiStatus} />
                               {t.aiStatus === "PENDING" && (
-                                <div className="h-0.5 w-16 rounded-full bg-white/[0.06] overflow-hidden">
-                                  <div className="h-full w-1/3 bg-[color:var(--vr-accent)] splash-bar" />
+                                <div className="h-0.5 w-16 rounded-full bg-black/[0.06] overflow-hidden">
+                                  <div className="h-full w-1/3 bg-[color:var(--ui-text)] splash-bar" />
                                 </div>
                               )}
                               {t.aiStatus === "DONE" && (
-                                <button onClick={() => setAnswerTask(t)} className="text-[11px] text-[color:var(--vr-accent)] hover:text-[color:var(--vr-focus-ring)] font-medium transition-colors duration-[160ms]">
+                                <button onClick={() => setAnswerTask(t)} className="text-[11px] text-[color:var(--ui-text)] hover:text-[color:var(--ui-focus-ring)] font-medium transition-colors duration-[160ms]">
                                   Lihat pembahasan
                                 </button>
                               )}
@@ -374,10 +374,10 @@ export default function AcademicPage() {
             .map((b) => (
               <Row key={b.id}>
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-[3px] h-9 rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "var(--vr-text-muted)" }} />
+                  <span className="w-[3px] h-9 rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "var(--ui-text-muted)" }} />
                   <div className="min-w-0">
                     <div className="text-sm font-medium text-ink truncate">{b.title}</div>
-                    <div className="text-[11px] text-muted vr-num">
+                    <div className="text-[11px] text-muted num">
                       {b.weekday !== null ? `${DAYS[b.weekday]} · ` : b.date ? `${b.date} · ` : ""}
                       {minuteToHHMM(b.startMinute)}–{minuteToHHMM(b.endMinute)}
                       {b.location ? ` · ${b.location}` : ""}
@@ -400,7 +400,7 @@ export default function AcademicPage() {
           <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Mata pelajaran (opsional)" />
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="vr-kicker mb-1 block">Prioritas</label>
+              <label className="kicker mb-1 block">Prioritas</label>
               <Select value={priority} onChange={(e) => setPriority(e.target.value)}>
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -409,7 +409,7 @@ export default function AcademicPage() {
               </Select>
             </div>
             <div>
-              <label className="vr-kicker mb-1 block">Deadline</label>
+              <label className="kicker mb-1 block">Deadline</label>
               <Input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
             </div>
           </div>
@@ -445,11 +445,11 @@ export default function AcademicPage() {
           </Select>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="vr-kicker mb-1 block">Mulai</label>
+              <label className="kicker mb-1 block">Mulai</label>
               <Input type="time" value={bStart} onChange={(e) => setBStart(e.target.value)} />
             </div>
             <div>
-              <label className="vr-kicker mb-1 block">Selesai</label>
+              <label className="kicker mb-1 block">Selesai</label>
               <Input type="time" value={bEnd} onChange={(e) => setBEnd(e.target.value)} />
             </div>
           </div>
@@ -459,7 +459,7 @@ export default function AcademicPage() {
           </label>
           {bRecurring ? (
             <div>
-              <label className="vr-kicker mb-1 block">Hari</label>
+              <label className="kicker mb-1 block">Hari</label>
               <Select value={bWeekday} onChange={(e) => setBWeekday(e.target.value)}>
                 {DAYS.map((d, i) => (
                   <option key={i} value={i}>
@@ -470,7 +470,7 @@ export default function AcademicPage() {
             </div>
           ) : (
             <div>
-              <label className="vr-kicker mb-1 block">Tanggal (event sekali)</label>
+              <label className="kicker mb-1 block">Tanggal (event sekali)</label>
               <Input type="date" value={bDate} onChange={(e) => setBDate(e.target.value)} />
             </div>
           )}

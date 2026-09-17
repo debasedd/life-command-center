@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Sheet, Btn, Textarea, toast } from "@/components/ui";
+import { X, Bot } from "lucide-react";
 
 /** Foto soal → AI ekstrak & kerjakan. Hasil masuk daftar tugas otomatis. */
 export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: () => void }) {
@@ -79,12 +80,12 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
 
   return (
     <Sheet open={open} onClose={onClose} title="Tugas dari AI">
-      <div className="flex rounded-md bg-white/[0.03] border border-lineSoft p-1 mb-3">
+      <div className="flex rounded-md bg-black/[0.03] border border-lineSoft p-1 mb-3">
         {(["photo", "text"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-colors duration-[160ms] ${tab === t ? "bg-white/[0.08] text-ink" : "text-muted"}`}
+            className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-colors duration-[160ms] ${tab === t ? "bg-black/[0.07] text-ink" : "text-muted"}`}
           >
             {t === "photo" ? "Foto soal" : "Ketik manual"}
           </button>
@@ -142,24 +143,24 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
 export function AiStatusBadge({ status }: { status: string }) {
   if (status === "PENDING" || status === "PROCESSING") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[10px] text-[color:var(--vr-accent)] border border-[color:var(--vr-accent)]/30 rounded-full px-2 py-0.5 font-medium">
-        <span className="w-1 h-1 rounded-full bg-[color:var(--vr-accent)] pulse" />
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[color:var(--ui-text)] border border-[color:var(--ui-text)]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[color:var(--ui-text)] pulse" />
         AI mengerjakan
       </span>
     );
   }
   if (status === "DONE") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[10px] text-[color:var(--vr-positive)] border border-[color:var(--vr-positive)]/30 rounded-full px-2 py-0.5 font-medium">
-        <span className="w-1 h-1 rounded-full bg-[color:var(--vr-positive)]" />
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[color:var(--ui-positive)] border border-[color:var(--ui-positive)]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[color:var(--ui-positive)]" />
         Pembahasan siap
       </span>
     );
   }
   if (status === "FAILED") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[10px] text-[color:var(--vr-danger)] border border-[color:var(--vr-danger)]/30 rounded-full px-2 py-0.5 font-medium">
-        <span className="w-1 h-1 rounded-full bg-[color:var(--vr-danger)]" />
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[color:var(--ui-danger)] border border-[color:var(--ui-danger)]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[color:var(--ui-danger)]" />
         Gagal — coba lagi
       </span>
     );
@@ -174,17 +175,21 @@ export function AiAnswerModal({ task, onClose, onRetry }: { task: { id: string; 
   return (
     createPortal(
       <div className="fixed inset-0 z-50">
-        <div className="sheet-backdrop absolute inset-0 bg-black/85" onClick={onClose} />
-        <div className="modal-panel absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[color:var(--vr-surface-raised)] border-t border-lineSoft flex flex-col">
+        <div className="sheet-backdrop absolute inset-0 bg-black/40" onClick={onClose} />
+        <div className="modal-panel absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[color:var(--ui-surface)] border-t border-lineSoft flex flex-col">
           <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-lineSoft">
-            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
-            <h3 className="vr-title text-[17px] mt-1 truncate pr-2 text-ink">Pembahasan: {task.title}</h3>
-            <button onClick={onClose} className="text-muted mt-1 text-xl px-2 hover:text-ink transition-colors duration-[160ms]">✕</button>
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-black/12" />
+            <h3 className="title-lg text-[17px] mt-1 truncate pr-2 text-ink">Pembahasan: {task.title}</h3>
+            <button onClick={onClose} className="text-muted mt-1 p-2 -mr-2 hover:text-ink transition-colors duration-[180ms]" aria-label="Tutup">
+              <X size={18} strokeWidth={1.75} />
+            </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar">
             {task.aiStatus === "PENDING" && (
               <div className="text-center py-12 text-muted">
-                <div className="text-4xl mb-3 pulse">🤖</div>
+                <div className="flex justify-center mb-3 text-[color:var(--ui-text-soft)] breathe">
+                  <Bot size={40} strokeWidth={1.5} />
+                </div>
                 AI sedang mengerjakan…<br />
                 <span className="text-xs text-muted">Tinggalin dulu, balik lagi nanti. Hasilnya kesimpen.</span>
               </div>
@@ -227,7 +232,7 @@ function AnswerMarkdown({ text }: { text: string }) {
     const line = raw.trimEnd();
     if (/^###?\s/.test(line)) {
       flushList();
-      out.push(<h4 key={out.length} className="font-bold text-[color:var(--vr-focus-ring)] mt-3 mb-1">{inline(line.replace(/^#+\s/, ""))}</h4>);
+      out.push(<h4 key={out.length} className="font-bold text-[color:var(--ui-focus-ring)] mt-3 mb-1">{inline(line.replace(/^#+\s/, ""))}</h4>);
     } else if (/^##\s/.test(line)) {
       flushList();
       out.push(<h3 key={out.length} className="font-bold text-base mt-4 mb-1">{inline(line.replace(/^##\s/, ""))}</h3>);

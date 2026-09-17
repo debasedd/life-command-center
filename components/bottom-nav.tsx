@@ -2,82 +2,53 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { House, BookOpen, Wallet, HeartPulse, User } from "lucide-react";
 
 const TABS = [
-  {
-    href: "/home",
-    label: "Beranda",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-        <path d="M3 10.5 12 3l9 7.5" />
-        <path d="M5 9.5V21h14V9.5" />
-      </svg>
-    ),
-  },
-  {
-    href: "/tasks",
-    label: "Akademik",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/finance",
-    label: "Keuangan",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-        <rect x="2" y="6" width="20" height="13" rx="2.5" />
-        <path d="M2 10.5h20" />
-      </svg>
-    ),
-  },
-  {
-    href: "/health",
-    label: "Kesehatan",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-        <path d="M20.8 8.6a5.5 5.5 0 0 0-9.3-3.9l-.5.5-.5-.5a5.5 5.5 0 0 0-7.8 7.8l8.3 8.3 8.3-8.3a5.5 5.5 0 0 0 1.5-3.9z" />
-      </svg>
-    ),
-  },
-  {
-    href: "/profile",
-    label: "Profil",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-        <circle cx="12" cy="8" r="4" />
-        <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
-      </svg>
-    ),
-  },
+  { href: "/home", label: "Beranda", Icon: House },
+  { href: "/tasks", label: "Akademik", Icon: BookOpen },
+  { href: "/finance", label: "Keuangan", Icon: Wallet },
+  { href: "/health", label: "Kesehatan", Icon: HeartPulse },
+  { href: "/profile", label: "Profil", Icon: User },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md bg-[color:var(--vr-surface)]/[0.98] border-t border-lineSoft safe-bottom" aria-label="Navigasi utama">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md bg-[color:var(--ui-surface)]/[0.96] backdrop-blur-md border-t border-[color:var(--ui-border)] safe-bottom"
+      aria-label="Navigasi utama"
+    >
       <div className="flex">
-        {TABS.map((t) => {
-          const active = pathname === t.href || pathname.startsWith(t.href + "/");
+        {TABS.map(({ href, label, Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
-              key={t.href}
-              href={t.href}
+              key={href}
+              href={href}
               aria-current={active ? "page" : undefined}
-              className="relative flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors duration-[160ms]"
+              className="relative flex-1 flex flex-col items-center gap-1 py-2.5 press"
             >
-              {active && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[color:var(--vr-accent)]" aria-hidden />
-              )}
-              <span className={`${active ? "text-[color:var(--vr-accent)]" : "text-muted"} transition-colors duration-[160ms]`}>
-                {t.icon}
+              <span
+                className={`transition-[color,transform] duration-[220ms] ease-out ${
+                  active ? "text-[color:var(--ui-text)] -translate-y-[1px]" : "text-[color:var(--ui-text-muted)]"
+                }`}
+              >
+                <Icon size={21} strokeWidth={active ? 2 : 1.75} aria-hidden />
               </span>
-              <span className={`text-[10px] font-medium transition-colors duration-[160ms] ${active ? "text-ink" : "text-muted"}`}>
-                {t.label}
+              <span
+                className={`text-[10px] font-semibold transition-colors duration-[220ms] ${
+                  active ? "text-[color:var(--ui-text)]" : "text-[color:var(--ui-text-muted)]"
+                }`}
+              >
+                {label}
               </span>
+              <span
+                className={`absolute top-0 left-1/2 -translate-x-1/2 h-[2.5px] rounded-full bg-[color:var(--ui-text)] transition-all duration-[320ms] ease-out ${
+                  active ? "w-7 opacity-100" : "w-0 opacity-0"
+                }`}
+                aria-hidden
+              />
             </Link>
           );
         })}

@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
-// Violet Rail — semantic color names mapped to CSS variables from globals.css.
-// Old Linear-era palette deleted; components consume semantic roles only.
+// White minimal — semantic names over CSS variables (globals.css).
 const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
@@ -11,31 +10,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "var(--vr-canvas)",
-        surface: "var(--vr-surface)",
-        raised: "var(--vr-surface-raised)",
-        mutedSurface: "var(--vr-surface-muted)",
-        ink: "var(--vr-text)",
-        soft: "var(--vr-text-soft)",
-        muted: "var(--vr-text-muted)",
-        line: "var(--vr-border)",
-        lineSoft: "var(--vr-border-soft)",
-        primary: "var(--vr-primary)",
-        accent: "var(--vr-accent)",
-        positive: "var(--vr-positive)",
-        warning: "var(--vr-warning)",
-        danger: "var(--vr-danger)",
-        focus: "var(--vr-focus-ring)",
-        magenta: "var(--vr-magenta)",
-        cyan: "var(--vr-cyan)",
+        canvas: "var(--ui-canvas)",
+        surface: "var(--ui-surface)",
+        mutedSurface: "var(--ui-surface-muted)",
+        ink: "var(--ui-text)",
+        soft: "var(--ui-text-soft)",
+        muted: "var(--ui-text-muted)",
+        line: "var(--ui-border)",
+        lineStrong: "var(--ui-border-strong)",
+        primary: "var(--ui-primary)",
+        positive: "var(--ui-positive)",
+        warning: "var(--ui-warning)",
+        danger: "var(--ui-danger)",
+        focus: "var(--ui-focus-ring)",
       },
       borderRadius: {
-        control: "6px",
-        card: "8px",
-        panel: "12px",
+        control: "9px",
+        card: "14px",
+        panel: "20px",
       },
       transitionTimingFunction: {
-        flow: "cubic-bezier(0.22, 1, 0.36, 1)",
+        out: "cubic-bezier(0.22, 1, 0.36, 1)",
+        spring: "cubic-bezier(0.32, 0.72, 0, 1)",
       },
     },
   },

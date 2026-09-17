@@ -81,12 +81,12 @@ export default function PushManager() {
 
   if (subscribed) {
     return (
-      <div className="mb-3 flex items-center justify-between rounded-lg bg-white/[0.03] border border-lineSoft px-4 py-3">
+      <div className="mb-3 flex items-center justify-between rounded-lg bg-black/[0.03] border border-lineSoft px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--vr-positive)]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--ui-positive)]" />
           <span className="text-[13px] text-soft">Notifikasi aktif</span>
         </div>
-        <button onClick={testPush} className="text-xs text-[color:var(--vr-accent)] border border-[color:var(--vr-accent)]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[color:var(--vr-accent)]/10">
+        <button onClick={testPush} className="text-xs text-[color:var(--ui-text)] border border-[color:var(--ui-text)]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[color:var(--ui-text)]/10">
           Kirim test
         </button>
         {msg && <p className="sr-only">{msg}</p>}
@@ -95,7 +95,7 @@ export default function PushManager() {
   }
 
   return (
-    <div className="mb-3 rounded-lg bg-white/[0.03] border border-lineSoft px-4 py-3">
+    <div className="mb-3 rounded-lg bg-black/[0.03] border border-lineSoft px-4 py-3">
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-medium text-ink">Aktifkan pengingat</p>
@@ -105,7 +105,7 @@ export default function PushManager() {
               : "Install app ke Home Screen dulu (Share → Add to Home Screen), lalu aktifkan dari sini."}
           </p>
         </div>
-        <button onClick={enable} disabled={busy} className="shrink-0 bg-[color:var(--vr-primary)] hover:bg-[color:var(--vr-accent)] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
+        <button onClick={enable} disabled={busy} className="shrink-0 bg-[color:var(--ui-primary)] hover:bg-[color:var(--ui-text)] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
           {busy ? "…" : "Aktifkan"}
         </button>
       </div>

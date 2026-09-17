@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LayoutGrid } from "lucide-react";
 import { warmAll } from "@/lib/cache";
 
 /**
@@ -30,7 +31,6 @@ export default function BootGate({ children }: { children: React.ReactNode }) {
       if (dead) return;
       clearTimeout(failsafe);
       sessionStorage.setItem("lcc-booted", "1");
-      // Small beat so the splash fade-out reads smoothly instead of flashing.
       setTimeout(() => !dead && setReady(true), 200);
     });
 
@@ -42,12 +42,19 @@ export default function BootGate({ children }: { children: React.ReactNode }) {
 
   if (!ready) {
     return (
-      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[color:var(--vr-canvas)]">
-        <div className="vr-title">Life Command Center</div>
-        <div className="mt-5 w-32 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
-          <div className="h-full w-1/2 rounded-full bg-[color:var(--vr-primary)] splash-bar" />
+      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[color:var(--ui-canvas)] fade-in">
+        <div className="w-14 h-14 rounded-[16px] bg-[color:var(--ui-primary)] shadow-[var(--shadow-lift)] flex items-center justify-center text-white fade-rise">
+          <LayoutGrid size={26} strokeWidth={1.75} aria-hidden />
         </div>
-        <p className="mt-3 text-[11px] text-muted">Menyiapkan data…</p>
+        <div className="title-lg mt-4 fade-rise" style={{ animationDelay: "60ms" }}>
+          Life Command Center
+        </div>
+        <div className="mt-6 w-32 h-[3px] rounded-full bg-[color:var(--ui-border)] overflow-hidden">
+          <div className="h-full w-1/2 rounded-full bg-[color:var(--ui-text)] sweep" />
+        </div>
+        <p className="mt-3 text-[11px] text-[color:var(--ui-text-muted)] fade-in" style={{ animationDelay: "180ms" }}>
+          Menyiapkan data…
+        </p>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, IBM_Plex_Serif } from "next/font/google";
+import { Inter } from "next/font/google";
 import SWRegister from "@/components/sw-register";
 import "./globals.css";
 
@@ -10,28 +10,20 @@ const inter = Inter({
   display: "swap",
 });
 
-// Violet Rail display face — IBM Plex Serif for page titles.
-const plexSerif = IBM_Plex_Serif({
-  subsets: ["latin"],
-  variable: "--font-plex-serif",
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   title: "Life Command Center",
   description: "All-in-One Life OS — produktivitas, keuangan, kesehatan.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "LifeCC",
   },
   icons: { icon: "/icon.svg", apple: "/icon.svg" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#13111c",
+  themeColor: "#f7f7f8",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -41,7 +33,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className={`${inter.variable} ${plexSerif.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased`}>
         <SWRegister />
         {children}
       </body>

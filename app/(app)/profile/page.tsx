@@ -88,12 +88,12 @@ export default function ProfilePage() {
   return (
     <div className="animate-rise">
       <header className="mb-5 pt-1">
-        <p className="vr-kicker">Akun</p>
-        <h1 className="vr-display mt-1">Profil</h1>
+        <p className="kicker">Akun</p>
+        <h1 className="display mt-1">Profil</h1>
       </header>
 
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-11 h-11 rounded-full bg-[color:var(--vr-primary)] flex items-center justify-center text-base font-medium text-white">
+        <div className="w-11 h-11 rounded-full bg-[color:var(--ui-primary)] flex items-center justify-center text-base font-medium text-white">
           {me?.name?.[0]?.toUpperCase() || "F"}
         </div>
         <div className="flex-1 min-w-0">
@@ -118,7 +118,7 @@ export default function ProfilePage() {
               <div className="text-sm font-medium text-ink">Shortcut iOS — Share ke LifeCC</div>
               <div className="text-[11px] text-muted">Tap di iPhone untuk auto-install shortcut</div>
             </div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--vr-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ui-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
               <path d="M7 17 17 7M7 7h10v10" />
             </svg>
           </Row>
@@ -135,7 +135,7 @@ export default function ProfilePage() {
                 <div className="text-sm font-medium text-ink">{title}</div>
                 <div className="text-[11px] text-muted">{sub}</div>
               </div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--vr-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--ui-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </Row>
@@ -175,15 +175,15 @@ export default function ProfilePage() {
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="vr-kicker block mb-1">Air (L/hari)</label>
+              <label className="kicker block mb-1">Air (L/hari)</label>
               <Input type="number" step="0.25" value={waterTargetL} onChange={(e) => setWaterTargetL(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
             <div>
-              <label className="vr-kicker block mb-1">Gelas (ml)</label>
+              <label className="kicker block mb-1">Gelas (ml)</label>
               <Input type="number" value={glassMl} onChange={(e) => setGlassMl(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
             <div>
-              <label className="vr-kicker block mb-1">Olahraga/mgg</label>
+              <label className="kicker block mb-1">Olahraga/mgg</label>
               <Input type="number" value={workoutWeek} onChange={(e) => setWorkoutWeek(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
           </div>
@@ -205,7 +205,7 @@ export default function ProfilePage() {
                     type="time"
                     value={hhmm(pref?.minuteOfDay ?? 420)}
                     onChange={(e) => changePrefTime(type, e.target.value)}
-                    className="bg-white/[0.04] border border-lineSoft rounded-control px-2 py-1 text-[11px] text-soft outline-none focus:border-[color:var(--vr-accent)] transition-colors duration-[160ms]"
+                    className="bg-black/[0.04] border border-lineSoft rounded-control px-2 py-1 text-[11px] text-soft outline-none focus:border-[color:var(--ui-text)] transition-colors duration-[160ms]"
                   />
                 )}
                 <button
@@ -213,7 +213,7 @@ export default function ProfilePage() {
                   role="switch"
                   aria-checked={enabled}
                   aria-label={label}
-                  className={`w-10 h-[22px] rounded-full relative transition-colors duration-[160ms] ${enabled ? "bg-[color:var(--vr-positive)]" : "bg-white/[0.08]"}`}
+                  className={`w-10 h-[22px] rounded-full relative transition-colors duration-[160ms] ${enabled ? "bg-[color:var(--ui-positive)]" : "bg-black/[0.07]"}`}
                 >
                   <span className={`absolute top-[3px] w-4 h-4 rounded-full bg-white transition-all duration-[160ms] ${enabled ? "left-[22px]" : "left-[3px]"}`} />
                 </button>

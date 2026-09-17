@@ -100,8 +100,8 @@ export default function InvestPage() {
   return (
     <div className="animate-rise">
       <header className="mb-5 pt-1">
-        <p className="vr-kicker">Proyeksi</p>
-        <h1 className="vr-display mt-1">Proyeksi Portofolio</h1>
+        <p className="kicker">Proyeksi</p>
+        <h1 className="display mt-1">Proyeksi Portofolio</h1>
         <p className="text-xs text-muted mt-1">Simulasi compound growth jangka panjang. Edukasi — bukan saran investasi.</p>
       </header>
 
@@ -112,7 +112,7 @@ export default function InvestPage() {
             <Input type="number" inputMode="numeric" value={monthly} onChange={(e) => setMonthly(e.target.value)} className="!text-base tabular-nums" />
             <div className="flex gap-1.5 mt-2">
               {[200000, 500000, 1000000, 2000000].map((v) => (
-                <button key={v} onClick={() => setMonthly(String(v))} className="flex-1 rounded-md bg-white/[0.04] border border-lineSoft py-1.5 text-[11px] text-soft card-press">{v / 1000}k</button>
+                <button key={v} onClick={() => setMonthly(String(v))} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-1.5 text-[11px] text-soft card-press">{v / 1000}k</button>
               ))}
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function InvestPage() {
             <label className="text-[11px] text-muted mb-1.5 block">Durasi: {years} tahun</label>
             <div className="flex gap-1.5">
               {[3, 5, 10, 20].map((y) => (
-                <button key={y} onClick={() => setYears(y)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${years === y ? "bg-[color:var(--vr-primary)] text-white" : "bg-white/[0.04] border border-lineSoft text-muted"}`}>{y} thn</button>
+                <button key={y} onClick={() => setYears(y)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${years === y ? "bg-[color:var(--ui-primary)] text-white" : "bg-black/[0.04] border border-lineSoft text-muted"}`}>{y} thn</button>
               ))}
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function InvestPage() {
             <label className="text-[11px] text-muted mb-1.5 block">Skenario cepat</label>
             <div className="flex gap-2">
               {Object.keys(PRESETS).map((p) => (
-                <button key={p} onClick={() => applyPreset(p)} className="flex-1 rounded-md bg-white/[0.04] border border-lineSoft py-2 text-[11px] font-medium text-soft card-press">{p}</button>
+                <button key={p} onClick={() => applyPreset(p)} className="flex-1 rounded-md bg-black/[0.04] border border-lineSoft py-2 text-[11px] font-medium text-soft card-press">{p}</button>
               ))}
             </div>
           </div>
@@ -144,8 +144,8 @@ export default function InvestPage() {
                 <div key={i} className="flex items-center gap-2.5">
                   <div className="flex-1 min-w-0">
                     <div className="text-[11px] font-medium text-soft truncate">{a.name}</div>
-                    <div className="h-1 rounded-full bg-white/[0.05] mt-1.5 overflow-hidden">
-                      <div className="h-full rounded-full bg-[color:var(--vr-primary)] transition-all duration-300" style={{ width: `${Math.min(100, a.pct)}%` }} />
+                    <div className="h-1 rounded-full bg-black/[0.05] mt-1.5 overflow-hidden">
+                      <div className="h-full rounded-full bg-[color:var(--ui-primary)] transition-all duration-300" style={{ width: `${Math.min(100, a.pct)}%` }} />
                     </div>
                   </div>
                   <Input
@@ -174,7 +174,7 @@ export default function InvestPage() {
                 </div>
               ))}
             </div>
-            <p className={`text-[10px] mt-2.5 ${totalPct > 100 ? "text-[color:var(--vr-danger)]" : "text-muted"}`}>
+            <p className={`text-[10px] mt-2.5 ${totalPct > 100 ? "text-[color:var(--ui-danger)]" : "text-muted"}`}>
               Total alokasi: {totalPct}% (maks 100%)
             </p>
           </Card>
@@ -187,11 +187,11 @@ export default function InvestPage() {
                 <div className="text-[9px] text-muted">total modal</div>
               </div>
               <div>
-                <div className="text-sm font-semibold text-[color:var(--vr-accent)] tabular-nums">{idr(sim.finalTotal)}</div>
+                <div className="text-sm font-semibold text-[color:var(--ui-text)] tabular-nums">{idr(sim.finalTotal)}</div>
                 <div className="text-[9px] text-muted">nilai akhir</div>
               </div>
               <div>
-                <div className="text-sm font-semibold text-[color:var(--vr-positive)] tabular-nums">{idr(sim.finalTotal - sim.finalPrincipal)}</div>
+                <div className="text-sm font-semibold text-[color:var(--ui-positive)] tabular-nums">{idr(sim.finalTotal - sim.finalPrincipal)}</div>
                 <div className="text-[9px] text-muted">uang kerja</div>
               </div>
             </div>
@@ -201,15 +201,15 @@ export default function InvestPage() {
               {sim.series.map((s) => (
                 <div key={s.year} className="flex-1 flex flex-col items-center justify-end gap-1">
                   <div className="w-full rounded-t relative overflow-hidden" style={{ height: `${(s.total / maxTotal) * 100}%`, background: "rgba(255,255,255,0.08)" }}>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[color:var(--vr-primary)] to-[#531aff]" style={{ height: `${s.principal > 0 ? (s.principal / s.total) * 100 : 100}%` }} />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[color:var(--ui-primary)] to-[#531aff]" style={{ height: `${s.principal > 0 ? (s.principal / s.total) * 100 : 100}%` }} />
                   </div>
                   <span className="text-[8px] text-muted">{s.year}</span>
                 </div>
               ))}
             </div>
             <div className="flex gap-3 text-[9px] text-muted justify-center">
-              <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 bg-[color:var(--vr-primary)] rounded-[2px]" /> Modal</span>
-              <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 bg-white/[0.08] rounded-[2px]" /> Uang kerja</span>
+              <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 bg-[color:var(--ui-primary)] rounded-[2px]" /> Modal</span>
+              <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 bg-black/[0.07] rounded-[2px]" /> Uang kerja</span>
             </div>
           </Card>
 
@@ -217,7 +217,7 @@ export default function InvestPage() {
             <p className="text-[10px] text-muted mb-2">Per tahun</p>
             <div className="max-h-52 overflow-y-auto no-scrollbar">
               <table className="w-full text-[11px]">
-                <thead className="text-muted sticky top-0 bg-[color:var(--vr-surface-raised)]">
+                <thead className="text-muted sticky top-0 bg-[color:var(--ui-surface)]">
                   <tr><th className="text-left py-1.5 font-medium">Thn</th><th className="text-right font-medium">Modal</th><th className="text-right font-medium">Nilai</th><th className="text-right font-medium">Gain</th></tr>
                 </thead>
                 <tbody>
@@ -226,7 +226,7 @@ export default function InvestPage() {
                       <td className="py-1.5 text-muted">{s.year}</td>
                       <td className="text-right text-muted tabular-nums">{idr(s.principal)}</td>
                       <td className="text-right text-ink tabular-nums">{idr(s.total)}</td>
-                      <td className="text-right text-[color:var(--vr-positive)] tabular-nums">+{idr(s.total - s.principal)}</td>
+                      <td className="text-right text-[color:var(--ui-positive)] tabular-nums">+{idr(s.total - s.principal)}</td>
                     </tr>
                   ))}
                 </tbody>

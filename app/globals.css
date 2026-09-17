@@ -3,65 +3,63 @@
 @tailwind utilities;
 
 /* ============================================================
- * Life Command Center — Violet Rail
- * Design foundation: DesainPakeAI project "Tidak ada judul"
- * revision sha256-d65642602ee0a179 (Violet Rail)
- *
- * Roles: canvas/surface/raised + ink/soft/muted + one violet
- * accent ramp + positive|warning|danger states.
- * Display face: IBM Plex Serif (headings). Body: Inter.
+ * Life Command Center — White minimal
+ * Light monochrome system: white surfaces, ink text, one
+ * near-black primary, layered soft shadows, restrained motion.
+ * Icons: Lucide (real vector). No emoji anywhere.
  * ============================================================ */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Color roles */
-  --vr-primary: #553f83;
-  --vr-primary-hover: #531aff;
-  --vr-accent: #531aff;
-  --vr-on-primary: #ffffff;
-  --vr-canvas: #13111c;
-  --vr-surface: #0d0c14;
-  --vr-surface-muted: #1c1a28;
-  --vr-surface-raised: #221228;
-  --vr-text: #ffffff;
-  --vr-text-soft: #c4c4ca;
-  --vr-text-muted: #868593;
-  --vr-border: #374151;
-  --vr-border-soft: #ffffff1a;
-  --vr-focus-ring: #a78bfa;
-  --vr-positive: #609f89;
-  --vr-warning: #eab38a;
-  --vr-danger: #f87171;
+  /* Surfaces */
+  --ui-canvas: #f7f7f8;
+  --ui-surface: #ffffff;
+  --ui-surface-muted: #fafafa;
 
-  /* Atmosphere + rail surfaces */
-  --vr-gradient-atmosphere: linear-gradient(327.21deg, rgba(33, 0, 75, 0.24) 3.65%, rgba(60, 0, 136, 0) 40.32%),
-    linear-gradient(245.93deg, rgba(209, 21, 111, 0.16) 0%, rgba(209, 25, 80, 0) 36.63%);
-  --vr-gradient-rail: linear-gradient(108.94deg, #16093b 18.43%, #221228 52.22%);
+  /* Ink */
+  --ui-text: #111113;
+  --ui-text-soft: #55555e;
+  --ui-text-muted: #8a8a93;
+
+  /* Lines */
+  --ui-border: #e8e8ec;
+  --ui-border-strong: #d9d9df;
+
+  /* Actions */
+  --ui-primary: #111113;
+  --ui-primary-hover: #2a2a2e;
+  --ui-on-primary: #ffffff;
+  --ui-focus-ring: #2563eb;
+
+  /* Status */
+  --ui-positive: #047857;
+  --ui-positive-soft: #ecfdf5;
+  --ui-warning: #b45309;
+  --ui-warning-soft: #fffbeb;
+  --ui-danger: #b91c1c;
+  --ui-danger-soft: #fef2f2;
+
+  /* Elevation — layered, soft, light-theme */
+  --shadow-xs: 0 1px 2px rgba(16, 17, 26, 0.05);
+  --shadow-card: 0 1px 2px rgba(16, 17, 26, 0.04), 0 4px 12px rgba(16, 17, 26, 0.06);
+  --shadow-lift: 0 2px 4px rgba(16, 17, 26, 0.05), 0 12px 24px rgba(16, 17, 26, 0.1);
+  --shadow-sheet: 0 -8px 40px rgba(16, 17, 26, 0.16);
 
   /* Motion */
-  --vr-duration-fast: 160ms;
-  --vr-duration-flow: 700ms;
-  --vr-ease-flow: cubic-bezier(0.22, 1, 0.36, 1);
-  --vr-ease-snap: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 320ms;
 }
 
 html,
 body {
   height: 100%;
-  background: var(--vr-canvas);
-  color: var(--vr-text);
+  background: var(--ui-canvas);
+  color: var(--ui-text);
   overscroll-behavior-y: none;
-}
-
-/* Atmosphere: one fixed gradient layer, never per-component neon. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: var(--vr-gradient-atmosphere);
 }
 
 body {
@@ -72,44 +70,159 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Type roles ---------- */
+/* ---------- Type ---------- */
 
-.vr-display {
-  font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
-  font-size: 26px;
-  font-weight: 600;
-  line-height: 1.192;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-
-.vr-title {
-  font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
-  font-size: 20px;
-  font-weight: 600;
+.display {
+  font-size: 24px;
+  font-weight: 650;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
   text-wrap: balance;
 }
 
-.vr-kicker {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--vr-text-muted);
+.title-lg {
+  font-size: 17px;
+  font-weight: 620;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
 }
 
-.vr-num {
+.kicker {
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ui-text-muted);
+}
+
+.num {
   font-variant-numeric: tabular-nums;
 }
 
 /* ---------- Focus ---------- */
 
 :focus-visible {
-  outline: 2px solid var(--vr-focus-ring);
+  outline: 2px solid var(--ui-focus-ring);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+/* ---------- Surfaces ---------- */
+
+.surface {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+/* Interactive lift: shadow + 1px rise, interruptible, never on text. */
+.lift {
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+.lift:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: var(--shadow-xs);
+}
+
+.press {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+}
+.fade-rise {
+  animation: rise var(--dur-slow) var(--ease-out) both;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+.fade-in {
+  animation: fade var(--dur-base) ease both;
+}
+
+/* Stagger helper: set --i (0..n) inline on list items */
+.stagger-item {
+  animation: rise var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 14) * 42ms);
+}
+
+/* Splash progress: sine-ish sweep */
+@keyframes sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+.sweep {
+  animation: sweep 1.15s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+}
+.breathe {
+  animation: breathe 1.8s ease-in-out infinite;
+}
+
+/* ---------- Sheets / modals (enter via @starting-style) ---------- */
+
+.sheet-backdrop {
+  transition: opacity var(--dur-slow) ease;
+}
+@starting-style {
+  .sheet-backdrop {
+    opacity: 0;
+  }
+}
+.sheet-panel {
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+@starting-style {
+  .sheet-panel {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+.sheet-settled.sheet-backdrop,
+.sheet-settled.sheet-panel {
+  transition: none;
+  transform: none;
+  opacity: 1;
+}
+.modal-panel {
+  transition: transform var(--dur-slow) var(--ease-spring), opacity var(--dur-base) ease;
+}
+@starting-style {
+  .modal-panel {
+    transform: translate3d(0, 28px, 0) scale(0.985);
+    opacity: 0;
+  }
 }
 
 /* ---------- iOS safe areas ---------- */
@@ -132,120 +245,18 @@ body {
   scrollbar-width: none;
 }
 
-/* ---------- Motion (transform/opacity only, ≤160ms feedback) ---------- */
-
-.card-press {
-  transition: transform var(--vr-duration-fast) var(--vr-ease-snap), opacity var(--vr-duration-fast) ease;
-}
-.card-press:active {
-  transform: scale(0.98);
-}
-.disabled\:card-press-none:disabled {
-  transform: none;
-  transition: none;
-}
-
-@keyframes lcc-rise {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 6px, 0);
-  }
-}
-.animate-rise {
-  animation: lcc-rise 0.18s var(--vr-ease-snap);
-}
-
-@keyframes lcc-sheet {
-  from {
-    transform: translate3d(0, 100%, 0);
-  }
-}
-.animate-sheet {
-  animation: lcc-sheet 0.22s var(--vr-ease-snap);
-}
-
-@keyframes lcc-fade {
-  from {
-    opacity: 0;
-  }
-}
-.animate-fade {
-  animation: lcc-fade 0.15s ease;
-}
-
-@keyframes lcc-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
-}
-.pulse {
-  animation: lcc-pulse 1.4s ease-in-out infinite;
-}
-
-/* Entry transitions via @starting-style (Safari 17.5+ / Chrome 117+).
- * No JS, no fill-mode trap: unsupported browsers simply show final state. */
-.sheet-backdrop {
-  transition: opacity 0.2s ease;
-}
-@starting-style {
-  .sheet-backdrop {
-    opacity: 0;
-  }
-}
-.sheet-panel {
-  transition: transform 0.25s var(--vr-ease-snap);
-}
-@starting-style {
-  .sheet-panel {
-    transform: translate3d(0, 100%, 0);
-  }
-}
-.sheet-settled.sheet-backdrop,
-.sheet-settled.sheet-panel {
-  transition: none;
-  transform: none;
-  opacity: 1;
-}
-.modal-panel {
-  transition: transform 0.25s var(--vr-ease-snap), opacity 0.2s ease;
-}
-@starting-style {
-  .modal-panel {
-    transform: translate3d(0, 24px, 0);
-    opacity: 0;
-  }
-}
-
-/* Stagger helper: set --i (0..n) inline on list items */
-.stagger-item {
-  animation: lcc-rise 0.18s var(--vr-ease-snap);
-  animation-delay: calc(min(var(--i, 0), 12) * 30ms);
-}
-
-@keyframes lcc-splash-bar {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(300%);
-  }
-}
-.splash-bar {
-  animation: lcc-splash-bar 1.1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .card-press,
-  .animate-rise,
-  .animate-sheet,
-  .animate-fade,
-  .pulse,
-  .stagger-item {
+  .fade-rise,
+  .fade-in,
+  .stagger-item,
+  .sweep,
+  .breathe,
+  .lift,
+  .press {
     animation: none;
     transition: none;
+  }
+  .lift:hover {
+    transform: none;
   }
 }
