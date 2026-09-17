@@ -20,8 +20,8 @@ interface DashData {
   latestEval: { healthScore: number; createdAt: string } | null;
 }
 
-const TYPE_ACCENT: Record<string, string> = { SCHOOL: "#7170ff", LESSON: "#f5a623", ACTIVITY: "#27a644", PERSONAL: "#62666d" };
-const PRIORITY_DOT: Record<string, string> = { URGENT: "#eb5757", HIGH: "#f5a623", MEDIUM: "#7170ff", LOW: "#62666d" };
+const TYPE_ACCENT: Record<string, string> = { SCHOOL: "#531aff", LESSON: "#eab38a", ACTIVITY: "#609f89", PERSONAL: "#868593" };
+const PRIORITY_DOT: Record<string, string> = { URGENT: "#f87171", HIGH: "#eab38a", MEDIUM: "#531aff", LOW: "#868593" };
 
 function hhmm(m: number) {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -93,12 +93,12 @@ export default function HomeDashboard() {
       {/* Header */}
       <header className="flex items-center justify-between mb-4 pt-1">
         <div>
-          <p className="text-[11px] text-[#8a8f98]">{dateStr}</p>
-          <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">{greeting}, Fatih</h1>
+          <p className="text-[11px] text-[#868593]">{dateStr}</p>
+          <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#ffffff]">{greeting}, Fatih</h1>
         </div>
         <Link
           href="/profile"
-          className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[13px] font-medium text-[#d0d6e0] transition-colors duration-150 hover:bg-white/[0.07]"
+          className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[13px] font-medium text-[#c4c4ca] transition-colors duration-150 hover:bg-white/[0.07]"
           aria-label="Profil"
         >
           F
@@ -108,18 +108,18 @@ export default function HomeDashboard() {
       {/* Sekarang */}
       <Card className="mb-3">
         <div className="flex items-center gap-3">
-          <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: data.currentBlock ? TYPE_ACCENT[data.currentBlock.type] || "#62666d" : "rgba(255,255,255,0.12)" }} />
+          <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: data.currentBlock ? TYPE_ACCENT[data.currentBlock.type] || "#868593" : "rgba(255,255,255,0.12)" }} />
           <div className="min-w-0">
-            <p className="text-[10px] text-[#8a8f98] mb-0.5">Sekarang</p>
+            <p className="text-[10px] text-[#868593] mb-0.5">Sekarang</p>
             {data.currentBlock ? (
               <>
-                <div className="font-medium text-[#f7f8f8] truncate">{data.currentBlock.title}</div>
-                <div className="text-xs text-[#8a8f98] tabular-nums">
+                <div className="font-medium text-[#ffffff] truncate">{data.currentBlock.title}</div>
+                <div className="text-xs text-[#868593] tabular-nums">
                   {hhmm(data.currentBlock.startMinute)} – {hhmm(data.currentBlock.endMinute)}
                 </div>
               </>
             ) : (
-              <div className="text-sm text-[#d0d6e0] font-medium">
+              <div className="text-sm text-[#c4c4ca] font-medium">
                 {data.nextBlock ? `Bebas · ${data.nextBlock.title} @ ${hhmm(data.nextBlock.startMinute)}` : "Bebas / di luar jadwal"}
               </div>
             )}
@@ -135,17 +135,17 @@ export default function HomeDashboard() {
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="text-[#f7f8f8] font-medium">Minum air</span>
-                <span className="text-[#8a8f98] tabular-nums">{(data.water.todayMl / 1000).toFixed(1)} / {(data.water.target / 1000).toFixed(1)} L</span>
+                <span className="text-[#ffffff] font-medium">Minum air</span>
+                <span className="text-[#868593] tabular-nums">{(data.water.todayMl / 1000).toFixed(1)} / {(data.water.target / 1000).toFixed(1)} L</span>
               </div>
               <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                <div className="h-full rounded-full bg-[#7170ff] transition-all duration-300" style={{ width: `${Math.min(100, waterPct * 100)}%` }} />
+                <div className="h-full rounded-full bg-[#531aff] transition-all duration-300" style={{ width: `${Math.min(100, waterPct * 100)}%` }} />
               </div>
             </div>
             <button
               onClick={addWater}
               disabled={waterBusy}
-              className="shrink-0 text-[11px] text-[#7170ff] border border-[#7170ff]/30 rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-[#7170ff]/10 disabled:opacity-50"
+              className="shrink-0 text-[11px] text-[#531aff] border border-[#531aff]/30 rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-[#531aff]/10 disabled:opacity-50"
             >
               + Gelas
             </button>
@@ -154,14 +154,14 @@ export default function HomeDashboard() {
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="text-[#f7f8f8] font-medium">Habit</span>
-                <span className="text-[#8a8f98] tabular-nums">{data.habits.done}/{data.habits.total}</span>
+                <span className="text-[#ffffff] font-medium">Habit</span>
+                <span className="text-[#868593] tabular-nums">{data.habits.done}/{data.habits.total}</span>
               </div>
               <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                <div className="h-full rounded-full bg-[#27a644] transition-all duration-300" style={{ width: `${data.habits.total ? (data.habits.done / data.habits.total) * 100 : 0}%` }} />
+                <div className="h-full rounded-full bg-[#609f89] transition-all duration-300" style={{ width: `${data.habits.total ? (data.habits.done / data.habits.total) * 100 : 0}%` }} />
               </div>
             </div>
-            <Link href="/health" className="shrink-0 text-[11px] text-[#8a8f98] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
+            <Link href="/health" className="shrink-0 text-[11px] text-[#868593] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
               Buka
             </Link>
           </div>
@@ -169,14 +169,14 @@ export default function HomeDashboard() {
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="text-[#f7f8f8] font-medium">Olahraga minggu ini</span>
-                <span className="text-[#8a8f98] tabular-nums">{data.workout.weekCount}/{data.workout.target}</span>
+                <span className="text-[#ffffff] font-medium">Olahraga minggu ini</span>
+                <span className="text-[#868593] tabular-nums">{data.workout.weekCount}/{data.workout.target}</span>
               </div>
               <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                <div className="h-full rounded-full bg-[#f5a623] transition-all duration-300" style={{ width: `${Math.min(100, (data.workout.weekCount / Math.max(1, data.workout.target)) * 100)}%` }} />
+                <div className="h-full rounded-full bg-[#eab38a] transition-all duration-300" style={{ width: `${Math.min(100, (data.workout.weekCount / Math.max(1, data.workout.target)) * 100)}%` }} />
               </div>
             </div>
-            <Link href="/health" className="shrink-0 text-[11px] text-[#8a8f98] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
+            <Link href="/health" className="shrink-0 text-[11px] text-[#868593] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
               Log
             </Link>
           </div>
@@ -184,26 +184,26 @@ export default function HomeDashboard() {
       </Card>
 
       {/* Tugas */}
-      <SectionTitle action={<Link href="/tasks" className="text-xs text-[#7170ff] hover:text-[#828fff] transition-colors duration-150">Semua</Link>}>Tugas Sekolah</SectionTitle>
+      <SectionTitle action={<Link href="/tasks" className="text-xs text-[#531aff] hover:text-[#a78bfa] transition-colors duration-150">Semua</Link>}>Tugas Sekolah</SectionTitle>
       {data.tasks.overdue > 0 && (
-        <Card className="mb-2 !py-2.5 border-[#eb5757]/30">
-          <span className="text-[#eb5757] text-[13px] font-medium">{data.tasks.overdue} tugas terlambat — segera kerjakan</span>
+        <Card className="mb-2 !py-2.5 border-[#f87171]/30">
+          <span className="text-[#f87171] text-[13px] font-medium">{data.tasks.overdue} tugas terlambat — segera kerjakan</span>
         </Card>
       )}
       {data.tasks.next.length === 0 ? (
-        <p className="text-sm text-[#62666d] py-3">Tidak ada tugas aktif</p>
+        <p className="text-sm text-[#868593] py-3">Tidak ada tugas aktif</p>
       ) : (
         <div className="space-y-1.5">
           {data.tasks.next.slice(0, 3).map((t) => (
             <Card key={t.id} className="flex items-center justify-between !py-2.5">
               <div className="min-w-0 pr-2">
-                <div className="text-sm font-medium text-[#f7f8f8] truncate">{t.title}</div>
-                <div className="text-[11px] text-[#62666d]">
+                <div className="text-sm font-medium text-[#ffffff] truncate">{t.title}</div>
+                <div className="text-[11px] text-[#868593]">
                   {t.deadline ? new Date(t.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : "Tanpa deadline"}
                 </div>
               </div>
-              <span className="flex items-center gap-1 text-[10px] font-medium text-[#8a8f98] shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: PRIORITY_DOT[t.priority] || "#62666d" }} />
+              <span className="flex items-center gap-1 text-[10px] font-medium text-[#868593] shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: PRIORITY_DOT[t.priority] || "#868593" }} />
                 {t.priority}
               </span>
             </Card>
@@ -212,18 +212,18 @@ export default function HomeDashboard() {
       )}
 
       {/* Jadwal hari ini */}
-      <SectionTitle action={<Link href="/tasks" className="text-xs text-[#7170ff] hover:text-[#828fff] transition-colors duration-150">Kelola</Link>}>Jadwal Hari Ini</SectionTitle>
+      <SectionTitle action={<Link href="/tasks" className="text-xs text-[#531aff] hover:text-[#a78bfa] transition-colors duration-150">Kelola</Link>}>Jadwal Hari Ini</SectionTitle>
       {data.todayBlocks.length === 0 ? (
-        <p className="text-sm text-[#62666d] py-3">Tidak ada jadwal</p>
+        <p className="text-sm text-[#868593] py-3">Tidak ada jadwal</p>
       ) : (
         <div className="space-y-1.5">
           {data.todayBlocks.map((b) => (
             <Card key={b.id} className="!py-2.5">
               <div className="flex items-center gap-3">
-                <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "#62666d" }} />
+                <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "#868593" }} />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-[#f7f8f8] truncate">{b.title}</div>
-                  <div className="text-[11px] text-[#62666d] tabular-nums">
+                  <div className="text-sm font-medium text-[#ffffff] truncate">{b.title}</div>
+                  <div className="text-[11px] text-[#868593] tabular-nums">
                     {hhmm(b.startMinute)} – {hhmm(b.endMinute)}
                   </div>
                 </div>
@@ -234,13 +234,13 @@ export default function HomeDashboard() {
       )}
 
       {/* Keuangan ringkas */}
-      <SectionTitle action={<Link href="/finance" className="text-xs text-[#7170ff] hover:text-[#828fff] transition-colors duration-150">Detail</Link>}>Uang Hari Ini</SectionTitle>
+      <SectionTitle action={<Link href="/finance" className="text-xs text-[#531aff] hover:text-[#a78bfa] transition-colors duration-150">Detail</Link>}>Uang Hari Ini</SectionTitle>
       <Card>
         <div className="flex justify-between text-[13px] mb-2 tabular-nums">
-          <span className="text-[#2fbd50] font-medium">Masuk {idr(data.finance.todayIncome)}</span>
-          <span className="text-[#eb5757] font-medium">Keluar {idr(data.finance.todayExpense)}</span>
+          <span className="text-[#72b39a] font-medium">Masuk {idr(data.finance.todayIncome)}</span>
+          <span className="text-[#f87171] font-medium">Keluar {idr(data.finance.todayExpense)}</span>
         </div>
-        <div className="text-[11px] text-[#62666d]">{data.finance.txCountToday} transaksi tercatat hari ini</div>
+        <div className="text-[11px] text-[#868593]">{data.finance.txCountToday} transaksi tercatat hari ini</div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Link href="/finance">
             <Btn variant="ghost" className="w-full !py-1.5 text-xs">Catat</Btn>
@@ -259,15 +259,15 @@ export default function HomeDashboard() {
             {data.goals.map((g) => (
               <Card key={g.id} className="!py-3">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm font-medium text-[#f7f8f8] flex items-center gap-2">
+                  <div className="text-sm font-medium text-[#ffffff] flex items-center gap-2">
                     <span>{g.icon}</span> {g.name}
                   </div>
-                  <div className="text-xs text-[#8a8f98] tabular-nums">{Math.round(g.progress * 100)}%</div>
+                  <div className="text-xs text-[#868593] tabular-nums">{Math.round(g.progress * 100)}%</div>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/[0.05] overflow-hidden">
-                  <div className="h-full bg-[#5e6ad2] transition-all duration-300" style={{ width: `${Math.min(100, g.progress * 100)}%` }} />
+                  <div className="h-full bg-[#553f83] transition-all duration-300" style={{ width: `${Math.min(100, g.progress * 100)}%` }} />
                 </div>
-                <div className="text-[10px] text-[#62666d] mt-1 tabular-nums">
+                <div className="text-[10px] text-[#868593] mt-1 tabular-nums">
                   {idr(g.currentAmount)} / {idr(g.targetAmount)}
                 </div>
               </Card>
@@ -280,12 +280,12 @@ export default function HomeDashboard() {
         <>
           <SectionTitle>Skor Keuangan</SectionTitle>
           <Card className="flex items-center gap-4">
-            <div className="shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center" style={{ borderColor: data.latestEval.healthScore >= 75 ? "#27a644" : data.latestEval.healthScore >= 50 ? "#f5a623" : "#eb5757" }}>
-              <span className="text-sm font-semibold text-[#f7f8f8] tabular-nums">{data.latestEval.healthScore}</span>
+            <div className="shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center" style={{ borderColor: data.latestEval.healthScore >= 75 ? "#609f89" : data.latestEval.healthScore >= 50 ? "#eab38a" : "#f87171" }}>
+              <span className="text-sm font-semibold text-[#ffffff] tabular-nums">{data.latestEval.healthScore}</span>
             </div>
-            <div className="text-xs text-[#8a8f98]">
+            <div className="text-xs text-[#868593]">
               Skor kesehatan keuangan terakhir.
-              <Link href="/advisor" className="block text-[#7170ff] font-medium mt-1 hover:text-[#828fff] transition-colors duration-150">
+              <Link href="/advisor" className="block text-[#531aff] font-medium mt-1 hover:text-[#a78bfa] transition-colors duration-150">
                 Buka evaluasi
               </Link>
             </div>

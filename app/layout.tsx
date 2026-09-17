@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, IBM_Plex_Serif } from "next/font/google";
 import SWRegister from "@/components/sw-register";
 import "./globals.css";
 
@@ -7,6 +7,14 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Violet Rail display face — IBM Plex Serif for page titles.
+const plexSerif = IBM_Plex_Serif({
+  subsets: ["latin"],
+  variable: "--font-plex-serif",
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -23,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08090a",
+  themeColor: "#13111c",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -33,7 +41,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} ${plexSerif.variable} antialiased`}>
         <SWRegister />
         {children}
       </body>

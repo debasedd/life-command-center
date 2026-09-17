@@ -84,7 +84,7 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#f7f8f8]" : "text-[#8a8f98]"}`}
+            className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#ffffff]" : "text-[#868593]"}`}
           >
             {t === "photo" ? "Foto soal" : "Ketik manual"}
           </button>
@@ -100,7 +100,7 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
             <div className="space-y-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={preview} alt="preview soal" className="w-full rounded-lg border border-white/[0.08] max-h-72 object-contain bg-black/40" />
-              <p className="text-[11px] text-[#8a8f98] text-center">Pastikan semua soal & angka terbaca jelas.</p>
+              <p className="text-[11px] text-[#868593] text-center">Pastikan semua soal & angka terbaca jelas.</p>
               <div className="flex gap-2">
                 <Btn variant="ghost" onClick={() => setPreview(null)} className="flex-1">Ulangi</Btn>
                 <Btn onClick={submit} disabled={busy} className="flex-1">
@@ -110,7 +110,7 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
             </div>
           ) : (
             <div className="space-y-2.5">
-              <p className="text-sm text-[#d0d6e0] leading-relaxed">
+              <p className="text-sm text-[#c4c4ca] leading-relaxed">
                 Foto soal tugas. AI membaca soal, memasukkan ke daftar tugas, lalu mengerjakannya.
               </p>
               <Btn onClick={() => pick("camera")} className="w-full !py-3">Buka Kamera</Btn>
@@ -128,7 +128,7 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
             placeholder="Ketik atau tempel soal di sini, mis:&#10;Hitung integral dari 2x dx&#10;atau soal fisika lengkap"
             rows={7}
           />
-          <p className="text-[11px] text-[#62666d]">AI mengerjakan soal & simpan pembahasannya ke tugas.</p>
+          <p className="text-[11px] text-[#868593]">AI mengerjakan soal & simpan pembahasannya ke tugas.</p>
           <Btn onClick={submitText} disabled={busy} className="w-full py-2.5">
             {busy ? "AI mengerjakan…" : "Kerjakan dengan AI"}
           </Btn>
@@ -142,24 +142,24 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
 export function AiStatusBadge({ status }: { status: string }) {
   if (status === "PENDING" || status === "PROCESSING") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#7170ff] border border-[#7170ff]/30 rounded-full px-2 py-0.5 font-medium">
-        <span className="w-1 h-1 rounded-full bg-[#7170ff] pulse" />
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#531aff] border border-[#531aff]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[#531aff] pulse" />
         AI mengerjakan
       </span>
     );
   }
   if (status === "DONE") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#27a644] border border-[#27a644]/30 rounded-full px-2 py-0.5 font-medium">
-        <span className="w-1 h-1 rounded-full bg-[#27a644]" />
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#609f89] border border-[#609f89]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[#609f89]" />
         Pembahasan siap
       </span>
     );
   }
   if (status === "FAILED") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#eb5757] border border-[#eb5757]/30 rounded-full px-2 py-0.5 font-medium">
-        <span className="w-1 h-1 rounded-full bg-[#eb5757]" />
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-[#f87171] border border-[#f87171]/30 rounded-full px-2 py-0.5 font-medium">
+        <span className="w-1 h-1 rounded-full bg-[#f87171]" />
         Gagal — coba lagi
       </span>
     );
@@ -175,23 +175,23 @@ export function AiAnswerModal({ task, onClose, onRetry }: { task: { id: string; 
     createPortal(
       <div className="fixed inset-0 z-50">
         <div className="sheet-backdrop absolute inset-0 bg-black/85" onClick={onClose} />
-        <div className="modal-panel absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] flex flex-col">
+        <div className="modal-panel absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[#221228] border-t border-white/[0.08] flex flex-col">
           <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-white/[0.06]">
             <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
-            <h3 className="text-sm font-semibold mt-1 truncate pr-2 text-[#f7f8f8]">Pembahasan: {task.title}</h3>
-            <button onClick={onClose} className="text-[#8a8f98] mt-1 text-xl px-2 hover:text-[#f7f8f8] transition-colors duration-150">✕</button>
+            <h3 className="text-sm font-semibold mt-1 truncate pr-2 text-[#ffffff]">Pembahasan: {task.title}</h3>
+            <button onClick={onClose} className="text-[#868593] mt-1 text-xl px-2 hover:text-[#ffffff] transition-colors duration-150">✕</button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar">
             {task.aiStatus === "PENDING" && (
-              <div className="text-center py-12 text-[#8a8f98]">
+              <div className="text-center py-12 text-[#868593]">
                 <div className="text-4xl mb-3 pulse">🤖</div>
                 AI sedang mengerjakan…<br />
-                <span className="text-xs text-[#62666d]">Tinggalin dulu, balik lagi nanti. Hasilnya kesimpen.</span>
+                <span className="text-xs text-[#868593]">Tinggalin dulu, balik lagi nanti. Hasilnya kesimpen.</span>
               </div>
             )}
             {task.aiStatus === "FAILED" && (
               <div className="text-center py-12">
-                <p className="text-sm text-[#8a8f98] mb-4">{task.aiError || "AI gagal mengerjakan."}</p>
+                <p className="text-sm text-[#868593] mb-4">{task.aiError || "AI gagal mengerjakan."}</p>
                 <Btn onClick={() => onRetry(task.id)}>Coba Lagi</Btn>
               </div>
             )}

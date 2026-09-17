@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 /* ---------- Shared primitives (Linear-inspired) ----------
- * Surfaces: white @ 2-5% opacity over #08090a. Borders: white @ 5-8%.
- * Accent #5e6ad2 / #7170ff reserved for interactive elements only.
+ * Surfaces: white @ 2-5% opacity over #13111c. Borders: white @ 5-8%.
+ * Accent #553f83 / #531aff reserved for interactive elements only.
  * Motion: transform/opacity only → GPU composited, holds 120Hz.
  */
 
@@ -36,7 +36,7 @@ export function Card({
 export function SectionTitle({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-2 mt-6 first:mt-0">
-      <h2 className="text-[13px] font-medium text-[#8a8f98] tracking-[-0.01em]">{children}</h2>
+      <h2 className="text-[13px] font-medium text-[#868593] tracking-[-0.01em]">{children}</h2>
       {action}
     </div>
   );
@@ -58,10 +58,10 @@ export function Btn({
   type?: "button" | "submit";
 }) {
   const styles = {
-    primary: "bg-[#5e6ad2] hover:bg-[#6975e0] active:bg-[#5561c8] text-white",
-    ghost: "bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.04] active:bg-white/[0.03] text-[#d0d6e0]",
-    danger: "bg-[#eb5757]/90 hover:bg-[#eb5757] text-white",
-    success: "bg-[#27a644] hover:bg-[#2fbd50] text-white",
+    primary: "bg-[#553f83] hover:bg-[#531aff] active:bg-[#4520cc] text-white",
+    ghost: "bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.04] active:bg-white/[0.03] text-[#c4c4ca]",
+    danger: "bg-[#f87171]/90 hover:bg-[#f87171] text-white",
+    success: "bg-[#609f89] hover:bg-[#72b39a] text-white",
   }[variant];
   return (
     <button
@@ -79,7 +79,7 @@ export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full rounded-md bg-white/[0.02] border border-white/[0.08] px-3.5 py-2.5 text-sm text-[#f7f8f8] placeholder-[#62666d] outline-none transition-colors duration-150 focus:border-[#7170ff] ${props.className || ""}`}
+      className={`w-full rounded-md bg-white/[0.02] border border-white/[0.08] px-3.5 py-2.5 text-sm text-[#ffffff] placeholder-[#868593] outline-none transition-colors duration-150 focus:border-[#531aff] ${props.className || ""}`}
     />
   );
 }
@@ -88,7 +88,7 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`w-full rounded-md bg-white/[0.02] border border-white/[0.08] px-3 py-2.5 text-sm text-[#f7f8f8] outline-none transition-colors duration-150 focus:border-[#7170ff] ${props.className || ""}`}
+      className={`w-full rounded-md bg-white/[0.02] border border-white/[0.08] px-3 py-2.5 text-sm text-[#ffffff] outline-none transition-colors duration-150 focus:border-[#531aff] ${props.className || ""}`}
     />
   );
 }
@@ -97,7 +97,7 @@ export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
   return (
     <textarea
       {...props}
-      className={`w-full rounded-md bg-white/[0.02] border border-white/[0.08] px-3.5 py-2.5 text-sm text-[#f7f8f8] placeholder-[#62666d] outline-none transition-colors duration-150 focus:border-[#7170ff] ${props.className || ""}`}
+      className={`w-full rounded-md bg-white/[0.02] border border-white/[0.08] px-3.5 py-2.5 text-sm text-[#ffffff] placeholder-[#868593] outline-none transition-colors duration-150 focus:border-[#531aff] ${props.className || ""}`}
     />
   );
 }
@@ -106,7 +106,7 @@ export function ProgressRing({
   value,
   size = 56,
   stroke = 6,
-  color = "#7170ff",
+  color = "#531aff",
   children,
 }: {
   value: number; // 0..1
@@ -121,7 +121,7 @@ export function ProgressRing({
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#23252a" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#374151" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -167,11 +167,11 @@ export function Sheet({
   const content = (
     <div className="fixed inset-0 z-50">
       <div className={`sheet-backdrop ${settled ? "sheet-settled" : ""} absolute inset-0 bg-black/85`} onClick={onClose} />
-      <div className={`sheet-panel ${settled ? "sheet-settled" : ""} absolute bottom-0 left-0 right-0 mx-auto max-w-md rounded-t-xl bg-[#191a1b] border-t border-white/[0.08] max-h-[85vh] overflow-y-auto no-scrollbar`}>
-        <div className="sticky top-0 bg-[#191a1b] rounded-t-xl px-4 pt-3 pb-2 flex items-center justify-between border-b border-white/[0.06]">
+      <div className={`sheet-panel ${settled ? "sheet-settled" : ""} absolute bottom-0 left-0 right-0 mx-auto max-w-md rounded-t-xl bg-[#221228] border-t border-white/[0.08] max-h-[85vh] overflow-y-auto no-scrollbar`}>
+        <div className="sticky top-0 bg-[#221228] rounded-t-xl px-4 pt-3 pb-2 flex items-center justify-between border-b border-white/[0.06]">
           <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
-          <h3 className="text-base font-semibold mt-1 text-[#f7f8f8]">{title}</h3>
-          <button onClick={onClose} className="text-[#8a8f98] mt-1 text-xl px-2 hover:text-[#f7f8f8] transition-colors duration-150">
+          <h3 className="text-base font-semibold mt-1 text-[#ffffff]">{title}</h3>
+          <button onClick={onClose} className="text-[#868593] mt-1 text-xl px-2 hover:text-[#ffffff] transition-colors duration-150">
             ✕
           </button>
         </div>
@@ -208,9 +208,9 @@ export function ToastHost() {
       {items.map((t) => (
         <div
           key={t.id}
-          className="animate-rise flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium bg-[#191a1b] border border-white/[0.08] text-[#f7f8f8]"
+          className="animate-rise flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium bg-[#221228] border border-white/[0.08] text-[#ffffff]"
         >
-          <span className={`w-1.5 h-1.5 rounded-full ${t.kind === "ok" ? "bg-[#27a644]" : "bg-[#eb5757]"}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${t.kind === "ok" ? "bg-[#609f89]" : "bg-[#f87171]"}`} />
           {t.msg}
         </div>
       ))}

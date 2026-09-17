@@ -83,10 +83,10 @@ export default function PushManager() {
     return (
       <div className="mb-3 flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/[0.08] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#27a644]" />
-          <span className="text-[13px] text-[#d0d6e0]">Notifikasi aktif</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#609f89]" />
+          <span className="text-[13px] text-[#c4c4ca]">Notifikasi aktif</span>
         </div>
-        <button onClick={testPush} className="text-xs text-[#7170ff] border border-[#7170ff]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[#7170ff]/10">
+        <button onClick={testPush} className="text-xs text-[#531aff] border border-[#531aff]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[#531aff]/10">
           Kirim test
         </button>
         {msg && <p className="sr-only">{msg}</p>}
@@ -98,18 +98,18 @@ export default function PushManager() {
     <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.08] px-4 py-3">
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium text-[#f7f8f8]">Aktifkan pengingat</p>
-          <p className="text-[11px] text-[#8a8f98] mt-0.5 leading-relaxed">
+          <p className="text-[13px] font-medium text-[#ffffff]">Aktifkan pengingat</p>
+          <p className="text-[11px] text-[#868593] mt-0.5 leading-relaxed">
             {standalone || permission !== "granted"
               ? "Tugas, minum air, olahraga & rekap harian langsung ke iPhone."
               : "Install app ke Home Screen dulu (Share → Add to Home Screen), lalu aktifkan dari sini."}
           </p>
         </div>
-        <button onClick={enable} disabled={busy} className="shrink-0 bg-[#5e6ad2] hover:bg-[#6975e0] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
+        <button onClick={enable} disabled={busy} className="shrink-0 bg-[#553f83] hover:bg-[#531aff] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
           {busy ? "…" : "Aktifkan"}
         </button>
       </div>
-      {msg && <p className="text-[11px] text-[#8a8f98] mt-2">{msg}</p>}
+      {msg && <p className="text-[11px] text-[#868593] mt-2">{msg}</p>}
     </div>
   );
 }

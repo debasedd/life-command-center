@@ -4,14 +4,49 @@
 
 :root {
   color-scheme: dark;
+  /* Violet Rail — Design Foundation from DesainPakeAI (revision sha256-d65642602ee0a179) */
+  --vr-primary: #553f83;
+  --vr-primary-hover: #531aff;
+  --vr-accent: #531aff;
+  --vr-canvas: #13111c;
+  --vr-surface: #0d0c14;
+  --vr-surface-muted: #1c1a28;
+  --vr-surface-raised: #221228;
+  --vr-text: #ffffff;
+  --vr-text-soft: #c4c4ca;
+  --vr-text-muted: #868593;
+  --vr-border: #374151;
+  --vr-border-soft: #ffffff1a;
+  --vr-focus-ring: #a78bfa;
+  --vr-magenta: #b814b8;
+  --vr-cyan: #a0e5e5;
+  --vr-gradient-atmosphere: linear-gradient(327.21deg, rgba(33, 0, 75, 0.24) 3.65%, rgba(60, 0, 136, 0) 40.32%),
+    linear-gradient(245.93deg, rgba(209, 21, 111, 0.16) 0%, rgba(209, 25, 80, 0) 36.63%);
+  --vr-gradient-rail: linear-gradient(108.94deg, #16093b 18.43%, #221228 52.22%);
+  --vr-ease-flow: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html,
 body {
   height: 100%;
-  background: #08090a;
-  color: #f7f8f8;
+  background: var(--vr-canvas);
+  color: var(--vr-text);
   overscroll-behavior-y: none;
+}
+
+/* Violet Rail atmosphere — one fixed gradient layer, no per-card neon. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--vr-gradient-atmosphere);
+}
+
+h1 {
+  font-family: var(--font-plex-serif), ui-serif, Georgia, serif;
+  letter-spacing: -0.02em;
 }
 
 body {

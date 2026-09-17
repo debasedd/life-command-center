@@ -58,7 +58,7 @@ const TABS = [
 export default function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md bg-[#0f1011]/[0.98] border-t border-white/[0.06] safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md bg-[#0d0c14]/[0.98] border-t border-white/[0.06] safe-bottom">
       <div className="flex">
         {TABS.map((t) => {
           const active = pathname === t.href || pathname.startsWith(t.href + "/");
@@ -69,12 +69,12 @@ export default function BottomNav() {
               className="relative flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors duration-150"
             >
               {active && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[#7170ff]" />
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[#531aff]" />
               )}
-              <span className={`${active ? "text-[#7170ff]" : "text-[#62666d]"} transition-colors duration-150`}>
+              <span className={`${active ? "text-[#531aff]" : "text-[#868593]"} transition-colors duration-150`}>
                 {t.icon}
               </span>
-              <span className={`text-[10px] font-medium transition-colors duration-150 ${active ? "text-[#f7f8f8]" : "text-[#62666d]"}`}>
+              <span className={`text-[10px] font-medium transition-colors duration-150 ${active ? "text-[#ffffff]" : "text-[#868593]"}`}>
                 {t.label}
               </span>
             </Link>

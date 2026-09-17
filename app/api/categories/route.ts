@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const count = await prisma.category.count({ where: { userId } });
   if (count >= 30) return NextResponse.json({ error: "Maksimal 30 kategori" }, { status: 400 });
   const category = await prisma.category.create({
-    data: { userId, name: String(body.name).trim(), icon: body.icon || "📦", color: body.color || "#6366f1" },
+    data: { userId, name: String(body.name).trim(), icon: body.icon || "📦", color: body.color || "#531aff" },
   });
   return NextResponse.json({ category });
 }

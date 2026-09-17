@@ -14,7 +14,7 @@ const WORKOUT_TYPES = ["Jogging", "Lari", "Push-up & Sit-up", "Gym / Angkat Beba
 
 function Trash({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="p-1.5 text-[#62666d] hover:text-[#eb5757] transition-colors duration-150" aria-label="Hapus">
+    <button onClick={onClick} className="p-1.5 text-[#868593] hover:text-[#f87171] transition-colors duration-150" aria-label="Hapus">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">
         <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
       </svg>
@@ -151,7 +151,7 @@ export default function HealthPage() {
   return (
     <div className="animate-rise">
       <header className="flex items-center justify-between mb-4 pt-1">
-        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#f7f8f8]">Kesehatan</h1>
+        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#ffffff]">Kesehatan</h1>
         <Btn
           onClick={() => setSheet(tab === "workout" ? "workout" : tab === "sleep" ? "sleep" : tab === "habits" ? "habit" : null)}
           className="!py-1.5 !px-3 text-xs"
@@ -167,7 +167,7 @@ export default function HealthPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-md py-1.5 text-[11px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#f7f8f8]" : "text-[#8a8f98]"}`}
+            className={`rounded-md py-1.5 text-[11px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#ffffff]" : "text-[#868593]"}`}
           >
             {TAB_LABEL[t]}
           </button>
@@ -178,28 +178,28 @@ export default function HealthPage() {
         <>
           <div className="grid grid-cols-3 gap-2 mb-3">
             <Card className="text-center !py-3">
-              <div className="text-xl font-semibold text-[#f7f8f8] tabular-nums">{wStats.thisWeekCount}</div>
-              <p className="text-[10px] text-[#8a8f98]">sesi minggu ini</p>
+              <div className="text-xl font-semibold text-[#ffffff] tabular-nums">{wStats.thisWeekCount}</div>
+              <p className="text-[10px] text-[#868593]">sesi minggu ini</p>
             </Card>
             <Card className="text-center !py-3">
-              <div className="text-xl font-semibold text-[#f7f8f8] tabular-nums">{wStats.thisWeekMinutes}</div>
-              <p className="text-[10px] text-[#8a8f98]">menit minggu ini</p>
+              <div className="text-xl font-semibold text-[#ffffff] tabular-nums">{wStats.thisWeekMinutes}</div>
+              <p className="text-[10px] text-[#868593]">menit minggu ini</p>
             </Card>
             <Card className="text-center !py-3">
-              <div className="text-xl font-semibold text-[#f5a623] tabular-nums">{wStats.streak}</div>
-              <p className="text-[10px] text-[#8a8f98]">hari beruntun</p>
+              <div className="text-xl font-semibold text-[#eab38a] tabular-nums">{wStats.streak}</div>
+              <p className="text-[10px] text-[#868593]">hari beruntun</p>
             </Card>
           </div>
 
           <Card className="mb-3">
-            <p className="text-[10px] text-[#8a8f98] mb-2">Konsistensi 4 minggu</p>
+            <p className="text-[10px] text-[#868593] mb-2">Konsistensi 4 minggu</p>
             <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(14, 1fr)" }}>
               {heat.map((h) => (
                 <div
                   key={h.day}
                   title={`${h.day}: ${h.minutes} menit`}
                   className="aspect-square rounded-[3px] transition-colors duration-300"
-                  style={{ background: h.has ? (h.minutes >= 45 ? "#27a644" : h.minutes >= 25 ? "#4d9f68" : "#3d5c4a") : "rgba(255,255,255,0.05)" }}
+                  style={{ background: h.has ? (h.minutes >= 45 ? "#609f89" : h.minutes >= 25 ? "#72b39a" : "#2c4a40") : "rgba(255,255,255,0.05)" }}
                 />
               ))}
             </div>
@@ -209,15 +209,15 @@ export default function HealthPage() {
           {workouts.slice(0, 15).map((w) => (
             <Card key={w.id} className="!py-2.5 mb-1.5 flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium text-[#f7f8f8]">{w.type}</div>
-                <div className="text-[11px] text-[#62666d]">{w.day} · {w.durationMinutes} mnt · {w.intensity.toLowerCase()}</div>
+                <div className="text-sm font-medium text-[#ffffff]">{w.type}</div>
+                <div className="text-[11px] text-[#868593]">{w.day} · {w.durationMinutes} mnt · {w.intensity.toLowerCase()}</div>
               </div>
               <Trash onClick={async () => { await api(`/api/workouts?id=${w.id}`, { method: "DELETE" }); await load(); }} />
             </Card>
           ))}
           {workouts.length === 0 && (
             <div className="text-center py-14">
-              <p className="text-sm text-[#62666d]">Belum ada workout</p>
+              <p className="text-sm text-[#868593]">Belum ada workout</p>
             </div>
           )}
         </>
@@ -227,16 +227,16 @@ export default function HealthPage() {
         <>
           <Card className="text-center py-7 mb-3">
             <div className="flex justify-center">
-              <ProgressRing value={waterPct} size={140} stroke={10} color="#7170ff">
+              <ProgressRing value={waterPct} size={140} stroke={10} color="#531aff">
                 <div>
-                  <div className="text-2xl font-semibold text-[#f7f8f8] tabular-nums">{(water.todayMl / 1000).toFixed(2)}L</div>
-                  <div className="text-[11px] text-[#8a8f98]">dari {(water.target / 1000).toFixed(1)}L</div>
+                  <div className="text-2xl font-semibold text-[#ffffff] tabular-nums">{(water.todayMl / 1000).toFixed(2)}L</div>
+                  <div className="text-[11px] text-[#868593]">dari {(water.target / 1000).toFixed(1)}L</div>
                 </div>
               </ProgressRing>
             </div>
             <div className="flex justify-center gap-1 mt-4">
               {Array.from({ length: glasses }).map((_, i) => (
-                <span key={i} className={`w-2 h-4 rounded-[2px] ${i < todayGlasses ? "bg-[#7170ff]" : "bg-white/[0.08]"}`} />
+                <span key={i} className={`w-2 h-4 rounded-[2px] ${i < todayGlasses ? "bg-[#531aff]" : "bg-white/[0.08]"}`} />
               ))}
             </div>
             <div className="flex justify-center gap-2 mt-5">
@@ -249,12 +249,12 @@ export default function HealthPage() {
           <SectionTitle>7 Hari Terakhir</SectionTitle>
           {water.history.slice().reverse().map((h) => (
             <Card key={h.day} className="!py-2.5 mb-1.5 flex items-center justify-between">
-              <span className="text-sm text-[#d0d6e0]">{new Date(h.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</span>
+              <span className="text-sm text-[#c4c4ca]">{new Date(h.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</span>
               <div className="flex items-center gap-2.5">
                 <div className="w-28 h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                  <div className="h-full bg-[#7170ff] transition-all duration-300" style={{ width: `${Math.min(100, (h.ml / water.target) * 100)}%` }} />
+                  <div className="h-full bg-[#531aff] transition-all duration-300" style={{ width: `${Math.min(100, (h.ml / water.target) * 100)}%` }} />
                 </div>
-                <span className={`text-xs font-medium tabular-nums w-14 text-right ${h.hit ? "text-[#27a644]" : "text-[#62666d]"}`}>{(h.ml / 1000).toFixed(1)}L</span>
+                <span className={`text-xs font-medium tabular-nums w-14 text-right ${h.hit ? "text-[#609f89]" : "text-[#868593]"}`}>{(h.ml / 1000).toFixed(1)}L</span>
               </div>
             </Card>
           ))}
@@ -270,12 +270,12 @@ export default function HealthPage() {
             return (
               <Card key={s.id} className="!py-3 mb-2 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-[#f7f8f8]">{new Date(s.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</div>
-                  <div className="text-[11px] text-[#62666d] mt-0.5">
+                  <div className="text-sm font-medium text-[#ffffff]">{new Date(s.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</div>
+                  <div className="text-[11px] text-[#868593] mt-0.5">
                     {hh(s.bedMinute)} – {hh(s.wakeMinute)} · kualitas {s.quality ?? "-"}/5
                   </div>
                 </div>
-                <span className={`text-sm font-semibold tabular-nums ${good ? "text-[#27a644]" : dur < 420 ? "text-[#eb5757]" : "text-[#f5a623]"}`}>
+                <span className={`text-sm font-semibold tabular-nums ${good ? "text-[#609f89]" : dur < 420 ? "text-[#f87171]" : "text-[#eab38a]"}`}>
                   {Math.floor(dur / 60)}j {dur % 60}m
                 </span>
               </Card>
@@ -283,7 +283,7 @@ export default function HealthPage() {
           })}
           {sleepLogs.length === 0 && (
             <div className="text-center py-14">
-              <p className="text-sm text-[#62666d]">Belum ada log tidur</p>
+              <p className="text-sm text-[#868593]">Belum ada log tidur</p>
             </div>
           )}
         </>
@@ -293,8 +293,8 @@ export default function HealthPage() {
         <>
           {hData.habits.length === 0 && (
             <div className="text-center py-14">
-              <p className="text-sm text-[#62666d]">Belum ada habit</p>
-              <p className="text-[11px] text-[#4a4d52] mt-1">Tap Tambah Habit untuk membuat</p>
+              <p className="text-sm text-[#868593]">Belum ada habit</p>
+              <p className="text-[11px] text-[#868593] mt-1">Tap Tambah Habit untuk membuat</p>
             </div>
           )}
           {hData.habits.map((h) => {
@@ -307,7 +307,7 @@ export default function HealthPage() {
                   <button
                     onClick={() => toggleHabit(h.id)}
                     aria-label="Toggle habit hari ini"
-                    className={`w-11 h-11 rounded-lg text-lg flex items-center justify-center border shrink-0 transition-colors duration-150 ${checkedToday ? "bg-[#27a644] border-[#27a644]" : "border-white/[0.1] bg-white/[0.03] hover:border-white/25"}`}
+                    className={`w-11 h-11 rounded-lg text-lg flex items-center justify-center border shrink-0 transition-colors duration-150 ${checkedToday ? "bg-[#609f89] border-[#609f89]" : "border-white/[0.1] bg-white/[0.03] hover:border-white/25"}`}
                   >
                     {checkedToday ? (
                       <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -318,8 +318,8 @@ export default function HealthPage() {
                     )}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-[#f7f8f8]">{h.name}</div>
-                    <div className="text-[11px] text-[#62666d]">
+                    <div className="text-sm font-medium text-[#ffffff]">{h.name}</div>
+                    <div className="text-[11px] text-[#868593]">
                       streak {streak.current} hari (best {streak.best}) · minggu ini {week}/{h.targetPerWeek}
                     </div>
                   </div>
@@ -335,29 +335,29 @@ export default function HealthPage() {
       <Sheet open={sheet === "workout"} onClose={() => setSheet(null)} title="Catat Workout">
         <div className="space-y-3">
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1 block">Jenis</label>
+            <label className="text-[11px] text-[#868593] mb-1 block">Jenis</label>
             <Select value={wType} onChange={(e) => setWType(e.target.value)}>
               {WORKOUT_TYPES.map((t) => <option key={t}>{t}</option>)}
             </Select>
           </div>
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Durasi: {wDur} menit</label>
+            <label className="text-[11px] text-[#868593] mb-1.5 block">Durasi: {wDur} menit</label>
             <div className="flex gap-1.5">
               {[15, 20, 30, 45, 60, 90].map((d) => (
-                <button key={d} onClick={() => setWDur(d)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wDur === d ? "bg-[#5e6ad2] text-white" : "bg-white/[0.04] border border-white/[0.06] text-[#8a8f98]"}`}>{d}′</button>
+                <button key={d} onClick={() => setWDur(d)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wDur === d ? "bg-[#553f83] text-white" : "bg-white/[0.04] border border-white/[0.06] text-[#868593]"}`}>{d}′</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Intensitas</label>
+            <label className="text-[11px] text-[#868593] mb-1.5 block">Intensitas</label>
             <div className="flex gap-1.5">
               {["RINGAN", "SEDANG", "BERAT"].map((i) => (
-                <button key={i} onClick={() => setWInt(i)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wInt === i ? "bg-[#5e6ad2] text-white" : "bg-white/[0.04] border border-white/[0.06] text-[#8a8f98]"}`}>{i}</button>
+                <button key={i} onClick={() => setWInt(i)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wInt === i ? "bg-[#553f83] text-white" : "bg-white/[0.04] border border-white/[0.06] text-[#868593]"}`}>{i}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1 block">Tanggal (opsional — default hari ini)</label>
+            <label className="text-[11px] text-[#868593] mb-1 block">Tanggal (opsional — default hari ini)</label>
             <Input type="date" value={wDay} onChange={(e) => setWDay(e.target.value)} />
           </div>
           <Btn onClick={addWorkout} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Simpan"}</Btn>
@@ -369,20 +369,20 @@ export default function HealthPage() {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[11px] text-[#8a8f98] mb-1 block">Jam tidur</label>
+              <label className="text-[11px] text-[#868593] mb-1 block">Jam tidur</label>
               <Input type="time" value={sBed} onChange={(e) => setSBed(e.target.value)} />
             </div>
             <div>
-              <label className="text-[11px] text-[#8a8f98] mb-1 block">Jam bangun</label>
+              <label className="text-[11px] text-[#868593] mb-1 block">Jam bangun</label>
               <Input type="time" value={sWake} onChange={(e) => setSWake(e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Kualitas: {sQuality}/5</label>
-            <input type="range" min={1} max={5} value={sQuality} onChange={(e) => setSQuality(Number(e.target.value))} className="w-full accent-[#5e6ad2]" />
+            <label className="text-[11px] text-[#868593] mb-1.5 block">Kualitas: {sQuality}/5</label>
+            <input type="range" min={1} max={5} value={sQuality} onChange={(e) => setSQuality(Number(e.target.value))} className="w-full accent-[#553f83]" />
           </div>
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1 block">Tanggal (opsional)</label>
+            <label className="text-[11px] text-[#868593] mb-1 block">Tanggal (opsional)</label>
             <Input type="date" value={sDay} onChange={(e) => setSDay(e.target.value)} />
           </div>
           <Btn onClick={saveSleep} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Simpan"}</Btn>
@@ -394,16 +394,16 @@ export default function HealthPage() {
         <div className="space-y-3">
           <Input value={hName} onChange={(e) => setHName(e.target.value)} placeholder="Nama habit, mis: Baca 15 menit" />
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Ikon</label>
+            <label className="text-[11px] text-[#868593] mb-1.5 block">Ikon</label>
             <div className="flex gap-2 flex-wrap">
               {["✅", "📖", "🧘", "🦷", "🙏", "🚭", "🎸", "🧹"].map((i) => (
-                <button key={i} onClick={() => setHIcon(i)} className={`w-11 h-11 rounded-md text-lg flex items-center justify-center border transition-colors duration-150 ${hIcon === i ? "border-[#7170ff] bg-[#7170ff]/10" : "border-white/[0.08] bg-white/[0.02]"}`}>{i}</button>
+                <button key={i} onClick={() => setHIcon(i)} className={`w-11 h-11 rounded-md text-lg flex items-center justify-center border transition-colors duration-150 ${hIcon === i ? "border-[#531aff] bg-[#531aff]/10" : "border-white/[0.08] bg-white/[0.02]"}`}>{i}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-[#8a8f98] mb-1.5 block">Target per minggu: {hTarget}×</label>
-            <input type="range" min={1} max={7} value={hTarget} onChange={(e) => setHTarget(Number(e.target.value))} className="w-full accent-[#5e6ad2]" />
+            <label className="text-[11px] text-[#868593] mb-1.5 block">Target per minggu: {hTarget}×</label>
+            <input type="range" min={1} max={7} value={hTarget} onChange={(e) => setHTarget(Number(e.target.value))} className="w-full accent-[#553f83]" />
           </div>
           <Btn onClick={addHabit} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Buat Habit"}</Btn>
         </div>
