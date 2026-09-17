@@ -110,6 +110,10 @@ async function scheduleTaskReminders(taskId: string | undefined, title: string, 
     rows.push(mk(h1, "Deadline besok", `"${title}" harus dikumpulkan besok!`));
   }
   if (rows.length) {
+    // Dedupe: buang reminder pending lama utk judul yang sama sebelum jadwal baru (cegah backlog).
+    await prisma.scheduledNotification.deleteMany({
+      where: { userId, type: "TASK_DEADLINE", sentAt: null, title: { in: [...new Set(rows.map((r) => r.title))] }, body: { contains: `"${title}"` } },
+    });
     await prisma.scheduledNotification.createMany({ data: rows });
   }
 }

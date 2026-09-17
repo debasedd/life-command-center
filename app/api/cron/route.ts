@@ -19,6 +19,13 @@ export async function GET(req: NextRequest) {
   const now = new Date();
   const dispatched: string[] = [];
 
+  // 0) Expire stale rows: reminder yang telat > 6 jam tidak dikirim (basi) — cegah banjir backlog.
+  const staleCutoff = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+  const expired = await prisma.scheduledNotification.updateMany({
+    where: { sentAt: null, sendAt: { lt: staleCutoff } },
+    data: { sentAt: now },
+  });
+
   // 1) Dispatch due scheduled notifications
   const due = await prisma.scheduledNotification.findMany({
     where: { sentAt: null, sendAt: { lte: now } },
@@ -127,7 +134,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, dispatched: dispatched.length, generated: generated.length, detail: { dispatched, generated } });
+  return NextResponse.json({ ok: true, dispatched: dispatched.length, generated: generated.length, expired: expired.count, detail: { dispatched, generated } });
 }
 
 function inQuietHours(minute: number, start: number, end: number): boolean {
