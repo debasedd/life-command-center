@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useState, useMemo } from "react";
-import { Card, Btn, Input, Select, Sheet, SectionTitle, ProgressRing, toast, api } from "@/components/ui";
+import { Card, Btn, Input, Select, Sheet, SectionTitle, Row, SignalBar, ProgressRing, toast, api } from "@/components/ui";
 import { wibToday } from "@/lib/wib";
 import { readCache, writeCache } from "@/lib/cache";
 
@@ -14,7 +14,7 @@ const WORKOUT_TYPES = ["Jogging", "Lari", "Push-up & Sit-up", "Gym / Angkat Beba
 
 function Trash({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="p-1.5 text-muted hover:text-[color:var(--vr-danger)] transition-colors duration-150" aria-label="Hapus">
+    <button onClick={onClick} className="p-1.5 text-muted hover:text-[color:var(--vr-danger)] transition-colors duration-[160ms]" aria-label="Hapus">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">
         <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
       </svg>
@@ -170,7 +170,7 @@ export default function HealthPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`rounded-md py-1.5 text-[11px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-ink" : "text-muted"}`}
+            className={`rounded-md py-1.5 text-[11px] font-medium transition-colors duration-[160ms] ${tab === t ? "bg-white/[0.08] text-ink" : "text-muted"}`}
           >
             {TAB_LABEL[t]}
           </button>
@@ -179,19 +179,19 @@ export default function HealthPage() {
 
       {tab === "workout" && (
         <>
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            <Card className="text-center !py-3">
-              <div className="text-xl font-semibold text-ink tabular-nums">{wStats.thisWeekCount}</div>
-              <p className="text-[10px] text-muted">sesi minggu ini</p>
-            </Card>
-            <Card className="text-center !py-3">
-              <div className="text-xl font-semibold text-ink tabular-nums">{wStats.thisWeekMinutes}</div>
-              <p className="text-[10px] text-muted">menit minggu ini</p>
-            </Card>
-            <Card className="text-center !py-3">
-              <div className="text-xl font-semibold text-[color:var(--vr-warning)] tabular-nums">{wStats.streak}</div>
-              <p className="text-[10px] text-muted">hari beruntun</p>
-            </Card>
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div>
+              <div className="text-xl font-semibold text-ink vr-num">{wStats.thisWeekCount}</div>
+              <p className="vr-kicker mt-0.5">sesi minggu ini</p>
+            </div>
+            <div>
+              <div className="text-xl font-semibold text-ink vr-num">{wStats.thisWeekMinutes}</div>
+              <p className="vr-kicker mt-0.5">menit minggu ini</p>
+            </div>
+            <div>
+              <div className="text-xl font-semibold text-[color:var(--vr-warning)] vr-num">{wStats.streak}</div>
+              <p className="vr-kicker mt-0.5">hari beruntun</p>
+            </div>
           </div>
 
           <Card className="mb-3">
@@ -210,13 +210,13 @@ export default function HealthPage() {
 
           <SectionTitle>Riwayat</SectionTitle>
           {workouts.slice(0, 15).map((w) => (
-            <Card key={w.id} className="!py-2.5 mb-1.5 flex items-center justify-between">
+            <Row key={w.id}>
               <div>
                 <div className="text-sm font-medium text-ink">{w.type}</div>
                 <div className="text-[11px] text-muted">{w.day} · {w.durationMinutes} mnt · {w.intensity.toLowerCase()}</div>
               </div>
               <Trash onClick={async () => { await api(`/api/workouts?id=${w.id}`, { method: "DELETE" }); await load(); }} />
-            </Card>
+            </Row>
           ))}
           {workouts.length === 0 && (
             <div className="text-center py-14">
@@ -230,7 +230,7 @@ export default function HealthPage() {
         <>
           <Card className="text-center py-7 mb-3">
             <div className="flex justify-center">
-              <ProgressRing value={waterPct} size={140} stroke={10} color="#531aff">
+              <ProgressRing value={waterPct} size={140} stroke={10} color="var(--vr-accent)">
                 <div>
                   <div className="text-2xl font-semibold text-ink tabular-nums">{(water.todayMl / 1000).toFixed(2)}L</div>
                   <div className="text-[11px] text-muted">dari {(water.target / 1000).toFixed(1)}L</div>
@@ -251,15 +251,13 @@ export default function HealthPage() {
 
           <SectionTitle>7 Hari Terakhir</SectionTitle>
           {water.history.slice().reverse().map((h) => (
-            <Card key={h.day} className="!py-2.5 mb-1.5 flex items-center justify-between">
-              <span className="text-sm text-soft">{new Date(h.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</span>
-              <div className="flex items-center gap-2.5">
-                <div className="w-28 h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                  <div className="h-full bg-[color:var(--vr-accent)] transition-all duration-300" style={{ width: `${Math.min(100, (h.ml / water.target) * 100)}%` }} />
-                </div>
-                <span className={`text-xs font-medium tabular-nums w-14 text-right ${h.hit ? "text-[color:var(--vr-positive)]" : "text-muted"}`}>{(h.ml / 1000).toFixed(1)}L</span>
+            <Row key={h.day}>
+              <span className="text-sm text-soft shrink-0">{new Date(h.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</span>
+              <div className="flex items-center gap-2.5 flex-1 justify-end">
+                <SignalBar value={h.ml / water.target} className="w-28" />
+                <span className={`text-xs font-medium vr-num w-14 text-right ${h.hit ? "text-[color:var(--vr-positive)]" : "text-muted"}`}>{(h.ml / 1000).toFixed(1)}L</span>
               </div>
-            </Card>
+            </Row>
           ))}
         </>
       )}
@@ -271,17 +269,17 @@ export default function HealthPage() {
             const good = dur >= 420 && dur <= 540;
             const hh = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
             return (
-              <Card key={s.id} className="!py-3 mb-2 flex items-center justify-between">
+              <Row key={s.id}>
                 <div>
                   <div className="text-sm font-medium text-ink">{new Date(s.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</div>
                   <div className="text-[11px] text-muted mt-0.5">
                     {hh(s.bedMinute)} – {hh(s.wakeMinute)} · kualitas {s.quality ?? "-"}/5
                   </div>
                 </div>
-                <span className={`text-sm font-semibold tabular-nums ${good ? "text-[color:var(--vr-positive)]" : dur < 420 ? "text-[color:var(--vr-danger)]" : "text-[color:var(--vr-warning)]"}`}>
+                <span className={`text-sm font-semibold vr-num ${good ? "text-[color:var(--vr-positive)]" : dur < 420 ? "text-[color:var(--vr-danger)]" : "text-[color:var(--vr-warning)]"}`}>
                   {Math.floor(dur / 60)}j {dur % 60}m
                 </span>
-              </Card>
+              </Row>
             );
           })}
           {sleepLogs.length === 0 && (
@@ -305,30 +303,29 @@ export default function HealthPage() {
             const streak = hData.streaks[h.id] || { current: 0, best: 0 };
             const week = hData.weeklyCount[h.id] || 0;
             return (
-              <Card key={h.id} className="mb-2">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => toggleHabit(h.id)}
-                    aria-label="Toggle habit hari ini"
-                    className={`w-11 h-11 rounded-lg text-lg flex items-center justify-center border shrink-0 transition-colors duration-150 ${checkedToday ? "bg-[color:var(--vr-positive)] border-[color:var(--vr-positive)]" : "border-white/[0.1] bg-white/[0.03] hover:border-white/25"}`}
-                  >
-                    {checkedToday ? (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                    ) : (
-                      h.icon
-                    )}
-                  </button>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-ink">{h.name}</div>
-                    <div className="text-[11px] text-muted">
-                      streak {streak.current} hari (best {streak.best}) · minggu ini {week}/{h.targetPerWeek}
-                    </div>
+              <Row key={h.id} className="gap-3">
+                <button
+                  onClick={() => toggleHabit(h.id)}
+                  aria-label="Toggle habit hari ini"
+                  aria-pressed={checkedToday}
+                  className={`w-11 h-11 rounded-card text-lg flex items-center justify-center border shrink-0 transition-colors duration-[160ms] ${checkedToday ? "bg-[color:var(--vr-positive)] border-[color:var(--vr-positive)]" : "border-white/[0.1] bg-white/[0.03] hover:border-white/25"}`}
+                >
+                  {checkedToday ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--vr-canvas)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  ) : (
+                    h.icon
+                  )}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-ink">{h.name}</div>
+                  <div className="text-[11px] text-muted">
+                    streak {streak.current} hari (best {streak.best}) · minggu ini {week}/{h.targetPerWeek}
                   </div>
-                  <Trash onClick={() => delHabit(h.id)} />
                 </div>
-              </Card>
+                <Trash onClick={() => delHabit(h.id)} />
+              </Row>
             );
           })}
         </>
@@ -338,29 +335,29 @@ export default function HealthPage() {
       <Sheet open={sheet === "workout"} onClose={() => setSheet(null)} title="Catat Workout">
         <div className="space-y-3">
           <div>
-            <label className="text-[11px] text-muted mb-1 block">Jenis</label>
+            <label className="vr-kicker mb-1 block">Jenis</label>
             <Select value={wType} onChange={(e) => setWType(e.target.value)}>
               {WORKOUT_TYPES.map((t) => <option key={t}>{t}</option>)}
             </Select>
           </div>
           <div>
-            <label className="text-[11px] text-muted mb-1.5 block">Durasi: {wDur} menit</label>
+            <label className="vr-kicker mb-1.5 block">Durasi: {wDur} menit</label>
             <div className="flex gap-1.5">
               {[15, 20, 30, 45, 60, 90].map((d) => (
-                <button key={d} onClick={() => setWDur(d)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wDur === d ? "bg-[color:var(--vr-primary)] text-white" : "bg-white/[0.04] border border-lineSoft text-muted"}`}>{d}′</button>
+                <button key={d} onClick={() => setWDur(d)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-[160ms] ${wDur === d ? "bg-[color:var(--vr-primary)] text-white" : "bg-white/[0.04] border border-lineSoft text-muted"}`}>{d}′</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-muted mb-1.5 block">Intensitas</label>
+            <label className="vr-kicker mb-1.5 block">Intensitas</label>
             <div className="flex gap-1.5">
               {["RINGAN", "SEDANG", "BERAT"].map((i) => (
-                <button key={i} onClick={() => setWInt(i)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-150 ${wInt === i ? "bg-[color:var(--vr-primary)] text-white" : "bg-white/[0.04] border border-lineSoft text-muted"}`}>{i}</button>
+                <button key={i} onClick={() => setWInt(i)} className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors duration-[160ms] ${wInt === i ? "bg-[color:var(--vr-primary)] text-white" : "bg-white/[0.04] border border-lineSoft text-muted"}`}>{i}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-muted mb-1 block">Tanggal (opsional — default hari ini)</label>
+            <label className="vr-kicker mb-1 block">Tanggal (opsional — default hari ini)</label>
             <Input type="date" value={wDay} onChange={(e) => setWDay(e.target.value)} />
           </div>
           <Btn onClick={addWorkout} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Simpan"}</Btn>
@@ -372,20 +369,20 @@ export default function HealthPage() {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[11px] text-muted mb-1 block">Jam tidur</label>
+              <label className="vr-kicker mb-1 block">Jam tidur</label>
               <Input type="time" value={sBed} onChange={(e) => setSBed(e.target.value)} />
             </div>
             <div>
-              <label className="text-[11px] text-muted mb-1 block">Jam bangun</label>
+              <label className="vr-kicker mb-1 block">Jam bangun</label>
               <Input type="time" value={sWake} onChange={(e) => setSWake(e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-muted mb-1.5 block">Kualitas: {sQuality}/5</label>
-            <input type="range" min={1} max={5} value={sQuality} onChange={(e) => setSQuality(Number(e.target.value))} className="w-full accent-[#553f83]" />
+            <label className="vr-kicker mb-1.5 block">Kualitas: {sQuality}/5</label>
+            <input type="range" min={1} max={5} value={sQuality} onChange={(e) => setSQuality(Number(e.target.value))} className="w-full accent-[color:var(--vr-primary)]" />
           </div>
           <div>
-            <label className="text-[11px] text-muted mb-1 block">Tanggal (opsional)</label>
+            <label className="vr-kicker mb-1 block">Tanggal (opsional)</label>
             <Input type="date" value={sDay} onChange={(e) => setSDay(e.target.value)} />
           </div>
           <Btn onClick={saveSleep} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Simpan"}</Btn>
@@ -397,16 +394,16 @@ export default function HealthPage() {
         <div className="space-y-3">
           <Input value={hName} onChange={(e) => setHName(e.target.value)} placeholder="Nama habit, mis: Baca 15 menit" />
           <div>
-            <label className="text-[11px] text-muted mb-1.5 block">Ikon</label>
+            <label className="vr-kicker mb-1.5 block">Ikon</label>
             <div className="flex gap-2 flex-wrap">
               {["✅", "📖", "🧘", "🦷", "🙏", "🚭", "🎸", "🧹"].map((i) => (
-                <button key={i} onClick={() => setHIcon(i)} className={`w-11 h-11 rounded-md text-lg flex items-center justify-center border transition-colors duration-150 ${hIcon === i ? "border-[color:var(--vr-accent)] bg-[color:var(--vr-accent)]/10" : "border-lineSoft bg-white/[0.03]"}`}>{i}</button>
+                <button key={i} onClick={() => setHIcon(i)} className={`w-11 h-11 rounded-md text-lg flex items-center justify-center border transition-colors duration-[160ms] ${hIcon === i ? "border-[color:var(--vr-accent)] bg-[color:var(--vr-accent)]/10" : "border-lineSoft bg-white/[0.03]"}`}>{i}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-muted mb-1.5 block">Target per minggu: {hTarget}×</label>
-            <input type="range" min={1} max={7} value={hTarget} onChange={(e) => setHTarget(Number(e.target.value))} className="w-full accent-[#553f83]" />
+            <label className="vr-kicker mb-1.5 block">Target per minggu: {hTarget}×</label>
+            <input type="range" min={1} max={7} value={hTarget} onChange={(e) => setHTarget(Number(e.target.value))} className="w-full accent-[color:var(--vr-primary)]" />
           </div>
           <Btn onClick={addHabit} disabled={busy} className="w-full py-2.5">{busy ? "…" : "Buat Habit"}</Btn>
         </div>

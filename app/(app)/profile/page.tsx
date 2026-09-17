@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
-import { Card, Btn, Input, SectionTitle, toast, api } from "@/components/ui";
+import { Card, Btn, Input, SectionTitle, Row, toast, api } from "@/components/ui";
 import PushManager from "@/components/push-manager";
 import { readCache, writeCache } from "@/lib/cache";
 
@@ -92,7 +92,7 @@ export default function ProfilePage() {
         <h1 className="vr-display mt-1">Profil</h1>
       </header>
 
-      <Card className="mb-3 flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-4">
         <div className="w-11 h-11 rounded-full bg-[color:var(--vr-primary)] flex items-center justify-center text-base font-medium text-white">
           {me?.name?.[0]?.toUpperCase() || "F"}
         </div>
@@ -100,28 +100,28 @@ export default function ProfilePage() {
           <div className="font-medium text-ink">{me?.name || "…"}</div>
           <div className="text-[11px] text-muted truncate">{me?.email || ""}</div>
         </div>
-      </Card>
+      </div>
 
       <SectionTitle>Notifikasi iPhone</SectionTitle>
       <PushManager />
 
       <SectionTitle>Menu</SectionTitle>
-      <div className="space-y-1.5 mb-3">
+      <div className="mb-3">
         <a
           href="https://www.icloud.com/shortcuts/cb55e47c797843fe86d414d979982dfa"
           target="_blank"
           rel="noopener noreferrer"
-          className="block card-press rounded-lg"
+          className="block"
         >
-          <Card className="!py-3 flex items-center justify-between">
+          <Row>
             <div>
               <div className="text-sm font-medium text-ink">Shortcut iOS — Share ke LifeCC</div>
               <div className="text-[11px] text-muted">Tap di iPhone untuk auto-install shortcut</div>
             </div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#868593" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--vr-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
               <path d="M7 17 17 7M7 7h10v10" />
             </svg>
-          </Card>
+          </Row>
         </a>
         {([
           ["/advisor", "AI Financial Advisor", "Evaluasi kesehatan keuangan"],
@@ -129,16 +129,16 @@ export default function ProfilePage() {
           ["/invest", "Proyeksi Portofolio", "Compound growth jangka panjang"],
           ["/tasks", "Akademik & Jadwal", "Tugas, deadline, jadwal rutin"],
         ] as [string, string, string][]).map(([href, title, sub]) => (
-          <Link key={href} href={href} className="block card-press rounded-lg">
-            <Card className="!py-3 flex items-center justify-between">
+          <Link key={href} href={href} className="block">
+            <Row>
               <div>
                 <div className="text-sm font-medium text-ink">{title}</div>
                 <div className="text-[11px] text-muted">{sub}</div>
               </div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="#868593" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--vr-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
                 <path d="m9 18 6-6-6-6" />
               </svg>
-            </Card>
+            </Row>
           </Link>
         ))}
       </div>
@@ -175,15 +175,15 @@ export default function ProfilePage() {
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-[10px] text-muted block mb-1">Air (L/hari)</label>
+              <label className="vr-kicker block mb-1">Air (L/hari)</label>
               <Input type="number" step="0.25" value={waterTargetL} onChange={(e) => setWaterTargetL(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
             <div>
-              <label className="text-[10px] text-muted block mb-1">Gelas (ml)</label>
+              <label className="vr-kicker block mb-1">Gelas (ml)</label>
               <Input type="number" value={glassMl} onChange={(e) => setGlassMl(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
             <div>
-              <label className="text-[10px] text-muted block mb-1">Olahraga/mgg</label>
+              <label className="vr-kicker block mb-1">Olahraga/mgg</label>
               <Input type="number" value={workoutWeek} onChange={(e) => setWorkoutWeek(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
           </div>
@@ -192,38 +192,36 @@ export default function ProfilePage() {
       </Card>
 
       <SectionTitle>Notifikasi</SectionTitle>
-      <Card className="mb-3">
-        <div className="space-y-1">
-          {Object.entries(PREF_LABEL).map(([type, label]) => {
-            const pref = prefs.find((p) => p.type === type);
-            const enabled = pref?.enabled ?? false;
-            return (
-              <div key={type} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
-                <span className="text-[13px] text-soft">{label}</span>
-                <div className="flex items-center gap-2.5">
-                  {enabled && ["WATER_REMINDER", "DAILY_RECAP", "WORKOUT_REMINDER"].includes(type) && (
-                    <input
-                      type="time"
-                      value={hhmm(pref?.minuteOfDay ?? 420)}
-                      onChange={(e) => changePrefTime(type, e.target.value)}
-                      className="bg-white/[0.04] border border-lineSoft rounded-md px-2 py-1 text-[11px] text-soft outline-none focus:border-[color:var(--vr-accent)] transition-colors duration-150"
-                    />
-                  )}
-                  <button
-                    onClick={() => togglePref(type, !enabled)}
-                    role="switch"
-                    aria-checked={enabled}
-                    aria-label={label}
-                    className={`w-10 h-[22px] rounded-full relative transition-colors duration-150 ${enabled ? "bg-[color:var(--vr-positive)]" : "bg-white/[0.08]"}`}
-                  >
-                    <span className={`absolute top-[3px] w-4 h-4 rounded-full bg-white transition-all duration-150 ${enabled ? "left-[22px]" : "left-[3px]"}`} />
-                  </button>
-                </div>
+      <div className="mb-3">
+        {Object.entries(PREF_LABEL).map(([type, label]) => {
+          const pref = prefs.find((p) => p.type === type);
+          const enabled = pref?.enabled ?? false;
+          return (
+            <Row key={type}>
+              <span className="text-[13px] text-soft">{label}</span>
+              <div className="flex items-center gap-2.5">
+                {enabled && ["WATER_REMINDER", "DAILY_RECAP", "WORKOUT_REMINDER"].includes(type) && (
+                  <input
+                    type="time"
+                    value={hhmm(pref?.minuteOfDay ?? 420)}
+                    onChange={(e) => changePrefTime(type, e.target.value)}
+                    className="bg-white/[0.04] border border-lineSoft rounded-control px-2 py-1 text-[11px] text-soft outline-none focus:border-[color:var(--vr-accent)] transition-colors duration-[160ms]"
+                  />
+                )}
+                <button
+                  onClick={() => togglePref(type, !enabled)}
+                  role="switch"
+                  aria-checked={enabled}
+                  aria-label={label}
+                  className={`w-10 h-[22px] rounded-full relative transition-colors duration-[160ms] ${enabled ? "bg-[color:var(--vr-positive)]" : "bg-white/[0.08]"}`}
+                >
+                  <span className={`absolute top-[3px] w-4 h-4 rounded-full bg-white transition-all duration-[160ms] ${enabled ? "left-[22px]" : "left-[3px]"}`} />
+                </button>
               </div>
-            );
-          })}
-        </div>
-      </Card>
+            </Row>
+          );
+        })}
+      </div>
 
       <SectionTitle>Install ke Home Screen (iPhone)</SectionTitle>
       <Card className="mb-3 text-[13px] text-muted space-y-2 leading-relaxed">

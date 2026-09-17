@@ -84,7 +84,7 @@ export function AiTaskSheet({ open, onClose, onCreated }: { open: boolean; onClo
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-ink" : "text-muted"}`}
+            className={`flex-1 rounded py-1.5 text-[12px] font-medium transition-colors duration-[160ms] ${tab === t ? "bg-white/[0.08] text-ink" : "text-muted"}`}
           >
             {t === "photo" ? "Foto soal" : "Ketik manual"}
           </button>
@@ -175,11 +175,11 @@ export function AiAnswerModal({ task, onClose, onRetry }: { task: { id: string; 
     createPortal(
       <div className="fixed inset-0 z-50">
         <div className="sheet-backdrop absolute inset-0 bg-black/85" onClick={onClose} />
-        <div className="modal-panel absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[#221228] border-t border-lineSoft flex flex-col">
+        <div className="modal-panel absolute inset-x-0 top-6 bottom-0 mx-auto max-w-md rounded-t-xl bg-[color:var(--vr-surface-raised)] border-t border-lineSoft flex flex-col">
           <div className="px-4 pt-3 pb-2 flex items-center justify-between border-b border-lineSoft">
             <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
-            <h3 className="text-sm font-semibold mt-1 truncate pr-2 text-ink">Pembahasan: {task.title}</h3>
-            <button onClick={onClose} className="text-muted mt-1 text-xl px-2 hover:text-ink transition-colors duration-150">✕</button>
+            <h3 className="vr-title text-[17px] mt-1 truncate pr-2 text-ink">Pembahasan: {task.title}</h3>
+            <button onClick={onClose} className="text-muted mt-1 text-xl px-2 hover:text-ink transition-colors duration-[160ms]">✕</button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar">
             {task.aiStatus === "PENDING" && (
@@ -227,7 +227,7 @@ function AnswerMarkdown({ text }: { text: string }) {
     const line = raw.trimEnd();
     if (/^###?\s/.test(line)) {
       flushList();
-      out.push(<h4 key={out.length} className="font-bold text-indigo-300 mt-3 mb-1">{inline(line.replace(/^#+\s/, ""))}</h4>);
+      out.push(<h4 key={out.length} className="font-bold text-[color:var(--vr-focus-ring)] mt-3 mb-1">{inline(line.replace(/^#+\s/, ""))}</h4>);
     } else if (/^##\s/.test(line)) {
       flushList();
       out.push(<h3 key={out.length} className="font-bold text-base mt-4 mb-1">{inline(line.replace(/^##\s/, ""))}</h3>);
@@ -238,7 +238,7 @@ function AnswerMarkdown({ text }: { text: string }) {
       listBuf.push(line.replace(/^[-*]\s/, ""));
     } else if (/^---+$/.test(line)) {
       flushList();
-      out.push(<hr key={out.length} className="border-zinc-800 my-3" />);
+      out.push(<hr key={out.length} className="border-lineSoft my-3" />);
     } else if (line.trim() === "") {
       flushList();
     } else {

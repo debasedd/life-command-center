@@ -217,7 +217,7 @@ export default function InvestPage() {
             <p className="text-[10px] text-muted mb-2">Per tahun</p>
             <div className="max-h-52 overflow-y-auto no-scrollbar">
               <table className="w-full text-[11px]">
-                <thead className="text-muted sticky top-0 bg-[#221228]">
+                <thead className="text-muted sticky top-0 bg-[color:var(--vr-surface-raised)]">
                   <tr><th className="text-left py-1.5 font-medium">Thn</th><th className="text-right font-medium">Modal</th><th className="text-right font-medium">Nilai</th><th className="text-right font-medium">Gain</th></tr>
                 </thead>
                 <tbody>
