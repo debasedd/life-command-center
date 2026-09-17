@@ -2,12 +2,13 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
-import { Card, Btn, Input, SectionTitle, Row, toast, api } from "@/components/ui";
+import { Card, Btn, Input, Select, SectionTitle, Row, toast, api } from "@/components/ui";
 import PushManager from "@/components/push-manager";
 import { readCache, writeCache } from "@/lib/cache";
+import { Cpu } from "lucide-react";
 
 interface Me { id: string; email: string; name: string }
-interface Settings { waterTargetMl: number; glassMl: number; workoutPerWeek: number; quietStartMinute: number; quietEndMinute: number }
+interface Settings { waterTargetMl: number; glassMl: number; workoutPerWeek: number; quietStartMinute: number; quietEndMinute: number; aiModel: string | null }
 interface Pref { type: string; enabled: boolean; minuteOfDay: number }
 
 const PREF_LABEL: Record<string, string> = {
@@ -30,10 +31,13 @@ export default function ProfilePage() {
   const [glassMl, setGlassMl] = useState("250");
   const [workoutWeek, setWorkoutWeek] = useState("3");
   const [busy, setBusy] = useState(false);
+  const [aiModel, setAiModel] = useState("");
+  const [aiModels, setAiModels] = useState<string[]>([]);
+  const [aiModelSource, setAiModelSource] = useState<string>("");
 
   useEffect(() => {
-    Promise.all([api<Me>("/api/me"), api<{ settings: Settings }>("/api/settings"), api<{ prefs: Pref[] }>("/api/push/prefs")]).then(
-      ([m, s, p]) => {
+    Promise.all([api<Me>("/api/me"), api<{ settings: Settings }>("/api/settings"), api<{ prefs: Pref[] }>("/api/push/prefs"), api<{ models: string[]; default: string; source: string }>("/api/ai/models")]).then(
+      ([m, s, p, am]) => {
         writeCache("profileBundle", { me: m, settings: s.settings, prefs: p.prefs });
         setMe(m);
         setSettings(s.settings);
@@ -41,9 +45,22 @@ export default function ProfilePage() {
         setWaterTargetL(String(s.settings.waterTargetMl / 1000));
         setGlassMl(String(s.settings.glassMl));
         setWorkoutWeek(String(s.settings.workoutPerWeek));
+        setAiModel(s.settings.aiModel ?? "");
+        setAiModels(am.models ?? []);
+        setAiModelSource(am.source ?? "");
       }
     );
   }, []);
+
+  async function saveAiModel() {
+    try {
+      const res = await api<{ settings: Settings }>("/api/settings", { method: "PATCH", json: { aiModel } });
+      setSettings(res.settings);
+      toast(aiModel ? "Model AI disimpan" : "Kembali ke model default");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Gagal", "err");
+    }
+  }
 
   // Cache-first paint
   useLayoutEffect(() => {
@@ -189,6 +206,32 @@ export default function ProfilePage() {
           </div>
           <Btn onClick={saveSettings} disabled={busy} className="w-full !py-2 text-[13px]">{busy ? "…" : "Simpan"}</Btn>
         </div>
+      </Card>
+
+      <SectionTitle>Model AI</SectionTitle>
+      <Card className="mb-3">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="w-8 h-8 rounded-[10px] bg-[color:var(--ui-surface-muted)] border border-[color:var(--ui-border)] flex items-center justify-center text-[color:var(--ui-text-soft)] shrink-0">
+            <Cpu size={15} strokeWidth={1.75} aria-hidden />
+          </span>
+          <p className="text-[11px] text-muted leading-relaxed">
+            Dipakai untuk kerjakan soal & baca foto struk.
+            {aiModelSource === "provider" ? " Daftar diambil dari provider." : " Daftar fallback (provider offline)."}
+          </p>
+        </div>
+        <Select value={aiModel} onChange={(e) => setAiModel(e.target.value)}>
+          <option value="">Default server (z-ai/glm-5.3-flash)</option>
+          {aiModels
+            .filter((m) => m !== "openrouter/z-ai/glm-5.3-flash")
+            .map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+        </Select>
+        <Btn onClick={saveAiModel} className="w-full mt-3 !py-2 text-[13px]">
+          Simpan Model
+        </Btn>
       </Card>
 
       <SectionTitle>Notifikasi</SectionTitle>

@@ -3,6 +3,7 @@ import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { extractFromPhoto, solveQuestion, parseDataUrl } from "@/lib/ai-homework";
 import { ruleCategorize } from "@/lib/ai-categorize";
+import { resolveAiModel } from "@/lib/ai-model";
 import { wibToday } from "@/lib/wib";
 
 // Hobby plan max: function lives 60s, long enough to await the solve inline.
@@ -65,7 +66,8 @@ export async function POST(req: NextRequest) {
         aiStatus: "PENDING",
       },
     });
-    const result = await solveQuestion(text, 50000);
+    const aiModel = await resolveAiModel(userId);
+    const result = await solveQuestion(text, 50000, aiModel);
     if (result.ok) {
       const done = await prisma.task.update({
         where: { id: task.id },
@@ -103,7 +105,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Foto terlalu besar (maks ~5MB). Kompres dulu." }, { status: 400 });
   }
 
-  const extracted = await extractFromPhoto(parsed.base64, parsed.mime);
+  const aiModel = await resolveAiModel(userId);
+  const extracted = await extractFromPhoto(parsed.base64, parsed.mime, aiModel);
   if (!extracted.ok) {
     return NextResponse.json({ error: extracted.error }, { status: 422 });
   }
@@ -159,7 +162,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const result = await solveQuestion(extracted.question!, 50000);
+  const result = await solveQuestion(extracted.question!, 50000, aiModel);
   if (result.ok) {
     const done = await prisma.task.update({
       where: { id: task.id },

@@ -3,7 +3,7 @@
 
 const BASE_URL = process.env.AI_BASE_URL || "https://r93y57q.abc-tunnel.us/v1";
 const API_KEY = process.env.AI_API_KEY || "";
-const MODEL = process.env.AI_MODEL || "openrouter/z-ai/glm-5.3-flash";
+export const DEFAULT_MODEL = process.env.AI_MODEL || "openrouter/z-ai/glm-5.3-flash";
 
 export interface ExtractResult {
   ok: boolean;
@@ -56,7 +56,7 @@ Kerjakan SEMUA soal yang ada. Jangan melewatkan satu pun. Jika soal tidak lengka
 
 FORMAT MATEMATIKA WAJIB teks biasa untuk ditulis ke buku: pakai simbol × ÷ ≈ ≤ ≥ ± √, pecahan tulis a/b, desimal pakai koma. DILARANG pakai LaTeX apa pun: tanpa \\frac, \\quad, \\approx, \\times, \\text, $...$, \\mathbf, \\dfrac. Contoh benar: "45.745 4/57 ≈ 45.745,07". Contoh salah: "45.745\\tfrac{4}{57} \\approx 45.745{,}07".`;
 
-async function chat(body: Record<string, unknown>, timeoutMs = 120000): Promise<string | null> {
+async function chat(body: Record<string, unknown>, timeoutMs = 120000, model?: string): Promise<string | null> {
   try {
     const res = await fetch(`${BASE_URL}/chat/completions`, {
       method: "POST",
@@ -64,7 +64,7 @@ async function chat(body: Record<string, unknown>, timeoutMs = 120000): Promise<
         "Content-Type": "application/json",
         ...(API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}),
       },
-      body: JSON.stringify({ model: MODEL, ...body }),
+      body: JSON.stringify({ model: model || DEFAULT_MODEL, ...body }),
       signal: AbortSignal.timeout(timeoutMs),
     });
     if (!res.ok) {
@@ -106,7 +106,7 @@ function parseJsonLoose(text: string): Record<string, unknown> | null {
 }
 
 /** Step 1: foto → data soal. */
-export async function extractFromPhoto(base64: string, mime: string): Promise<ExtractResult> {
+export async function extractFromPhoto(base64: string, mime: string, model?: string): Promise<ExtractResult> {
   const content = await chat(
     {
       messages: [
@@ -122,7 +122,8 @@ export async function extractFromPhoto(base64: string, mime: string): Promise<Ex
       max_tokens: 2000,
       temperature: 0.1,
     },
-    60000
+    60000,
+    model
   );
   if (!content) return { ok: false, error: "AI tidak merespon saat membaca foto" };
   const parsed = parseJsonLoose(content);
@@ -167,7 +168,7 @@ export async function extractFromPhoto(base64: string, mime: string): Promise<Ex
 }
 
 /** Step 2: soal → pembahasan lengkap. 2 attempt × 25s (provider kadang ngeblank). */
-export async function solveQuestion(question: string, timeoutMs = 25000): Promise<SolveResult> {
+export async function solveQuestion(question: string, timeoutMs = 25000, model?: string): Promise<SolveResult> {
   for (let attempt = 0; attempt < 2; attempt++) {
     const content = await chat(
       {
@@ -178,7 +179,8 @@ export async function solveQuestion(question: string, timeoutMs = 25000): Promis
         max_tokens: 4000,
         temperature: 0.2,
       },
-      timeoutMs
+      timeoutMs,
+      model
     );
     if (content && content.trim().length >= 30) return { ok: true, answer: content };
   }

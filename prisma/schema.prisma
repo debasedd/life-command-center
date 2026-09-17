@@ -271,6 +271,7 @@ model Settings {
   workoutPerWeek    Int      @default(3)
   quietStartMinute  Int      @default(1320) // 22:00
   quietEndMinute    Int      @default(360) // 06:00
+  aiModel           String?  // pilihan model AI user (kebab id dari provider)
   updatedAt         DateTime @updatedAt
 }
 

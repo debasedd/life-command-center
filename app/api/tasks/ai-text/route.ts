@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { solveQuestion } from "@/lib/ai-homework";
+import { resolveAiModel } from "@/lib/ai-model";
 
 // Hobby plan max: function lives 60s, long enough to await the solve inline.
 export const maxDuration = 60;
@@ -34,7 +35,8 @@ export async function POST(req: NextRequest) {
   });
 
   // Awaited solve: serverless kills fire-and-forget work after the response.
-  const result = await solveQuestion(text, 50000);
+  const aiModel = await resolveAiModel(userId);
+  const result = await solveQuestion(text, 50000, aiModel);
   if (result.ok) {
     const done = await prisma.task.update({
       where: { id: task.id },

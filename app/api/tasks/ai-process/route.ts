@@ -3,6 +3,7 @@ import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { extractFromPhoto, solveQuestion } from "@/lib/ai-homework";
 import { ruleCategorize } from "@/lib/ai-categorize";
+import { resolveAiModel } from "@/lib/ai-model";
 import { wibToday } from "@/lib/wib";
 
 // Hobby plan max: vision + solve inline dalam 60s.
@@ -31,7 +32,8 @@ export async function POST(req: NextRequest) {
   }
   await prisma.task.update({ where: { id: task.id }, data: { aiStatus: "PROCESSING" } });
 
-  const result = await extractFromPhoto(task.photoData, task.photoMime);
+  const aiModel = await resolveAiModel(userId);
+  const result = await extractFromPhoto(task.photoData, task.photoMime, aiModel);
   if (!result.ok) {
     await prisma.task.update({
       where: { id: task.id },
@@ -81,7 +83,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  const solve = await solveQuestion(result.question!, 50000);
+  const solve = await solveQuestion(result.question!, 50000, aiModel);
   if (solve.ok) {
     await prisma.task.update({
       where: { id: task.id },

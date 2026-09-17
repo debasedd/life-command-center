@@ -22,6 +22,10 @@ export async function PATCH(req: NextRequest) {
   }
   if (body.quietStartMinute !== undefined) data.quietStartMinute = Number(body.quietStartMinute);
   if (body.quietEndMinute !== undefined) data.quietEndMinute = Number(body.quietEndMinute);
+  if (body.aiModel !== undefined) {
+    const m = String(body.aiModel).trim().slice(0, 120);
+    data.aiModel = m || null;
+  }
   const settings = await prisma.settings.upsert({ where: { userId }, update: data, create: { userId } });
   return NextResponse.json({ settings });
 }
