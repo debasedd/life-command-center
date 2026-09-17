@@ -102,12 +102,12 @@ async function scheduleTaskReminders(taskId: string | undefined, title: string, 
   if (dayStart.getTime() > Date.now()) {
     const h0 = new Date(dayStart.getTime() + 7 * 3600 * 1000);
     if (h0.getTime() > Date.now() && h0.getTime() < d.getTime()) {
-      rows.push(mk(h0, "⏰ Tugas hari ini", `"${title}" dijadwalkan hari ini — jangan lupa!`));
+      rows.push(mk(h0, "Tugas hari ini", `"${title}" dijadwalkan hari ini — jangan lupa!`));
     }
   }
   const h1 = new Date(dayStart.getTime() - 5 * 3600 * 1000); // 19:00 the day before
   if (h1.getTime() > Date.now()) {
-    rows.push(mk(h1, "⏰ Deadline besok", `"${title}" harus dikumpulkan besok!`));
+    rows.push(mk(h1, "Deadline besok", `"${title}" harus dikumpulkan besok!`));
   }
   if (rows.length) {
     await prisma.scheduledNotification.createMany({ data: rows });

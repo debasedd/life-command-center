@@ -86,14 +86,19 @@ export default function HealthPage() {
     } catch (e) { toast(e instanceof Error ? e.message : "Gagal", "err") } finally { setBusy(false) }
   }
 
-  async function quickWater(glasses: number) {
-    await api("/api/water", { json: { glasses } });
-    await load();
+  // Instant feel: paint immediately, reconcile in the background.
+  function quickWater(glasses: number) {
+    setWater((prev) => ({ ...prev, todayMl: prev.todayMl + glasses * prev.glassMl }));
+    api("/api/water", { json: { glasses } })
+      .then(() => load())
+      .catch(() => load());
   }
 
-  async function undoWater() {
-    await api("/api/water", { method: "DELETE" });
-    await load();
+  function undoWater() {
+    setWater((prev) => ({ ...prev, todayMl: Math.max(0, prev.todayMl - prev.glassMl) }));
+    api("/api/water", { method: "DELETE" })
+      .then(() => load())
+      .catch(() => load());
   }
 
   async function saveSleep() {

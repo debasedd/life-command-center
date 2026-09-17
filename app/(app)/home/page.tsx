@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Plus, ChevronRight, Droplets, Flame, Dumbbell, AlertTriangle, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { Card, Row, SectionTitle, SignalBar, Chip, Btn, Empty, Icon } from "@/components/ui";
@@ -38,7 +38,6 @@ function idr(n: number) {
 
 export default function HomeDashboard() {
   const [data, setData] = useState<DashData | null>(null);
-  const [waterBusy, setWaterBusy] = useState(false);
 
   useLayoutEffect(() => {
     const c = readCache<DashData>("dashboard");
@@ -58,18 +57,27 @@ export default function HomeDashboard() {
     load();
   }, []);
 
-  async function addWater() {
-    setWaterBusy(true);
-    try {
-      const res = await fetch("/api/water", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ glasses: 1 }),
+  // Instant feel: paint the glass immediately, reconcile with server in the background.
+  const reloadRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function scheduleReload() {
+    if (reloadRef.current) clearTimeout(reloadRef.current);
+    reloadRef.current = setTimeout(() => load(), 250);
+  }
+
+  function addWater() {
+    setData((prev) => (prev ? { ...prev, water: { ...prev.water, todayMl: prev.water.todayMl + prev.water.glassMl } } : prev));
+    fetch("/api/water", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ glasses: 1 }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        scheduleReload();
+      })
+      .catch(() => {
+        load();
       });
-      if (res.ok) await load();
-    } finally {
-      setWaterBusy(false);
-    }
   }
 
   if (!data) {
@@ -149,8 +157,7 @@ export default function HomeDashboard() {
           </div>
           <button
             onClick={addWater}
-            disabled={waterBusy}
-            className="press shrink-0 inline-flex items-center gap-1 text-[11px] text-[color:var(--ui-text)] bg-[color:var(--ui-surface)] border border-[color:var(--ui-border)] rounded-control px-2.5 py-1.5 font-semibold shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-card)] transition-shadow duration-[180ms] disabled:opacity-50"
+            className="press shrink-0 inline-flex items-center gap-1 text-[11px] text-[color:var(--ui-text)] bg-[color:var(--ui-surface)] border border-[color:var(--ui-border)] rounded-control px-2.5 py-1.5 font-semibold shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-card)] transition-shadow duration-[180ms]"
           >
             <Plus size={13} strokeWidth={2.25} aria-hidden /> Gelas
           </button>
