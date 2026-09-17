@@ -1,5 +1,5 @@
 /* Life Command Center — Service Worker */
-const VERSION = "lcc-v2.0.0";
+const VERSION = "lcc-v2.1.0";
 const SHELL_CACHE = `${VERSION}-shell`;
 const DATA_CACHE = `${VERSION}-data`;
 
@@ -53,8 +53,11 @@ self.addEventListener("fetch", (event) => {
       caches.match(req).then((hit) =>
         hit ||
         fetch(req).then((res) => {
-          const copy = res.clone();
-          caches.open(SHELL_CACHE).then((c) => c.put(req, copy));
+          // Only cache real hits — a cached 404 poisons every later load (ChunkLoadError).
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(SHELL_CACHE).then((c) => c.put(req, copy));
+          }
           return res;
         })
       )
@@ -67,8 +70,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(DATA_CACHE).then((c) => c.put(req, copy));
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(DATA_CACHE).then((c) => c.put(req, copy));
+          }
           return res;
         })
         .catch(() => caches.match(req))
