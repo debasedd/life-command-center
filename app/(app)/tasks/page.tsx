@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useState } from "react";
-import { Card, Btn, Input, Select, Textarea, Sheet, SectionTitle, toast, api } from "@/components/ui";
+import { Btn, Input, Select, Textarea, Sheet, SectionTitle, Row, Chip, toast, api } from "@/components/ui";
 import { AiTaskSheet, AiStatusBadge, AiAnswerModal } from "@/components/ai-homework";
 import { readCache, writeCache } from "@/lib/cache";
 
@@ -35,8 +35,9 @@ interface Block {
 
 const DAYS = ["Mgg", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 const TYPE_LABEL: Record<string, string> = { SCHOOL: "Sekolah", LESSON: "Les", ACTIVITY: "Kegiatan", PERSONAL: "Pribadi" };
-const TYPE_ACCENT: Record<string, string> = { SCHOOL: "#531aff", LESSON: "#eab38a", ACTIVITY: "#609f89", PERSONAL: "#868593" };
-const PRIORITY_DOT: Record<string, string> = { URGENT: "#f87171", HIGH: "#eab38a", MEDIUM: "#531aff", LOW: "#868593" };
+const TYPE_ACCENT: Record<string, string> = { SCHOOL: "var(--vr-accent)", LESSON: "var(--vr-warning)", ACTIVITY: "var(--vr-positive)", PERSONAL: "var(--vr-text-muted)" };
+const PRIORITY_TONE: Record<string, "danger" | "warning" | "accent" | "neutral"> = { URGENT: "danger", HIGH: "warning", MEDIUM: "accent", LOW: "neutral" };
+const PRIORITY_TONE_SOLID: Record<string, string> = { URGENT: "var(--vr-danger)", HIGH: "var(--vr-warning)", MEDIUM: "var(--vr-accent)", LOW: "var(--vr-text-muted)" };
 
 function minuteToHHMM(m: number) {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -67,7 +68,7 @@ function groupByDeadline(tasks: Task[]) {
 
 function Trash({ onClick }: { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="p-1.5 text-[#868593] hover:text-[#f87171] transition-colors duration-150" aria-label="Hapus">
+    <button onClick={onClick} className="p-1.5 text-muted hover:text-[color:var(--vr-danger)] transition-colors duration-[160ms]" aria-label="Hapus">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="w-3.5 h-3.5">
         <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
       </svg>
@@ -122,12 +123,11 @@ export default function AcademicPage() {
   }, []);
 
   // Auto-heal: task dengan soal yang belum pernah dikerjakan AI (created sebelum
-  // toggle ada) langsung dikirim ke AI sekali saat halaman dibuka.
+  // toggle ada) langsung dikirim ke AI sekali saat halaman dibuka; foto dari
+  // shortcut yang belum diproses juga diproses di sini.
   useEffect(() => {
     if (!tasks.length) return;
-    // 1) Auto-heal: task dengan soal yang belum pernah dikerjakan AI.
     const orphans = tasks.filter((t) => t.description && t.aiStatus === "NONE");
-    // 2) Foto dari shortcut yang belum diproses AI.
     const photoPending = tasks.filter(
       (t) => t.photoData && !t.description && (t.aiStatus === "PENDING" || t.aiStatus === "FAILED")
     );
@@ -148,13 +148,6 @@ export default function AcademicPage() {
       cancelled = true;
     };
   }, [tasks.length]);
-
-  // Auto-poll: selama ada task yang masih diproses AI, refresh tiap 8 detik.
-  useEffect(() => {
-    if (!tasks.some((t) => t.aiStatus === "PENDING" || t.aiStatus === "PROCESSING")) return;
-    const iv = setInterval(() => load(), 8000);
-    return () => clearInterval(iv);
-  }, [tasks]);
 
   // Auto-poll: selama ada task yang masih diproses AI, refresh tiap 8 detik.
   useEffect(() => {
@@ -254,9 +247,12 @@ export default function AcademicPage() {
 
   return (
     <div className="animate-rise">
-      <header className="flex items-center justify-between mb-4 pt-1">
-        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#ffffff]">Akademik</h1>
-        <div className="flex gap-1.5">
+      <header className="flex items-end justify-between gap-3 mb-5 pt-1">
+        <div>
+          <p className="vr-kicker">Tugas & Jadwal</p>
+          <h1 className="vr-display mt-1">Akademik</h1>
+        </div>
+        <div className="flex gap-2 mb-1">
           <Btn variant="ghost" onClick={() => setAiSheet(true)} className="!py-1.5 !px-3 text-xs">Foto Tugas</Btn>
           <Btn onClick={() => setSheet(tab === "tasks" ? "task" : "block")} className="!py-1.5 !px-3 text-xs">
             {tab === "tasks" ? "Tugas" : "Jadwal"}
@@ -265,12 +261,13 @@ export default function AcademicPage() {
       </header>
 
       {/* Segmented control */}
-      <div className="flex rounded-lg bg-white/[0.03] border border-white/[0.06] p-1 mb-4">
+      <div className="flex rounded-card border border-lineSoft p-1 mb-2">
         {(["tasks", "schedule"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded-md py-1.5 text-[13px] font-medium transition-colors duration-150 ${tab === t ? "bg-white/[0.08] text-[#ffffff]" : "text-[#868593]"}`}
+            aria-pressed={tab === t}
+            className={`flex-1 rounded-control py-1.5 text-[13px] font-medium transition-colors duration-[160ms] ${tab === t ? "bg-white/[0.08] text-ink" : "text-muted"}`}
           >
             {t === "tasks" ? `Tugas${openCount ? ` · ${openCount}` : ""}` : "Jadwal"}
           </button>
@@ -278,52 +275,47 @@ export default function AcademicPage() {
       </div>
 
       {tab === "tasks" && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {Object.entries(grouped).map(([group, items]) =>
             items.length === 0 ? null : (
               <div key={group}>
                 <SectionTitle>
-                  {group}
-                  <span className="ml-1.5 text-[#868593]">{items.length}</span>
+                  <span className={group === "Terlambat" ? "text-[color:var(--vr-danger)]" : ""}>
+                    {group} <span className="text-muted normal-case tracking-normal">{items.length}</span>
+                  </span>
                 </SectionTitle>
-                <div className="space-y-1.5">
+                <div>
                   {items.map((t, idx) => (
-                    <Card key={t.id} className={`stagger-item !py-2.5 ${t.status === "DONE" ? "opacity-45" : ""}`} style={{ "--i": idx } as React.CSSProperties}>
-                      <div className="flex items-start gap-3">
+                    <Row key={t.id} className={`stagger-item items-start ${t.status === "DONE" ? "opacity-45" : ""}`} >
+                      <div className="flex items-start gap-3 flex-1 min-w-0" style={{ "--i": idx } as React.CSSProperties}>
                         <button
                           onClick={() => toggle(t)}
-                          aria-label="Toggle selesai"
-                          className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border flex items-center justify-center shrink-0 transition-colors duration-150 ${t.status === "DONE" ? "bg-[#609f89] border-[#609f89]" : "border-white/25 hover:border-white/50"}`}
+                          aria-label={t.status === "DONE" ? "Tandai belum selesai" : "Tandai selesai"}
+                          aria-pressed={t.status === "DONE"}
+                          className={`mt-0.5 w-[18px] h-[18px] rounded-[5px] border flex items-center justify-center shrink-0 transition-colors duration-[160ms] ${t.status === "DONE" ? "bg-[color:var(--vr-positive)] border-[color:var(--vr-positive)]" : "border-white/25 hover:border-white/50"}`}
                         >
                           {t.status === "DONE" && (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--vr-canvas)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
                               <path d="M20 6 9 17l-5-5" />
                             </svg>
                           )}
                         </button>
-                        <div
-                          className="flex-1 min-w-0 cursor-pointer"
-                          onClick={() => setExpanded(expanded === t.id ? null : t.id)}
-                        >
-                          <div className={`text-sm font-medium leading-snug ${t.status === "DONE" ? "line-through text-[#868593]" : "text-[#ffffff]"}`}>{t.title}</div>
-                          <div className="text-[11px] text-[#868593] flex gap-2.5 flex-wrap mt-0.5">
+                        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setExpanded(expanded === t.id ? null : t.id)}>
+                          <div className={`text-sm font-medium leading-snug ${t.status === "DONE" ? "line-through text-muted" : "text-ink"}`}>{t.title}</div>
+                          <div className="text-[11px] text-muted flex gap-2.5 flex-wrap mt-0.5">
                             {t.subject && <span>{t.subject}</span>}
-                            {t.deadline && (
-                              <span className={group === "Terlambat" ? "text-[#f87171]" : ""}>
-                                {fmtDeadline(t.deadline)}
-                              </span>
-                            )}
+                            {t.deadline && <span className={group === "Terlambat" ? "text-[color:var(--vr-danger)]" : ""}>{fmtDeadline(t.deadline)}</span>}
                             {t.recurring && <span>mingguan</span>}
                           </div>
                           {expanded === t.id && (
-                            <div className="mt-2 rounded-md bg-white/[0.03] border border-white/[0.06] p-2.5">
+                            <div className="mt-2 rounded-control bg-[color:var(--vr-surface)] border border-lineSoft p-2.5">
                               {t.description ? (
-                                <p className="text-[12px] text-[#c4c4ca] whitespace-pre-wrap leading-relaxed">{t.description}</p>
+                                <p className="text-[12px] text-soft whitespace-pre-wrap leading-relaxed">{t.description}</p>
                               ) : (
-                                <p className="text-[12px] text-[#868593]">Tidak ada detail soal.</p>
+                                <p className="text-[12px] text-muted">Tidak ada detail soal.</p>
                               )}
                               {t.estimatedMinutes != null && (
-                                <p className="text-[10px] text-[#868593] mt-1.5">Estimasi: {t.estimatedMinutes} menit</p>
+                                <p className="text-[10px] text-muted mt-1.5">Estimasi: {t.estimatedMinutes} menit</p>
                               )}
                             </div>
                           )}
@@ -332,16 +324,16 @@ export default function AcademicPage() {
                               <AiStatusBadge status={t.aiStatus} />
                               {t.aiStatus === "PENDING" && (
                                 <div className="h-0.5 w-16 rounded-full bg-white/[0.06] overflow-hidden">
-                                  <div className="h-full w-1/3 bg-[#531aff] splash-bar" />
+                                  <div className="h-full w-1/3 bg-[color:var(--vr-accent)] splash-bar" />
                                 </div>
                               )}
                               {t.aiStatus === "DONE" && (
-                                <button onClick={() => setAnswerTask(t)} className="text-[11px] text-[#531aff] hover:text-[#a78bfa] font-medium transition-colors duration-150">
+                                <button onClick={() => setAnswerTask(t)} className="text-[11px] text-[color:var(--vr-accent)] hover:text-[color:var(--vr-focus-ring)] font-medium transition-colors duration-[160ms]">
                                   Lihat pembahasan
                                 </button>
                               )}
                               {t.aiStatus === "FAILED" && (
-                                <button onClick={() => retryAi(t.id)} className="text-[11px] text-[#868593] hover:text-[#ffffff] font-medium transition-colors duration-150">
+                                <button onClick={() => retryAi(t.id)} className="text-[11px] text-muted hover:text-ink font-medium transition-colors duration-[160ms]">
                                   Coba lagi
                                 </button>
                               )}
@@ -349,59 +341,54 @@ export default function AcademicPage() {
                           )}
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
-                          <span className="flex items-center gap-1 text-[10px] font-medium text-[#868593]">
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: PRIORITY_DOT[t.priority] || "#868593" }} />
-                            {t.priority}
-                          </span>
+                          <Chip tone={PRIORITY_TONE[t.priority] || "neutral"}>{t.priority}</Chip>
                           <Trash onClick={() => delTask(t.id)} />
                         </div>
                       </div>
-                    </Card>
+                    </Row>
                   ))}
                 </div>
               </div>
             )
           )}
           {tasks.length === 0 && (
-            <div className="text-center py-14">
-              <p className="text-sm text-[#868593]">Belum ada tugas</p>
-              <p className="text-[11px] text-[#868593] mt-1">Tap tombol Tugas untuk menambah</p>
+            <div className="py-14">
+              <p className="text-sm text-muted">Belum ada tugas</p>
+              <p className="text-[11px] text-muted mt-1">Tap tombol Tugas untuk menambah</p>
             </div>
           )}
         </div>
       )}
 
       {tab === "schedule" && (
-        <div className="space-y-1.5">
+        <div>
           {blocks.length === 0 && (
-            <div className="text-center py-14">
-              <p className="text-sm text-[#868593]">Belum ada jadwal</p>
-              <p className="text-[11px] text-[#868593] mt-1">Tap tombol Jadwal untuk menambah jadwal rutin</p>
+            <div className="py-14">
+              <p className="text-sm text-muted">Belum ada jadwal</p>
+              <p className="text-[11px] text-muted mt-1">Tap tombol Jadwal untuk menambah jadwal rutin</p>
             </div>
           )}
           {blocks
             .slice()
             .sort((a, b) => (a.weekday ?? 7) - (b.weekday ?? 7) || a.startMinute - b.startMinute)
             .map((b) => (
-              <Card key={b.id} className="!py-2.5 !pl-3" >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "#868593" }} />
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium text-[#ffffff] truncate">{b.title}</div>
-                      <div className="text-[11px] text-[#868593]">
-                        {b.weekday !== null ? `${DAYS[b.weekday]} · ` : b.date ? `${b.date} · ` : ""}
-                        {minuteToHHMM(b.startMinute)}–{minuteToHHMM(b.endMinute)}
-                        {b.location ? ` · ${b.location}` : ""}
-                      </div>
+              <Row key={b.id}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-[3px] h-9 rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "var(--vr-text-muted)" }} />
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-ink truncate">{b.title}</div>
+                    <div className="text-[11px] text-muted vr-num">
+                      {b.weekday !== null ? `${DAYS[b.weekday]} · ` : b.date ? `${b.date} · ` : ""}
+                      {minuteToHHMM(b.startMinute)}–{minuteToHHMM(b.endMinute)}
+                      {b.location ? ` · ${b.location}` : ""}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0 pl-2">
-                    <span className="text-[10px] text-[#868593]">{TYPE_LABEL[b.type]}</span>
-                    <Trash onClick={() => delBlock(b.id)} />
-                  </div>
                 </div>
-              </Card>
+                <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                  <span className="text-[10px] text-muted">{TYPE_LABEL[b.type]}</span>
+                  <Trash onClick={() => delBlock(b.id)} />
+                </div>
+              </Row>
             ))}
         </div>
       )}
@@ -413,7 +400,7 @@ export default function AcademicPage() {
           <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Mata pelajaran (opsional)" />
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[11px] text-[#868593] mb-1 block">Prioritas</label>
+              <label className="vr-kicker mb-1 block">Prioritas</label>
               <Select value={priority} onChange={(e) => setPriority(e.target.value)}>
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -422,7 +409,7 @@ export default function AcademicPage() {
               </Select>
             </div>
             <div>
-              <label className="text-[11px] text-[#868593] mb-1 block">Deadline</label>
+              <label className="vr-kicker mb-1 block">Deadline</label>
               <Input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
             </div>
           </div>
@@ -432,17 +419,12 @@ export default function AcademicPage() {
             placeholder="Soal / catatan — isi soal di sini untuk dikerjakan AI"
             rows={3}
           />
-          <label className="flex items-center gap-2 text-[13px] text-[#c4c4ca]">
-            <input
-              type="checkbox"
-              checked={aiKerjakan}
-              onChange={(e) => setAiKerjakan(e.target.checked)}
-              className="w-4 h-4 accent-[#553f83]"
-            />
+          <label className="flex items-center gap-2 text-[13px] text-soft">
+            <input type="checkbox" checked={aiKerjakan} onChange={(e) => setAiKerjakan(e.target.checked)} className="w-4 h-4 accent-[#531aff]" />
             Kerjakan dengan AI (butuh soal di atas, ± 30–50 detik)
           </label>
-          <label className="flex items-center gap-2 text-[13px] text-[#c4c4ca]">
-            <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="w-4 h-4 accent-[#553f83]" />
+          <label className="flex items-center gap-2 text-[13px] text-soft">
+            <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="w-4 h-4 accent-[#531aff]" />
             Berulang mingguan (auto-regenerate setelah selesai)
           </label>
           <Btn onClick={addTask} disabled={busy} className="w-full py-2.5">
@@ -463,21 +445,21 @@ export default function AcademicPage() {
           </Select>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[11px] text-[#868593] mb-1 block">Mulai</label>
+              <label className="vr-kicker mb-1 block">Mulai</label>
               <Input type="time" value={bStart} onChange={(e) => setBStart(e.target.value)} />
             </div>
             <div>
-              <label className="text-[11px] text-[#868593] mb-1 block">Selesai</label>
+              <label className="vr-kicker mb-1 block">Selesai</label>
               <Input type="time" value={bEnd} onChange={(e) => setBEnd(e.target.value)} />
             </div>
           </div>
-          <label className="flex items-center gap-2 text-[13px] text-[#c4c4ca]">
-            <input type="checkbox" checked={bRecurring} onChange={(e) => setBRecurring(e.target.checked)} className="w-4 h-4 accent-[#553f83]" />
+          <label className="flex items-center gap-2 text-[13px] text-soft">
+            <input type="checkbox" checked={bRecurring} onChange={(e) => setBRecurring(e.target.checked)} className="w-4 h-4 accent-[#531aff]" />
             Rutin mingguan
           </label>
           {bRecurring ? (
             <div>
-              <label className="text-[11px] text-[#868593] mb-1 block">Hari</label>
+              <label className="vr-kicker mb-1 block">Hari</label>
               <Select value={bWeekday} onChange={(e) => setBWeekday(e.target.value)}>
                 {DAYS.map((d, i) => (
                   <option key={i} value={i}>
@@ -488,7 +470,7 @@ export default function AcademicPage() {
             </div>
           ) : (
             <div>
-              <label className="text-[11px] text-[#868593] mb-1 block">Tanggal (event sekali)</label>
+              <label className="vr-kicker mb-1 block">Tanggal (event sekali)</label>
               <Input type="date" value={bDate} onChange={(e) => setBDate(e.target.value)} />
             </div>
           )}

@@ -87,17 +87,18 @@ export default function ProfilePage() {
 
   return (
     <div className="animate-rise">
-      <header className="mb-4 pt-1">
-        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#ffffff]">Profil</h1>
+      <header className="mb-5 pt-1">
+        <p className="vr-kicker">Akun</p>
+        <h1 className="vr-display mt-1">Profil</h1>
       </header>
 
       <Card className="mb-3 flex items-center gap-3">
-        <div className="w-11 h-11 rounded-full bg-[#553f83] flex items-center justify-center text-base font-medium text-white">
+        <div className="w-11 h-11 rounded-full bg-[color:var(--vr-primary)] flex items-center justify-center text-base font-medium text-white">
           {me?.name?.[0]?.toUpperCase() || "F"}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-[#ffffff]">{me?.name || "…"}</div>
-          <div className="text-[11px] text-[#868593] truncate">{me?.email || ""}</div>
+          <div className="font-medium text-ink">{me?.name || "…"}</div>
+          <div className="text-[11px] text-muted truncate">{me?.email || ""}</div>
         </div>
       </Card>
 
@@ -114,8 +115,8 @@ export default function ProfilePage() {
         >
           <Card className="!py-3 flex items-center justify-between">
             <div>
-              <div className="text-sm font-medium text-[#ffffff]">Shortcut iOS — Share ke LifeCC</div>
-              <div className="text-[11px] text-[#868593]">Tap di iPhone untuk auto-install shortcut</div>
+              <div className="text-sm font-medium text-ink">Shortcut iOS — Share ke LifeCC</div>
+              <div className="text-[11px] text-muted">Tap di iPhone untuk auto-install shortcut</div>
             </div>
             <svg viewBox="0 0 24 24" fill="none" stroke="#868593" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
               <path d="M7 17 17 7M7 7h10v10" />
@@ -131,8 +132,8 @@ export default function ProfilePage() {
           <Link key={href} href={href} className="block card-press rounded-lg">
             <Card className="!py-3 flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium text-[#ffffff]">{title}</div>
-                <div className="text-[11px] text-[#868593]">{sub}</div>
+                <div className="text-sm font-medium text-ink">{title}</div>
+                <div className="text-[11px] text-muted">{sub}</div>
               </div>
               <svg viewBox="0 0 24 24" fill="none" stroke="#868593" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0">
                 <path d="m9 18 6-6-6-6" />
@@ -144,27 +145,27 @@ export default function ProfilePage() {
 
       <SectionTitle>Cara Share ke LifeCC</SectionTitle>
       <Card className="mb-3">
-        <div className="space-y-4 text-[12px] text-[#c4c4ca] leading-relaxed">
+        <div className="space-y-4 text-[12px] text-soft leading-relaxed">
           <div>
-            <p className="font-medium text-[#ffffff] mb-1.5">Share teks (catatan / soal) — 2 action aja</p>
+            <p className="font-medium text-ink mb-1.5">Share teks (catatan / soal) — 2 action aja</p>
             <ol className="space-y-1.5 list-decimal pl-4">
-              <li>Buka app <b className="text-[#ffffff]">Shortcuts</b> → <b className="text-[#ffffff]">+</b></li>
-              <li>Tap <b className="text-[#ffffff]">i</b> → aktifkan <b className="text-[#ffffff]">Show in Share Sheet</b>, tipe: <b className="text-[#ffffff]">Text</b></li>
-              <li>Tambah action <b className="text-[#ffffff]">Get Contents of URL</b> → URL: <code className="text-[10px] text-[#868593] break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → tap panah di card → <b className="text-[#ffffff]">Method: POST</b> → <b className="text-[#ffffff]">Request Body: Form</b> → Add New Field: nama <b className="text-[#ffffff]">text</b>, isi: <b className="text-[#ffffff]">Shortcut Input</b></li>
-              <li>Nama: <b className="text-[#ffffff]">Catat ke LifeCC</b></li>
+              <li>Buka app <b className="text-ink">Shortcuts</b> → <b className="text-ink">+</b></li>
+              <li>Tap <b className="text-ink">i</b> → aktifkan <b className="text-ink">Show in Share Sheet</b>, tipe: <b className="text-ink">Text</b></li>
+              <li>Tambah action <b className="text-ink">Get Contents of URL</b> → URL: <code className="text-[10px] text-muted break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → tap panah di card → <b className="text-ink">Method: POST</b> → <b className="text-ink">Request Body: Form</b> → Add New Field: nama <b className="text-ink">text</b>, isi: <b className="text-ink">Shortcut Input</b></li>
+              <li>Nama: <b className="text-ink">Catat ke LifeCC</b></li>
             </ol>
           </div>
-          <div className="pt-3 border-t border-white/[0.06]">
-            <p className="font-medium text-[#ffffff] mb-1.5">Share foto (struk / soal) — AI auto-mutu</p>
-            <p className="text-[11px] text-[#868593] mb-1.5">AI otomatis memutuskan: tugas (dikerjakan AI) atau catatan keuangan (nominal, masuk/keluar, kategori).</p>
+          <div className="pt-3 border-t border-lineSoft">
+            <p className="font-medium text-ink mb-1.5">Share foto (struk / soal) — AI auto-mutu</p>
+            <p className="text-[11px] text-muted mb-1.5">AI otomatis memutuskan: tugas (dikerjakan AI) atau catatan keuangan (nominal, masuk/keluar, kategori).</p>
             <ol className="space-y-1.5 list-decimal pl-4">
-              <li>Buka app <b className="text-[#ffffff]">Shortcuts</b> → <b className="text-[#ffffff]">+</b></li>
-              <li>Tap <b className="text-[#ffffff]">i</b> → aktifkan <b className="text-[#ffffff]">Show in Share Sheet</b>, tipe: <b className="text-[#ffffff]">Images</b> & <b className="text-[#ffffff]">Files</b></li>
-              <li>Action 1: <b className="text-[#ffffff]">Base64 Encode</b> → input: Shortcut Input</li>
-              <li>Action 2: <b className="text-[#ffffff]">Get Contents of URL</b> → URL: <code className="text-[10px] text-[#868593] break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → <b className="text-[#ffffff]">Method: POST</b> → <b className="text-[#ffffff]">Request Body: Form</b> → Add New Field: nama <b className="text-[#ffffff]">photo</b>, isi: <b className="text-[#ffffff]">Base64 Encoded</b></li>
-              <li>Nama: <b className="text-[#ffffff]">Foto ke LifeCC</b></li>
+              <li>Buka app <b className="text-ink">Shortcuts</b> → <b className="text-ink">+</b></li>
+              <li>Tap <b className="text-ink">i</b> → aktifkan <b className="text-ink">Show in Share Sheet</b>, tipe: <b className="text-ink">Images</b> & <b className="text-ink">Files</b></li>
+              <li>Action 1: <b className="text-ink">Base64 Encode</b> → input: Shortcut Input</li>
+              <li>Action 2: <b className="text-ink">Get Contents of URL</b> → URL: <code className="text-[10px] text-muted break-all">https://life-command-center-red.vercel.app/api/tasks/ai</code> → <b className="text-ink">Method: POST</b> → <b className="text-ink">Request Body: Form</b> → Add New Field: nama <b className="text-ink">photo</b>, isi: <b className="text-ink">Base64 Encoded</b></li>
+              <li>Nama: <b className="text-ink">Foto ke LifeCC</b></li>
             </ol>
-            <p className="text-[10px] text-[#868593] mt-2">Hasil muncul di alert: catatan keuangan langsung tercatat, soal tugas dikerjakan AI. Hapus shortcut LifeCC2 lama yang pakai JSON — resep baru ini gak pake kutip-kutipan.</p>
+            <p className="text-[10px] text-muted mt-2">Hasil muncul di alert: catatan keuangan langsung tercatat, soal tugas dikerjakan AI. Hapus shortcut LifeCC2 lama yang pakai JSON — resep baru ini gak pake kutip-kutipan.</p>
           </div>
         </div>
       </Card>
@@ -174,15 +175,15 @@ export default function ProfilePage() {
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-[10px] text-[#868593] block mb-1">Air (L/hari)</label>
+              <label className="text-[10px] text-muted block mb-1">Air (L/hari)</label>
               <Input type="number" step="0.25" value={waterTargetL} onChange={(e) => setWaterTargetL(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
             <div>
-              <label className="text-[10px] text-[#868593] block mb-1">Gelas (ml)</label>
+              <label className="text-[10px] text-muted block mb-1">Gelas (ml)</label>
               <Input type="number" value={glassMl} onChange={(e) => setGlassMl(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
             <div>
-              <label className="text-[10px] text-[#868593] block mb-1">Olahraga/mgg</label>
+              <label className="text-[10px] text-muted block mb-1">Olahraga/mgg</label>
               <Input type="number" value={workoutWeek} onChange={(e) => setWorkoutWeek(e.target.value)} className="!py-2 text-center tabular-nums" />
             </div>
           </div>
@@ -198,14 +199,14 @@ export default function ProfilePage() {
             const enabled = pref?.enabled ?? false;
             return (
               <div key={type} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
-                <span className="text-[13px] text-[#c4c4ca]">{label}</span>
+                <span className="text-[13px] text-soft">{label}</span>
                 <div className="flex items-center gap-2.5">
                   {enabled && ["WATER_REMINDER", "DAILY_RECAP", "WORKOUT_REMINDER"].includes(type) && (
                     <input
                       type="time"
                       value={hhmm(pref?.minuteOfDay ?? 420)}
                       onChange={(e) => changePrefTime(type, e.target.value)}
-                      className="bg-white/[0.04] border border-white/[0.08] rounded-md px-2 py-1 text-[11px] text-[#c4c4ca] outline-none focus:border-[#531aff] transition-colors duration-150"
+                      className="bg-white/[0.04] border border-lineSoft rounded-md px-2 py-1 text-[11px] text-soft outline-none focus:border-[color:var(--vr-accent)] transition-colors duration-150"
                     />
                   )}
                   <button
@@ -213,7 +214,7 @@ export default function ProfilePage() {
                     role="switch"
                     aria-checked={enabled}
                     aria-label={label}
-                    className={`w-10 h-[22px] rounded-full relative transition-colors duration-150 ${enabled ? "bg-[#609f89]" : "bg-white/[0.08]"}`}
+                    className={`w-10 h-[22px] rounded-full relative transition-colors duration-150 ${enabled ? "bg-[color:var(--vr-positive)]" : "bg-white/[0.08]"}`}
                   >
                     <span className={`absolute top-[3px] w-4 h-4 rounded-full bg-white transition-all duration-150 ${enabled ? "left-[22px]" : "left-[3px]"}`} />
                   </button>
@@ -225,15 +226,15 @@ export default function ProfilePage() {
       </Card>
 
       <SectionTitle>Install ke Home Screen (iPhone)</SectionTitle>
-      <Card className="mb-3 text-[13px] text-[#868593] space-y-2 leading-relaxed">
-        <p>1. Buka app ini di <b className="text-[#c4c4ca]">Safari</b></p>
-        <p>2. Tap tombol <b className="text-[#c4c4ca]">Share</b> (kotak dengan panah ke atas)</p>
-        <p>3. Scroll & tap <b className="text-[#c4c4ca]">Add to Home Screen</b></p>
+      <Card className="mb-3 text-[13px] text-muted space-y-2 leading-relaxed">
+        <p>1. Buka app ini di <b className="text-soft">Safari</b></p>
+        <p>2. Tap tombol <b className="text-soft">Share</b> (kotak dengan panah ke atas)</p>
+        <p>3. Scroll & tap <b className="text-soft">Add to Home Screen</b></p>
         <p>4. Buka dari ikon di Home Screen — app jalan fullscreen + notifikasi aktif</p>
-        <p className="text-[11px] text-[#868593]">Catatan: Push notification iOS butuh PWA ter-install (iOS 16.4+).</p>
+        <p className="text-[11px] text-muted">Catatan: Push notification iOS butuh PWA ter-install (iOS 16.4+).</p>
       </Card>
 
-      <p className="text-center text-[10px] text-[#868593] pb-4">Life Command Center v2.0</p>
+      <p className="text-center text-[10px] text-muted pb-4">Life Command Center v2.0</p>
     </div>
   );
 }

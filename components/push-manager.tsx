@@ -81,12 +81,12 @@ export default function PushManager() {
 
   if (subscribed) {
     return (
-      <div className="mb-3 flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/[0.08] px-4 py-3">
+      <div className="mb-3 flex items-center justify-between rounded-lg bg-white/[0.03] border border-lineSoft px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#609f89]" />
-          <span className="text-[13px] text-[#c4c4ca]">Notifikasi aktif</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--vr-positive)]" />
+          <span className="text-[13px] text-soft">Notifikasi aktif</span>
         </div>
-        <button onClick={testPush} className="text-xs text-[#531aff] border border-[#531aff]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[#531aff]/10">
+        <button onClick={testPush} className="text-xs text-[color:var(--vr-accent)] border border-[color:var(--vr-accent)]/30 rounded-md px-3 py-1.5 font-medium transition-colors duration-150 hover:bg-[color:var(--vr-accent)]/10">
           Kirim test
         </button>
         {msg && <p className="sr-only">{msg}</p>}
@@ -95,21 +95,21 @@ export default function PushManager() {
   }
 
   return (
-    <div className="mb-3 rounded-lg bg-white/[0.02] border border-white/[0.08] px-4 py-3">
+    <div className="mb-3 rounded-lg bg-white/[0.03] border border-lineSoft px-4 py-3">
       <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium text-[#ffffff]">Aktifkan pengingat</p>
-          <p className="text-[11px] text-[#868593] mt-0.5 leading-relaxed">
+          <p className="text-[13px] font-medium text-ink">Aktifkan pengingat</p>
+          <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
             {standalone || permission !== "granted"
               ? "Tugas, minum air, olahraga & rekap harian langsung ke iPhone."
               : "Install app ke Home Screen dulu (Share → Add to Home Screen), lalu aktifkan dari sini."}
           </p>
         </div>
-        <button onClick={enable} disabled={busy} className="shrink-0 bg-[#553f83] hover:bg-[#531aff] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
+        <button onClick={enable} disabled={busy} className="shrink-0 bg-[color:var(--vr-primary)] hover:bg-[color:var(--vr-accent)] text-white rounded-md px-3.5 py-2 text-xs font-medium transition-colors duration-150 disabled:opacity-40">
           {busy ? "…" : "Aktifkan"}
         </button>
       </div>
-      {msg && <p className="text-[11px] text-[#868593] mt-2">{msg}</p>}
+      {msg && <p className="text-[11px] text-muted mt-2">{msg}</p>}
     </div>
   );
 }

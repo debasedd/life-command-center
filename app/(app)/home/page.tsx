@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import Link from "next/link";
-import { Card, SectionTitle, Btn } from "@/components/ui";
+import { Card, RailCard, Row, SectionTitle, SignalBar, Chip, Btn, Empty } from "@/components/ui";
 import { readCache, writeCache } from "@/lib/cache";
 
 interface DashData {
@@ -20,8 +20,8 @@ interface DashData {
   latestEval: { healthScore: number; createdAt: string } | null;
 }
 
-const TYPE_ACCENT: Record<string, string> = { SCHOOL: "#531aff", LESSON: "#eab38a", ACTIVITY: "#609f89", PERSONAL: "#868593" };
-const PRIORITY_DOT: Record<string, string> = { URGENT: "#f87171", HIGH: "#eab38a", MEDIUM: "#531aff", LOW: "#868593" };
+const TYPE_ACCENT: Record<string, string> = { SCHOOL: "var(--vr-accent)", LESSON: "var(--vr-warning)", ACTIVITY: "var(--vr-positive)", PERSONAL: "var(--vr-text-muted)" };
+const PRIORITY_TONE: Record<string, "danger" | "warning" | "accent" | "neutral"> = { URGENT: "danger", HIGH: "warning", MEDIUM: "accent", LOW: "neutral" };
 
 function hhmm(m: number) {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -71,14 +71,9 @@ export default function HomeDashboard() {
   if (!data) {
     return (
       <div className="animate-rise space-y-3 pt-2" aria-hidden>
-        <div className="h-8 w-48 rounded-md bg-white/[0.04] pulse" />
-        <div className="h-20 rounded-lg bg-white/[0.03] border border-white/[0.06] pulse" />
-        <div className="grid grid-cols-3 gap-2">
-          <div className="h-28 rounded-lg bg-white/[0.03] border border-white/[0.06] pulse" />
-          <div className="h-28 rounded-lg bg-white/[0.03] border border-white/[0.06] pulse" />
-          <div className="h-28 rounded-lg bg-white/[0.03] border border-white/[0.06] pulse" />
-        </div>
-        <div className="h-36 rounded-lg bg-white/[0.03] border border-white/[0.06] pulse" />
+        <div className="h-8 w-48 rounded-control bg-white/[0.04] pulse" />
+        <div className="h-20 rounded-panel bg-white/[0.03] border border-lineSoft pulse" />
+        <div className="h-36 rounded-card bg-white/[0.03] border border-lineSoft pulse" />
       </div>
     );
   }
@@ -90,162 +85,166 @@ export default function HomeDashboard() {
 
   return (
     <div className="animate-rise">
-      {/* Header */}
-      <header className="flex items-center justify-between mb-4 pt-1">
+      {/* Header: date kicker + serif display greeting */}
+      <header className="flex items-end justify-between gap-3 mb-5 pt-1">
         <div>
-          <p className="text-[11px] text-[#868593]">{dateStr}</p>
-          <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#ffffff]">{greeting}, Fatih</h1>
+          <p className="vr-kicker">{dateStr}</p>
+          <h1 className="vr-display mt-1">{greeting}, Fatih</h1>
         </div>
         <Link
           href="/profile"
-          className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[13px] font-medium text-[#c4c4ca] transition-colors duration-150 hover:bg-white/[0.07]"
+          className="w-9 h-9 shrink-0 rounded-full border border-lineSoft flex items-center justify-center text-[13px] font-medium text-soft transition-colors duration-[160ms] hover:bg-white/[0.04] mb-1"
           aria-label="Profil"
         >
           F
         </Link>
       </header>
 
-      {/* Sekarang */}
-      <Card className="mb-3">
+      {/* Sekarang — the single hero surface (rail gradient) */}
+      <RailCard className="mb-2">
         <div className="flex items-center gap-3">
-          <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: data.currentBlock ? TYPE_ACCENT[data.currentBlock.type] || "#868593" : "rgba(255,255,255,0.12)" }} />
+          <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: data.currentBlock ? TYPE_ACCENT[data.currentBlock.type] || "var(--vr-text-muted)" : "rgba(255,255,255,0.12)" }} />
           <div className="min-w-0">
-            <p className="text-[10px] text-[#868593] mb-0.5">Sekarang</p>
+            <p className="vr-kicker mb-1">Sekarang</p>
             {data.currentBlock ? (
               <>
-                <div className="font-medium text-[#ffffff] truncate">{data.currentBlock.title}</div>
-                <div className="text-xs text-[#868593] tabular-nums">
+                <div className="font-medium text-ink truncate">{data.currentBlock.title}</div>
+                <div className="text-xs text-muted vr-num">
                   {hhmm(data.currentBlock.startMinute)} – {hhmm(data.currentBlock.endMinute)}
                 </div>
               </>
             ) : (
-              <div className="text-sm text-[#c4c4ca] font-medium">
+              <div className="text-sm text-soft font-medium">
                 {data.nextBlock ? `Bebas · ${data.nextBlock.title} @ ${hhmm(data.nextBlock.startMinute)}` : "Bebas / di luar jadwal"}
               </div>
             )}
           </div>
         </div>
-      </Card>
+      </RailCard>
 
-      {/* Hari ini — composed summary, no icon boxes */}
+      {/* Hari Ini — signals, dividers, no card grid */}
       <SectionTitle>Hari Ini</SectionTitle>
-      <Card className="mb-3">
-        <div className="space-y-4">
-          {/* Air */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="text-[#ffffff] font-medium">Minum air</span>
-                <span className="text-[#868593] tabular-nums">{(data.water.todayMl / 1000).toFixed(1)} / {(data.water.target / 1000).toFixed(1)} L</span>
-              </div>
-              <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                <div className="h-full rounded-full bg-[#531aff] transition-all duration-300" style={{ width: `${Math.min(100, waterPct * 100)}%` }} />
-              </div>
+      <div>
+        <Row>
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between gap-3 text-[13px] mb-1.5">
+              <span className="text-ink font-medium">Minum air</span>
+              <span className="text-muted vr-num">
+                {(data.water.todayMl / 1000).toFixed(1)} / {(data.water.target / 1000).toFixed(1)} L
+              </span>
             </div>
-            <button
-              onClick={addWater}
-              disabled={waterBusy}
-              className="shrink-0 text-[11px] text-[#531aff] border border-[#531aff]/30 rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-[#531aff]/10 disabled:opacity-50"
-            >
-              + Gelas
-            </button>
+            <SignalBar value={waterPct} />
           </div>
-          {/* Habit */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="text-[#ffffff] font-medium">Habit</span>
-                <span className="text-[#868593] tabular-nums">{data.habits.done}/{data.habits.total}</span>
-              </div>
-              <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                <div className="h-full rounded-full bg-[#609f89] transition-all duration-300" style={{ width: `${data.habits.total ? (data.habits.done / data.habits.total) * 100 : 0}%` }} />
-              </div>
+          <button
+            onClick={addWater}
+            disabled={waterBusy}
+            className="shrink-0 text-[11px] text-[color:var(--vr-accent)] border border-[color:var(--vr-accent)]/30 rounded-control px-2.5 py-1.5 font-medium transition-colors duration-[160ms] hover:bg-[color:var(--vr-accent)]/10 disabled:opacity-50"
+          >
+            + Gelas
+          </button>
+        </Row>
+        <Row>
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between gap-3 text-[13px] mb-1.5">
+              <span className="text-ink font-medium">Habit</span>
+              <span className="text-muted vr-num">
+                {data.habits.done}/{data.habits.total}
+              </span>
             </div>
-            <Link href="/health" className="shrink-0 text-[11px] text-[#868593] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
-              Buka
-            </Link>
+            <SignalBar value={data.habits.total ? data.habits.done / data.habits.total : 0} color="var(--vr-positive)" />
           </div>
-          {/* Olahraga */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="text-[#ffffff] font-medium">Olahraga minggu ini</span>
-                <span className="text-[#868593] tabular-nums">{data.workout.weekCount}/{data.workout.target}</span>
-              </div>
-              <div className="h-1 rounded-full bg-white/[0.05] overflow-hidden">
-                <div className="h-full rounded-full bg-[#eab38a] transition-all duration-300" style={{ width: `${Math.min(100, (data.workout.weekCount / Math.max(1, data.workout.target)) * 100)}%` }} />
-              </div>
+          <Link href="/health" className="shrink-0 text-[11px] text-muted border border-lineSoft rounded-control px-2.5 py-1.5 font-medium transition-colors duration-[160ms] hover:bg-white/[0.04]">
+            Buka
+          </Link>
+        </Row>
+        <Row>
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between gap-3 text-[13px] mb-1.5">
+              <span className="text-ink font-medium">Olahraga minggu ini</span>
+              <span className="text-muted vr-num">
+                {data.workout.weekCount}/{data.workout.target}
+              </span>
             </div>
-            <Link href="/health" className="shrink-0 text-[11px] text-[#868593] border border-white/[0.08] rounded-md px-2.5 py-1.5 font-medium transition-colors duration-150 hover:bg-white/[0.04]">
-              Log
-            </Link>
+            <SignalBar value={data.workout.weekCount / Math.max(1, data.workout.target)} color="var(--vr-warning)" />
           </div>
-        </div>
-      </Card>
+          <Link href="/health" className="shrink-0 text-[11px] text-muted border border-lineSoft rounded-control px-2.5 py-1.5 font-medium transition-colors duration-[160ms] hover:bg-white/[0.04]">
+            Log
+          </Link>
+        </Row>
+      </div>
 
       {/* Tugas */}
-      <SectionTitle action={<Link href="/tasks" className="text-xs text-[#531aff] hover:text-[#a78bfa] transition-colors duration-150">Semua</Link>}>Tugas Sekolah</SectionTitle>
+      <SectionTitle action={<Link href="/tasks" className="text-xs text-[color:var(--vr-accent)] hover:text-[color:var(--vr-focus-ring)] transition-colors duration-[160ms]">Semua</Link>}>
+        Tugas Sekolah
+      </SectionTitle>
       {data.tasks.overdue > 0 && (
-        <Card className="mb-2 !py-2.5 border-[#f87171]/30">
-          <span className="text-[#f87171] text-[13px] font-medium">{data.tasks.overdue} tugas terlambat — segera kerjakan</span>
-        </Card>
+        <div className="border-l-2 border-[color:var(--vr-danger)] pl-3 py-1.5 mb-1">
+          <span className="text-[color:var(--vr-danger)] text-[13px] font-medium">{data.tasks.overdue} tugas terlambat — segera kerjakan</span>
+        </div>
       )}
       {data.tasks.next.length === 0 ? (
-        <p className="text-sm text-[#868593] py-3">Tidak ada tugas aktif</p>
+        <Empty>Tidak ada tugas aktif</Empty>
       ) : (
-        <div className="space-y-1.5">
+        <div>
           {data.tasks.next.slice(0, 3).map((t) => (
-            <Card key={t.id} className="flex items-center justify-between !py-2.5">
-              <div className="min-w-0 pr-2">
-                <div className="text-sm font-medium text-[#ffffff] truncate">{t.title}</div>
-                <div className="text-[11px] text-[#868593]">
+            <Row key={t.id}>
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-ink truncate">{t.title}</div>
+                <div className="text-[11px] text-muted">
                   {t.deadline ? new Date(t.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "short" }) : "Tanpa deadline"}
                 </div>
               </div>
-              <span className="flex items-center gap-1 text-[10px] font-medium text-[#868593] shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: PRIORITY_DOT[t.priority] || "#868593" }} />
-                {t.priority}
-              </span>
-            </Card>
+              <Chip tone={PRIORITY_TONE[t.priority] || "neutral"}>{t.priority}</Chip>
+            </Row>
           ))}
         </div>
       )}
 
       {/* Jadwal hari ini */}
-      <SectionTitle action={<Link href="/tasks" className="text-xs text-[#531aff] hover:text-[#a78bfa] transition-colors duration-150">Kelola</Link>}>Jadwal Hari Ini</SectionTitle>
+      <SectionTitle action={<Link href="/tasks" className="text-xs text-[color:var(--vr-accent)] hover:text-[color:var(--vr-focus-ring)] transition-colors duration-[160ms]">Kelola</Link>}>
+        Jadwal Hari Ini
+      </SectionTitle>
       {data.todayBlocks.length === 0 ? (
-        <p className="text-sm text-[#868593] py-3">Tidak ada jadwal</p>
+        <Empty>Tidak ada jadwal</Empty>
       ) : (
-        <div className="space-y-1.5">
+        <div>
           {data.todayBlocks.map((b) => (
-            <Card key={b.id} className="!py-2.5">
-              <div className="flex items-center gap-3">
-                <span className="w-[3px] self-stretch rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "#868593" }} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-[#ffffff] truncate">{b.title}</div>
-                  <div className="text-[11px] text-[#868593] tabular-nums">
+            <Row key={b.id}>
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="w-[3px] h-8 rounded-full shrink-0" style={{ background: TYPE_ACCENT[b.type] || "var(--vr-text-muted)" }} />
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-ink truncate">{b.title}</div>
+                  <div className="text-[11px] text-muted vr-num">
                     {hhmm(b.startMinute)} – {hhmm(b.endMinute)}
                   </div>
                 </div>
               </div>
-            </Card>
+            </Row>
           ))}
         </div>
       )}
 
-      {/* Keuangan ringkas */}
-      <SectionTitle action={<Link href="/finance" className="text-xs text-[#531aff] hover:text-[#a78bfa] transition-colors duration-150">Detail</Link>}>Uang Hari Ini</SectionTitle>
+      {/* Uang hari ini — stat first, controls second */}
+      <SectionTitle action={<Link href="/finance" className="text-xs text-[color:var(--vr-accent)] hover:text-[color:var(--vr-focus-ring)] transition-colors duration-[160ms]">Detail</Link>}>
+        Uang Hari Ini
+      </SectionTitle>
       <Card>
-        <div className="flex justify-between text-[13px] mb-2 tabular-nums">
-          <span className="text-[#72b39a] font-medium">Masuk {idr(data.finance.todayIncome)}</span>
-          <span className="text-[#f87171] font-medium">Keluar {idr(data.finance.todayExpense)}</span>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="vr-kicker">Masuk</p>
+            <p className="text-lg text-[color:var(--vr-positive)] font-semibold vr-num mt-0.5">{idr(data.finance.todayIncome)}</p>
+          </div>
+          <div>
+            <p className="vr-kicker">Keluar</p>
+            <p className="text-lg text-[color:var(--vr-danger)] font-semibold vr-num mt-0.5">{idr(data.finance.todayExpense)}</p>
+          </div>
         </div>
-        <div className="text-[11px] text-[#868593]">{data.finance.txCountToday} transaksi tercatat hari ini</div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <Link href="/finance">
+        <p className="text-[11px] text-muted mt-3">{data.finance.txCountToday} transaksi tercatat hari ini</p>
+        <div className="mt-3 flex gap-2">
+          <Link href="/finance" className="flex-1">
             <Btn variant="ghost" className="w-full !py-1.5 text-xs">Catat</Btn>
           </Link>
-          <Link href="/whatif">
+          <Link href="/whatif" className="flex-1">
             <Btn variant="ghost" className="w-full !py-1.5 text-xs">What-If</Btn>
           </Link>
         </div>
@@ -255,41 +254,45 @@ export default function HomeDashboard() {
       {data.goals.length > 0 && (
         <>
           <SectionTitle>Target Tabungan</SectionTitle>
-          <div className="space-y-1.5">
+          <div>
             {data.goals.map((g) => (
-              <Card key={g.id} className="!py-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm font-medium text-[#ffffff] flex items-center gap-2">
-                    <span>{g.icon}</span> {g.name}
+              <Row key={g.id}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between gap-3 items-baseline">
+                    <span className="text-sm font-medium text-ink truncate">
+                      {g.icon} {g.name}
+                    </span>
+                    <span className="text-xs text-muted vr-num">{Math.round(g.progress * 100)}%</span>
                   </div>
-                  <div className="text-xs text-[#868593] tabular-nums">{Math.round(g.progress * 100)}%</div>
+                  <SignalBar value={g.progress} color="var(--vr-primary)" className="mt-2" />
+                  <div className="text-[10px] text-muted mt-1 vr-num">
+                    {idr(g.currentAmount)} / {idr(g.targetAmount)}
+                  </div>
                 </div>
-                <div className="h-1.5 rounded-full bg-white/[0.05] overflow-hidden">
-                  <div className="h-full bg-[#553f83] transition-all duration-300" style={{ width: `${Math.min(100, g.progress * 100)}%` }} />
-                </div>
-                <div className="text-[10px] text-[#868593] mt-1 tabular-nums">
-                  {idr(g.currentAmount)} / {idr(g.targetAmount)}
-                </div>
-              </Card>
+              </Row>
             ))}
           </div>
         </>
       )}
 
+      {/* Skor keuangan */}
       {data.latestEval && (
         <>
           <SectionTitle>Skor Keuangan</SectionTitle>
-          <Card className="flex items-center gap-4">
-            <div className="shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center" style={{ borderColor: data.latestEval.healthScore >= 75 ? "#609f89" : data.latestEval.healthScore >= 50 ? "#eab38a" : "#f87171" }}>
-              <span className="text-sm font-semibold text-[#ffffff] tabular-nums">{data.latestEval.healthScore}</span>
+          <Row>
+            <div className="flex items-center gap-4">
+              <div
+                className="shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center"
+                style={{ borderColor: data.latestEval.healthScore >= 75 ? "var(--vr-positive)" : data.latestEval.healthScore >= 50 ? "var(--vr-warning)" : "var(--vr-danger)" }}
+              >
+                <span className="text-sm font-semibold text-ink vr-num">{data.latestEval.healthScore}</span>
+              </div>
+              <p className="text-xs text-muted">Skor kesehatan keuangan terakhir.</p>
             </div>
-            <div className="text-xs text-[#868593]">
-              Skor kesehatan keuangan terakhir.
-              <Link href="/advisor" className="block text-[#531aff] font-medium mt-1 hover:text-[#a78bfa] transition-colors duration-150">
-                Buka evaluasi
-              </Link>
-            </div>
-          </Card>
+            <Link href="/advisor" className="text-xs text-[color:var(--vr-accent)] font-medium hover:text-[color:var(--vr-focus-ring)] transition-colors duration-[160ms]">
+              Buka
+            </Link>
+          </Row>
         </>
       )}
     </div>

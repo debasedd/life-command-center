@@ -42,12 +42,12 @@ export default function BootGate({ children }: { children: React.ReactNode }) {
 
   if (!ready) {
     return (
-      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#13111c]">
-        <div className="text-[15px] font-semibold tracking-[-0.02em] text-[#ffffff]">Life Command Center</div>
+      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[color:var(--vr-canvas)]">
+        <div className="vr-title">Life Command Center</div>
         <div className="mt-5 w-32 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
-          <div className="h-full w-1/2 rounded-full bg-[#553f83] splash-bar" />
+          <div className="h-full w-1/2 rounded-full bg-[color:var(--vr-primary)] splash-bar" />
         </div>
-        <p className="mt-3 text-[11px] text-[#868593]">Menyiapkan data…</p>
+        <p className="mt-3 text-[11px] text-muted">Menyiapkan data…</p>
       </div>
     );
   }
