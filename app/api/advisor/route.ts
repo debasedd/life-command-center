@@ -40,7 +40,7 @@ export async function POST() {
       userId,
       type: "WEEKLY_EVAL",
       sendAt: new Date(Date.now() + 2000),
-      title: `📊 Evaluasi keuanganmu siap: skor ${result.healthScore}`,
+      title: `Evaluasi keuangan siap: skor ${result.healthScore}`,
       body: `${result.allocationVerdict} — ${result.recommendations.length} rekomendasi baru menantimu.`,
     },
   });

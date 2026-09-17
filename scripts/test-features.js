@@ -53,7 +53,7 @@ function check(name, cond, detail) {
   // 4. CATEGORIES
   r = await call("GET", "/api/categories");
   check("categories GET", r.status === 200 && Array.isArray(r.json?.categories) && r.json.categories.length > 0);
-  r = await call("POST", "/api/categories", { name: TAG + " kat", icon: "🧪" });
+  r = await call("POST", "/api/categories", { name: TAG + " kat", icon: "package" });
   const catId = r.json?.category?.id || r.json?.id;
   check("categories POST", r.status === 200 || r.status === 201, JSON.stringify(r.json).slice(0, 120));
   if (catId) {
@@ -78,7 +78,7 @@ function check(name, cond, detail) {
   }
 
   // 6. GOALS + deposit
-  r = await call("POST", "/api/goals", { name: TAG + " target", targetAmount: 1000000, icon: "🎯", deadline: null });
+  r = await call("POST", "/api/goals", { name: TAG + " target", targetAmount: 1000000, icon: "target", deadline: null });
   check("goals POST", r.status === 200 || r.status === 201, JSON.stringify(r.json).slice(0, 140));
   r = await call("GET", "/api/goals");
   const goal = r.json?.goals?.find((g) => g.name === TAG + " target");
@@ -117,7 +117,7 @@ function check(name, cond, detail) {
   check("sleep GET", r.status === 200 && Array.isArray(r.json?.logs));
 
   // 10. HABITS
-  r = await call("POST", "/api/habits", { name: TAG + " habit", icon: "✅", targetPerWeek: 5 });
+  r = await call("POST", "/api/habits", { name: TAG + " habit", icon: "check", targetPerWeek: 5 });
   check("habits POST", r.status === 200 || r.status === 201, JSON.stringify(r.json).slice(0, 140));
   r = await call("GET", "/api/habits");
   const habit = r.json?.habits?.find((h) => h.name === TAG + " habit");

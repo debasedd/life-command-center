@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   if (!body.name) return NextResponse.json({ error: "Nama habit wajib" }, { status: 400 });
   const habit = await prisma.habit.create({
-    data: { userId, name: String(body.name).trim(), icon: body.icon || "✅", targetPerWeek: Number(body.targetPerWeek) || 7 },
+    data: { userId, name: String(body.name).trim(), icon: body.icon || "check", targetPerWeek: Number(body.targetPerWeek) || 7 },
   });
   return NextResponse.json({ habit });
 }

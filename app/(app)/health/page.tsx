@@ -202,7 +202,7 @@ export default function HealthPage() {
                   key={h.day}
                   title={`${h.day}: ${h.minutes} menit`}
                   className="aspect-square rounded-[3px] transition-colors duration-300"
-                  style={{ background: h.has ? (h.minutes >= 45 ? "#609f89" : h.minutes >= 25 ? "#72b39a" : "#2c4a40") : "rgba(255,255,255,0.05)" }}
+                  style={{ background: h.has ? (h.minutes >= 45 ? "var(--ui-positive)" : h.minutes >= 25 ? "#34d399" : "#d1fae5") : "rgba(17,17,19,0.06)" }}
                 />
               ))}
             </div>

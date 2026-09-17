@@ -200,8 +200,8 @@ export default function InvestPage() {
             <div className="flex items-end gap-1 h-36 mb-2">
               {sim.series.map((s) => (
                 <div key={s.year} className="flex-1 flex flex-col items-center justify-end gap-1">
-                  <div className="w-full rounded-t relative overflow-hidden" style={{ height: `${(s.total / maxTotal) * 100}%`, background: "rgba(255,255,255,0.08)" }}>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[color:var(--ui-primary)] to-[#531aff]" style={{ height: `${s.principal > 0 ? (s.principal / s.total) * 100 : 100}%` }} />
+                  <div className="w-full rounded-t relative overflow-hidden" style={{ height: `${(s.total / maxTotal) * 100}%`, background: "rgba(17,17,19,0.06)" }}>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-[color:var(--ui-primary)]" style={{ height: `${s.principal > 0 ? (s.principal / s.total) * 100 : 100}%` }} />
                   </div>
                   <span className="text-[8px] text-muted">{s.year}</span>
                 </div>

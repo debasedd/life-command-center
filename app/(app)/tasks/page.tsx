@@ -420,11 +420,11 @@ export default function AcademicPage() {
             rows={3}
           />
           <label className="flex items-center gap-2 text-[13px] text-soft">
-            <input type="checkbox" checked={aiKerjakan} onChange={(e) => setAiKerjakan(e.target.checked)} className="w-4 h-4 accent-[#531aff]" />
+            <input type="checkbox" checked={aiKerjakan} onChange={(e) => setAiKerjakan(e.target.checked)} className="w-4 h-4 accent-[color:var(--ui-primary)]" />
             Kerjakan dengan AI (butuh soal di atas, ± 30–50 detik)
           </label>
           <label className="flex items-center gap-2 text-[13px] text-soft">
-            <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="w-4 h-4 accent-[#531aff]" />
+            <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="w-4 h-4 accent-[color:var(--ui-primary)]" />
             Berulang mingguan (auto-regenerate setelah selesai)
           </label>
           <Btn onClick={addTask} disabled={busy} className="w-full py-2.5">
@@ -454,7 +454,7 @@ export default function AcademicPage() {
             </div>
           </div>
           <label className="flex items-center gap-2 text-[13px] text-soft">
-            <input type="checkbox" checked={bRecurring} onChange={(e) => setBRecurring(e.target.checked)} className="w-4 h-4 accent-[#531aff]" />
+            <input type="checkbox" checked={bRecurring} onChange={(e) => setBRecurring(e.target.checked)} className="w-4 h-4 accent-[color:var(--ui-primary)]" />
             Rutin mingguan
           </label>
           {bRecurring ? (

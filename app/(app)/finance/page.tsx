@@ -237,7 +237,7 @@ export default function FinancePage() {
                           <span className="text-muted tabular-nums">{idr(total)}</span>
                         </div>
                         <div className="h-1 rounded-full bg-black/[0.05] overflow-hidden">
-                          <div className="h-full rounded-full transition-all duration-300" style={{ width: `${expense ? (total / expense) * 100 : 0}%`, background: cat.color || "#553f83" }} />
+                          <div className="h-full rounded-full transition-all duration-300" style={{ width: `${expense ? (total / expense) * 100 : 0}%`, background: cat.color || "var(--ui-text)" }} />
                         </div>
                       </div>
                     </div>

@@ -20,9 +20,9 @@ interface Result {
 function idr(n: number) { return "Rp" + Math.round(n).toLocaleString("id-ID") }
 
 const VERDICT_META: Record<string, { color: string; border: string; dot: string }> = {
-  AMAN: { color: "text-[color:var(--ui-positive)]", border: "border-[color:var(--ui-positive)]/30", dot: "#609f89" },
-  "HATI-HATI": { color: "text-[color:var(--ui-warning)]", border: "border-[color:var(--ui-warning)]/30", dot: "#eab38a" },
-  BERISIKO: { color: "text-[color:var(--ui-danger)]", border: "border-[color:var(--ui-danger)]/30", dot: "#f87171" },
+  AMAN: { color: "text-[color:var(--ui-positive)]", border: "border-[color:var(--ui-positive)]/30", dot: "var(--ui-positive)" },
+  "HATI-HATI": { color: "text-[color:var(--ui-warning)]", border: "border-[color:var(--ui-warning)]/30", dot: "var(--ui-warning)" },
+  BERISIKO: { color: "text-[color:var(--ui-danger)]", border: "border-[color:var(--ui-danger)]/30", dot: "var(--ui-danger)" },
 };
 
 export default function WhatIfPage() {

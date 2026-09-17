@@ -43,7 +43,7 @@ export default function AdvisorPage() {
   }
 
   const latest = evals.at(0);
-  const scoreColor = (s: number) => (s >= 75 ? "#609f89" : s >= 50 ? "#eab38a" : "#f87171");
+  const scoreColor = (s: number) => (s >= 75 ? "var(--ui-positive)" : s >= 50 ? "var(--ui-warning)" : "var(--ui-danger)");
   const verdictColor = (v: string) =>
     v === "SUDAH IDEAL" ? "text-[color:var(--ui-positive)] border-[color:var(--ui-positive)]/30" : v === "PERLU PERBAIKAN" ? "text-[color:var(--ui-warning)] border-[color:var(--ui-warning)]/30" : "text-[color:var(--ui-danger)] border-[color:var(--ui-danger)]/30";
 

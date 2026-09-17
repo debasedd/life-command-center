@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
         const glasses = Math.round(ml / (settings?.glassMl ?? 250));
         const targetGlasses = Math.round(target / (settings?.glassMl ?? 250));
         await prisma.scheduledNotification.create({
-          data: { userId, type: "WATER_REMINDER", sendAt: now, title: "💧 Waktunya minum", body: `Hari ini baru ${glasses}/${targetGlasses} gelas. Yuk tambah satu gelas!` },
+          data: { userId, type: "WATER_REMINDER", sendAt: now, title: "Waktunya minum", body: `Hari ini baru ${glasses}/${targetGlasses} gelas. Yuk tambah satu gelas!` },
         });
         generated.push(`water:${userId.slice(0, 6)}`);
       }
@@ -88,8 +88,8 @@ export async function GET(req: NextRequest) {
         await prisma.scheduledNotification.create({
           data: {
             userId, type: "DAILY_RECAP", sendAt: now,
-            title: "🌙 Rekap hari ini",
-            body: `Tugas aktif: ${openTasks} • Air: ${glasses} gelas • Olahraga: ${workouts > 0 ? "✅" : "belum"} • Uang: +${income.toLocaleString("id-ID")} / -${expense.toLocaleString("id-ID")}`,
+            title: "Rekap hari ini",
+            body: `Tugas aktif: ${openTasks} • Air: ${glasses} gelas • Olahraga: ${workouts > 0 ? "selesai" : "belum"} • Uang: +${income.toLocaleString("id-ID")} / -${expense.toLocaleString("id-ID")}`,
           },
         });
         generated.push(`recap:${userId.slice(0, 6)}`);
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
         const todayCount = await prisma.workout.count({ where: { userId, day: today } });
         if (todayCount > 0 || weekCount >= target) continue; // smart skip
         await prisma.scheduledNotification.create({
-          data: { userId, type: "WORKOUT_REMINDER", sendAt: now, title: "💪 Belum olahraga hari ini", body: `Minggu ini baru ${weekCount}/${target} sesi. 30 menit jalan/joging pun cukup!` },
+          data: { userId, type: "WORKOUT_REMINDER", sendAt: now, title: "Belum olahraga hari ini", body: `Minggu ini baru ${weekCount}/${target} sesi. 30 menit jalan/joging pun cukup!` },
         });
         generated.push(`workout:${userId.slice(0, 6)}`);
       }
@@ -120,7 +120,7 @@ export async function GET(req: NextRequest) {
         });
         if (overdue.length === 0) continue;
         await prisma.scheduledNotification.create({
-          data: { userId, type: "MISSED_DEADLINE", sendAt: now, title: "⚠️ Ada tugas terlambat", body: `${overdue.length} tugas lewat deadline: ${overdue.map((t) => `"${t.title}"`).join(", ")}. Prioritaskan ulang!` },
+          data: { userId, type: "MISSED_DEADLINE", sendAt: now, title: "Ada tugas terlambat", body: `${overdue.length} tugas lewat deadline: ${overdue.map((t) => `"${t.title}"`).join(", ")}. Prioritaskan ulang!` },
         });
         generated.push(`missed:${userId.slice(0, 6)}`);
       }

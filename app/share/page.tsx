@@ -45,12 +45,15 @@ export default async function SharePage({
 
   if (!text) {
     return (
-      <div className="mx-auto max-w-md min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#ffffff]">Belum ada teks</h1>
-        <p className="text-sm text-[#868593] mt-2 leading-relaxed">
-          Shortcut iOS belum ngirim teks. Cek action Text → pilih Shortcut Input.
+      <div className="mx-auto max-w-md min-h-screen flex flex-col items-center justify-center px-4 text-center fade-rise">
+        <h1 className="title-lg">Belum ada teks</h1>
+        <p className="text-sm text-muted mt-2 leading-relaxed">
+          Shortcut iOS belum ngirim teks. Cek action Text pilih Shortcut Input.
         </p>
-        <a href="/profile" className="mt-4 text-xs text-[#531aff] border border-[#531aff]/30 rounded-md px-3 py-1.5 font-medium">
+        <a
+          href="/profile"
+          className="mt-4 text-xs font-semibold text-[color:var(--ui-text)] bg-[color:var(--ui-surface)] border border-[color:var(--ui-border)] shadow-[var(--shadow-xs)] rounded-control px-3 py-1.5 press"
+        >
           Buka LifeCC
         </a>
       </div>
@@ -92,12 +95,15 @@ export default async function SharePage({
   // Guard: shortcut teks dipakai untuk share FOTO → iOS kirim nama file, bukan isi.
   if (/^(IMG|PHOTO|PXL|MVIMG|image|photo|screenshot|screen)[-_ ]?\d*[a-z.]*(\.(jpg|jpeg|png|heic|webp))?$/i.test(firstLine)) {
     return (
-      <div className="mx-auto max-w-md min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <h1 className="text-[17px] font-semibold tracking-[-0.02em] text-[#ffffff]">Yang kamu share nama file, bukan foto</h1>
-        <p className="text-sm text-[#868593] mt-2 leading-relaxed">
-          Shortcut "Catat ke LifeCC" tipenya teks. Untuk foto struk/soal, pakai shortcut "Foto ke LifeCC" — setup-nya ada di Profil.
+      <div className="mx-auto max-w-md min-h-screen flex flex-col items-center justify-center px-4 text-center fade-rise">
+        <h1 className="title-lg">Yang kamu share nama file, bukan foto</h1>
+        <p className="text-sm text-muted mt-2 leading-relaxed">
+          Shortcut &quot;Catat ke LifeCC&quot; tipenya teks. Untuk foto struk/soal, pakai shortcut &quot;Foto ke LifeCC&quot; — setup-nya ada di Profil.
         </p>
-        <a href="/profile" className="mt-4 text-xs text-[#531aff] border border-[#531aff]/30 rounded-md px-3 py-1.5 font-medium">
+        <a
+          href="/profile"
+          className="mt-4 text-xs font-semibold text-[color:var(--ui-text)] bg-[color:var(--ui-surface)] border border-[color:var(--ui-border)] shadow-[var(--shadow-xs)] rounded-control px-3 py-1.5 press"
+        >
           Buka panduan di Profil
         </a>
       </div>

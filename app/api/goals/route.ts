@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       targetAmount: Number(targetAmount),
       deadline: deadline || null,
       monthlyCommitment: monthlyCommitment ? Number(monthlyCommitment) : null,
-      icon: icon || "🎯",
+      icon: icon || "target",
     },
   });
   return NextResponse.json({ goal });
@@ -72,13 +72,13 @@ export async function PATCH(req: NextRequest) {
     const milestones = [0.25, 0.5, 0.75, 1.0];
     for (const m of milestones) {
       if (before < m && after >= m) {
-        const label = m === 1 ? "100% — TERCAPAI! 🎉" : `${m * 100}%!`;
+        const label = m === 1 ? "100% — tercapai!" : `${m * 100}%!`;
         await prisma.scheduledNotification.create({
           data: {
             userId,
             type: "MILESTONE",
             sendAt: new Date(Date.now() + 2000),
-            title: `🎯 ${goal.name} ${label}`,
+            title: `${goal.name} ${label}`,
             body: m === 1 ? `Target ${goal.name} sudah tercapai. Selamat!` : `Progres tabungan ${goal.name} mencapai ${m * 100}%. Terus semangat!`,
           },
         });
