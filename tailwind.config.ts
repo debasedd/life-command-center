@@ -18,6 +18,10 @@ const config: Config = {
         muted: "var(--ui-text-muted)",
         line: "var(--ui-border)",
         lineStrong: "var(--ui-border-strong)",
+        // Alias dipakai sebagai warna border/garis pemisah ringan.
+        // (Class `border-lineSoft` dipakai di banyak halaman; tanpa token ini
+        //  Tailwind tidak menghasilkan utility sama sekali → border hilang.)
+        lineSoft: "var(--ui-border)",
         primary: "var(--ui-primary)",
         positive: "var(--ui-positive)",
         warning: "var(--ui-warning)",

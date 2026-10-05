@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { wibStartOfDay, wibMinuteInstant } from "@/lib/wib";
 
 /** GET /api/tasks?status=&subject= — list tasks sorted by deadline & priority. */
 export async function GET(req: NextRequest) {
@@ -96,16 +97,16 @@ async function scheduleTaskReminders(taskId: string | undefined, title: string, 
   });
   if (pref && !pref.enabled) return;
   const d = new Date(deadline);
-  const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayStart = wibStartOfDay(d);
   const mk = (when: Date, t: string, b: string) => ({ userId, type: "TASK_DEADLINE" as const, sendAt: when, title: t, body: b });
-  const rows = [];
-  if (dayStart.getTime() > Date.now()) {
-    const h0 = new Date(dayStart.getTime() + 7 * 3600 * 1000);
-    if (h0.getTime() > Date.now() && h0.getTime() < d.getTime()) {
-      rows.push(mk(h0, "Tugas hari ini", `"${title}" dijadwalkan hari ini — jangan lupa!`));
-    }
+  const rows: ReturnType<typeof mk>[] = [];
+  // H-0: 07:00 WIB on the deadline day, only while it is still in the future.
+  const h0 = wibMinuteInstant(d, 7 * 60);
+  if (h0.getTime() > Date.now() && h0.getTime() < d.getTime()) {
+    rows.push(mk(h0, "Tugas hari ini", `"${title}" dijadwalkan hari ini — jangan lupa!`));
   }
-  const h1 = new Date(dayStart.getTime() - 5 * 3600 * 1000); // 19:00 the day before
+  // H-1: 19:00 WIB the day before.
+  const h1 = wibMinuteInstant(new Date(dayStart.getTime() - 24 * 3600 * 1000), 19 * 60);
   if (h1.getTime() > Date.now()) {
     rows.push(mk(h1, "Deadline besok", `"${title}" harus dikumpulkan besok!`));
   }

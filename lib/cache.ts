@@ -80,20 +80,19 @@ export async function warmAll(): Promise<void> {
   );
 }
 
-/** Fire-and-forget composite fetches that write EXACTLY the shapes pages read, in idle time. */
-export function prewarm(entries: WarmEntry[]) {
+/** Write one already-fetched dataset into the cache. */
+export function prewarm<T>(key: string, get: () => Promise<T>): void {
   if (typeof window === "undefined") return;
   const run = () => {
-    for (const entry of entries) {
-      entry
-        .get()
-        .then((data) => data !== undefined && data !== null && writeCache(entry.key, data))
-        .catch(() => {});
-    }
+    get()
+      .then((data) => {
+        if (data !== undefined && data !== null) writeCache(key, data);
+      })
+      .catch(() => {});
   };
-  if ("requestIdleCallback" in window) {
-    (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void }).requestIdleCallback(run, { timeout: 3000 });
-  } else {
-    setTimeout(run, 1200);
-  }
+  // Idle-time so it never competes with the page's own first paint.
+  const idle = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void })
+    .requestIdleCallback;
+  if (typeof idle === "function") idle(run, { timeout: 3000 });
+  else setTimeout(run, 1200);
 }

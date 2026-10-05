@@ -28,8 +28,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const settings = await prisma.settings.findUnique({ where: { userId } });
   const glassMl = settings?.glassMl ?? 250;
-  const amountMl = Number(body.amountMl || (body.glasses ? Number(body.glasses) * glassMl : 0));
-  if (!amountMl || amountMl <= 0) return NextResponse.json({ error: "amountMl wajib" }, { status: 400 });
+  const raw = body.amountMl ?? (body.glasses != null ? Number(body.glasses) * glassMl : 0);
+  const amountMl = Number(raw);
+  if (!Number.isFinite(amountMl) || amountMl <= 0 || amountMl > 5000)
+    return NextResponse.json({ error: "amountMl tidak valid (0 < volume ≤ 5000)" }, { status: 400 });
   const log = await prisma.waterLog.create({ data: { userId, day: wibToday(), amountMl } });
   const todayMl = await prisma.waterLog.aggregate({
     where: { userId, day: wibToday() },

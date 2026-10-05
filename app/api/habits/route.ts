@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { wibToday, lastNDays, wibWeekday } from "@/lib/wib";
+import { wibToday, lastNDays } from "@/lib/wib";
 
 /** GET /api/habits — habits + today checkins + streaks. */
 export async function GET() {

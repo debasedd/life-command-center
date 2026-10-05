@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { wibToday, wibMinuteOfDay, wibWeekday, lastNDays, dayOffset } from "@/lib/wib";
+import { wibToday, wibMinuteOfDay, wibWeekday, lastNDays } from "@/lib/wib";
 
 /** GET /api/dashboard — aggregated data for the home screen. */
 export async function GET() {

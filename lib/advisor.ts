@@ -83,8 +83,9 @@ export function computeAdvisor(input: AdvisorInput): AdvisorResult {
     diagnosis.push("Belum ada target tabungan aktif — uang tanpa tujuan mudah habis.");
     recommendations.push({ text: "Buat 1 savings goal konkret (mis. 'Beli Sepeda Rp2.500.000').", impact: "Alokasi uang jadi terarah" });
   } else {
-    const avgProgress = input.goalProgress.reduce((s, g) => s + g.progress, 0) / input.goalProgress.length;
-    const onTrack = input.goalProgress.filter((g) => g.progress > 0.1).length / input.goalProgress.length;
+    const n = input.goalProgress.length || 1;
+    const avgProgress = input.goalProgress.reduce((s, g) => s + g.progress, 0) / n;
+    const onTrack = input.goalProgress.filter((g) => g.progress > 0.1).length / n;
     goalsPts = Math.round((avgProgress * 0.6 + onTrack * 0.4) * 20);
     if (input.avgMonthlyDeposit === 0) {
       diagnosis.push("Goal aktif tapi belum ada setoran dalam 90 hari terakhir.");

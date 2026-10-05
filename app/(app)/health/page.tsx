@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState, useMemo } from "react";
 import { Card, Btn, Input, Select, Sheet, SectionTitle, Row, SignalBar, ProgressRing, Icon, ICON_CHOICES, toast, api } from "@/components/ui";
-import { wibToday } from "@/lib/wib";
+import { wibToday, formatDayLabel } from "@/lib/wib";
 import { readCache, writeCache } from "@/lib/cache";
 
 interface Workout { id: string; type: string; durationMinutes: number; intensity: string; day: string }
@@ -257,7 +257,7 @@ export default function HealthPage() {
           <SectionTitle>7 Hari Terakhir</SectionTitle>
           {water.history.slice().reverse().map((h) => (
             <Row key={h.day}>
-              <span className="text-sm text-soft shrink-0">{new Date(h.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</span>
+              <span className="text-sm text-soft shrink-0">{formatDayLabel(h.day, { weekday: "short", day: "numeric", month: "short" })}</span>
               <div className="flex items-center gap-2.5 flex-1 justify-end">
                 <SignalBar value={h.ml / water.target} className="w-28" />
                 <span className={`text-xs font-medium num w-14 text-right ${h.hit ? "text-[color:var(--ui-positive)]" : "text-muted"}`}>{(h.ml / 1000).toFixed(1)}L</span>
@@ -276,7 +276,7 @@ export default function HealthPage() {
             return (
               <Row key={s.id}>
                 <div>
-                  <div className="text-sm font-medium text-ink">{new Date(s.day + "T00:00:00").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" })}</div>
+                  <div className="text-sm font-medium text-ink">{formatDayLabel(s.day, { weekday: "short", day: "numeric", month: "short" })}</div>
                   <div className="text-[11px] text-muted mt-0.5">
                     {hh(s.bedMinute)} – {hh(s.wakeMinute)} · kualitas {s.quality ?? "-"}/5
                   </div>

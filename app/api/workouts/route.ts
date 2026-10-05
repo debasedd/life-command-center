@@ -20,13 +20,10 @@ export async function GET(req: NextRequest) {
   const thisWeekCount = workouts.filter((w) => inWeek(w, thisWeek)).length;
   const lastWeekCount = workouts.filter((w) => inWeek(w, lastWeek)).length;
   const thisWeekMinutes = workouts.filter((w) => inWeek(w, thisWeek)).reduce((s, w) => s + w.durationMinutes, 0);
-  // streak: consecutive days (from today backwards) with ≥1 workout
+  // streak: consecutive days ending today, or yesterday if today is still empty
   const daysWith = new Set(workouts.map((w) => w.day));
   let streak = 0;
   let cursor = daysWith.has(today) ? today : dayOffset(today, -1);
-  if (!daysWith.has(today)) {
-    // streak counts from yesterday backwards
-  }
   while (daysWith.has(cursor)) {
     streak++;
     cursor = dayOffset(cursor, -1);
@@ -45,15 +42,21 @@ export async function POST(req: NextRequest) {
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const body = await req.json().catch(() => ({}));
   const { type, durationMinutes, intensity, notes, day } = body;
-  if (!type || !durationMinutes || Number(durationMinutes) <= 0)
-    return NextResponse.json({ error: "Jenis & durasi wajib" }, { status: 400 });
+  if (!type || !String(type).trim()) return NextResponse.json({ error: "Jenis latihan wajib" }, { status: 400 });
+  const dur = Number(durationMinutes);
+  if (!Number.isFinite(dur) || dur <= 0 || dur > 1440)
+    return NextResponse.json({ error: "Durasi harus 1-1440 menit" }, { status: 400 });
+  if (day && !/^\d{4}-\d{2}-\d{2}$/.test(day))
+    return NextResponse.json({ error: "Format tanggal: YYYY-MM-DD" }, { status: 400 });
+  if (intensity && !["RINGAN", "SEDANG", "BERAT"].includes(intensity))
+    return NextResponse.json({ error: "Intensitas tidak valid" }, { status: 400 });
   const workout = await prisma.workout.create({
     data: {
       userId,
-      type: String(type),
-      durationMinutes: Number(durationMinutes),
+      type: String(type).trim().slice(0, 60),
+      durationMinutes: Math.round(dur),
       intensity: intensity || "SEDANG",
-      notes: notes || null,
+      notes: notes ? String(notes).slice(0, 500) : null,
       day: day || wibToday(),
     },
   });

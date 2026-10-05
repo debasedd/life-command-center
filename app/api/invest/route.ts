@@ -26,15 +26,30 @@ export async function PATCH(req: NextRequest) {
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const body = await req.json().catch(() => ({}));
   const data: Record<string, unknown> = {};
-  if (body.monthlyInvestment !== undefined) data.monthlyInvestment = Math.max(0, Number(body.monthlyInvestment));
-  if (body.years !== undefined) data.years = Math.min(30, Math.max(1, Number(body.years)));
+  if (body.monthlyInvestment !== undefined) {
+    const v = Number(body.monthlyInvestment);
+    if (!Number.isFinite(v) || v < 0)
+      return NextResponse.json({ error: "Investasi bulanan tidak valid" }, { status: 400 });
+    data.monthlyInvestment = v;
+  }
+  if (body.years !== undefined) {
+    const v = Number(body.years);
+    if (!Number.isFinite(v) || v < 1 || v > 30)
+      return NextResponse.json({ error: "Rentang tahun harus 1-30" }, { status: 400 });
+    data.years = Math.round(v);
+  }
   if (body.assets !== undefined) {
-    // Validate: array of {name, pct, rate}, pct sums ≤ 100
-    const assets = Array.isArray(body.assets) ? body.assets : [];
-    const total = assets.reduce((s: number, a: { pct: number }) => s + Number(a.pct || 0), 0);
+    if (!Array.isArray(body.assets))
+      return NextResponse.json({ error: "assets harus berupa array" }, { status: 400 });
+    const assets = body.assets as { name?: unknown; pct?: unknown; rate?: unknown }[];
+    const total = assets.reduce((s, a) => s + (Number.isFinite(Number(a.pct)) ? Number(a.pct) : 0), 0);
     if (total > 100) return NextResponse.json({ error: "Total alokasi tidak boleh > 100%" }, { status: 400 });
-    data.assets = assets.map((a: { name: string; pct: number; rate: number }) => ({
-      name: String(a.name), pct: Number(a.pct), rate: Number(a.rate),
+    if (assets.some((a) => !Number.isFinite(Number(a.pct)) || !Number.isFinite(Number(a.rate))))
+      return NextResponse.json({ error: "Alokasi harus berupa angka" }, { status: 400 });
+    data.assets = assets.map((a) => ({
+      name: String(a.name ?? "Aset"),
+      pct: Math.max(0, Number(a.pct)),
+      rate: Number(a.rate),
     }));
   }
   const profile = await prisma.investmentProfile.upsert({

@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { Btn, Input, Select, Textarea, Sheet, SectionTitle, Row, Chip, toast, api } from "@/components/ui";
 import { AiTaskSheet, AiStatusBadge, AiAnswerModal } from "@/components/ai-homework";
 import { readCache, writeCache } from "@/lib/cache";
+import { wibStartOfDay } from "@/lib/wib";
 
 interface Task {
   id: string;
@@ -48,8 +49,10 @@ function fmtDeadline(s: string) {
 
 function groupByDeadline(tasks: Task[]) {
   const now = Date.now();
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
+  // Boundaries follow WIB (the app's canonical timezone), not the device's —
+  // otherwise a phone set to another zone files today's tasks under the wrong bucket.
+  const todayStart = wibStartOfDay(new Date()).getTime();
+  const todayEnd = todayStart + 24 * 3600 * 1000 - 1;
   const g: Record<string, Task[]> = { Terlambat: [], "Hari Ini": [], Besok: [], "Minggu Ini": [], Nanti: [], "Tanpa Deadline": [] };
   for (const t of tasks) {
     if (!t.deadline) {
@@ -58,9 +61,9 @@ function groupByDeadline(tasks: Task[]) {
     }
     const d = new Date(t.deadline).getTime();
     if (d < now) g["Terlambat"].push(t);
-    else if (d <= todayEnd.getTime()) g["Hari Ini"].push(t);
-    else if (d <= todayEnd.getTime() + 86400000) g["Besok"].push(t);
-    else if (d <= todayEnd.getTime() + 7 * 86400000) g["Minggu Ini"].push(t);
+    else if (d <= todayEnd) g["Hari Ini"].push(t);
+    else if (d <= todayEnd + 86400000) g["Besok"].push(t);
+    else if (d <= todayEnd + 7 * 86400000) g["Minggu Ini"].push(t);
     else g["Nanti"].push(t);
   }
   return g;

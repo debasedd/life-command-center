@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-/** GET /api/push/vapid — expose public key to client. */
-export async function GET() {
-  return NextResponse.json({ publicKey: process.env.VAPID_PUBLIC_KEY || null });
-}
-
 /** POST /api/push/subscribe — save subscription {endpoint, keys:{p256dh,auth}}. */
 export async function POST(req: NextRequest) {
   const userId = await getAuthUserId();

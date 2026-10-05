@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { ruleCategorize } from "@/lib/ai-categorize";
+import { wibToday } from "@/lib/wib";
 
 /** GET /api/transactions?from=&to=&categoryId=&type= */
 export async function GET(req: NextRequest) {
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
       amount: Number(amount),
       categoryId: finalCategoryId,
       note: note ? String(note) : null,
-      day: day || wibTodayStr(),
+      day: day || wibToday(),
       aiCategorized,
     },
     include: { category: true },
@@ -161,12 +162,4 @@ async function llmCategorize(note: string, type: string, categories: { id: strin
   } catch {
     return null;
   }
-}
-
-function wibTodayStr(): string {
-  return new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
-}
-
-function wibToday(): string {
-  return wibTodayStr();
 }

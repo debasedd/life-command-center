@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState, useMemo } from "react";
 import { Card, Btn, Input, Select, Sheet, SectionTitle, Row, Icon, ICON_CHOICES, toast, api } from "@/components/ui";
-import { wibToday } from "@/lib/wib";
+import { wibToday, formatDayLabel } from "@/lib/wib";
 import { readCache, writeCache } from "@/lib/cache";
 
 interface Category { id: string; name: string; icon: string; color: string }
@@ -256,7 +256,7 @@ export default function FinancePage() {
           {groupedByDay.map(([d, items]) => (
             <div key={d} className="mb-3">
               <p className="text-[11px] text-muted mb-1.5">
-                {new Date(d + "T00:00:00").toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "short" })}
+                {formatDayLabel(d, { weekday: "long", day: "numeric", month: "short" })}
               </p>
               <div className="space-y-1.5">
                 {items.map((tx, idx) => (

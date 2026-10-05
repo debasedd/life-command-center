@@ -40,6 +40,7 @@ export default async function SharePage({
   searchParams: Promise<{ text?: string; title?: string }>;
 }) {
   const userId = await getAuthUserId();
+  if (!userId) redirect("/login");
   const sp = await searchParams;
   const text = (sp.text || sp.title || "").trim();
 

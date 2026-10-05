@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, ChevronRight, Droplets, Flame, Dumbbell, AlertTriangle, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { Card, Row, SectionTitle, SignalBar, Chip, Btn, Empty, Icon } from "@/components/ui";
 import { readCache, writeCache } from "@/lib/cache";
+import { formatDayLabel } from "@/lib/wib";
 
 interface DashData {
   today: string;
@@ -91,7 +92,7 @@ export default function HomeDashboard() {
   }
 
   const waterPct = data.water.target > 0 ? data.water.todayMl / data.water.target : 0;
-  const dateStr = new Date(data.today + "T00:00:00").toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
+  const dateStr = formatDayLabel(data.today, { weekday: "long", day: "numeric", month: "long" });
   const hour = Math.floor(data.nowMinute / 60);
   const greeting = hour < 11 ? "Selamat pagi" : hour < 15 ? "Selamat siang" : hour < 19 ? "Selamat sore" : "Selamat malam";
 

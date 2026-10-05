@@ -1,18 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendToUser } from "@/lib/push";
-import { wibToday, wibMinuteOfDay, wibWeekday, lastNDays, dayOffset } from "@/lib/wib";
+import { wibToday, wibMinuteOfDay, lastNDays } from "@/lib/wib";
 
 /**
- * CRON endpoint — hit by an external scheduler every 5 minutes
+ * CRON endpoint — hit by an external scheduler every 5-10 minutes
  * (Vercel Cron / cron-job.org / GitHub Actions). Protected by CRON_SECRET.
  * Responsibilities:
  *  1. Dispatch due ScheduledNotifications (respect quiet hours)
  *  2. Generate periodic reminders: water, workout, daily recap (per user prefs)
+ *
+ * Security: fails CLOSED. If CRON_SECRET is unset the endpoint returns 503
+ * rather than serving unauthenticated — otherwise anyone could force-dispatch
+ * every pending notification on the install.
  */
 export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get("secret") || req.headers.get("authorization")?.replace("Bearer ", "");
-  if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
+  const expected = process.env.CRON_SECRET;
+  if (!expected) {
+    console.error("[cron] CRON_SECRET is not configured — refusing to run.");
+    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 503 });
+  }
+  const provided = req.nextUrl.searchParams.get("secret") || req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  if (provided !== expected) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 

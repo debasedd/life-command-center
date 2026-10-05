@@ -61,14 +61,17 @@ export async function PATCH(req: NextRequest) {
 
   if (body.action === "deposit") {
     const amount = Number(body.amount);
-    if (!amount || amount <= 0) return NextResponse.json({ error: "Nominal setoran harus > 0" }, { status: 400 });
+    if (!Number.isFinite(amount) || amount <= 0)
+      return NextResponse.json({ error: "Nominal setoran harus > 0" }, { status: 400 });
+    if (existing.targetAmount <= 0)
+      return NextResponse.json({ error: "Target nominal goal belum valid" }, { status: 400 });
     const goal = await prisma.savingsGoal.update({
       where: { id: body.id },
       data: { currentAmount: { increment: amount } },
     });
     await prisma.goalDeposit.create({ data: { userId, goalId: body.id, amount, day: wibToday() } });
-    const before = existing.currentAmount / existing.targetAmount;
-    const after = goal.currentAmount / goal.targetAmount;
+    const before = existing.targetAmount > 0 ? existing.currentAmount / existing.targetAmount : 0;
+    const after = goal.targetAmount > 0 ? goal.currentAmount / goal.targetAmount : 0;
     const milestones = [0.25, 0.5, 0.75, 1.0];
     for (const m of milestones) {
       if (before < m && after >= m) {

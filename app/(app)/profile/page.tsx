@@ -75,6 +75,10 @@ export default function ProfilePage() {
   const [aiModel, setAiModel] = useState("");
   const [aiModels, setAiModels] = useState<string[]>([]);
   const [aiModelSource, setAiModelSource] = useState<string>("");
+  const [pwOpen, setPwOpen] = useState(false);
+  const [pwCurrent, setPwCurrent] = useState("");
+  const [pwNext, setPwNext] = useState("");
+  const [pwBusy, setPwBusy] = useState(false);
 
   useEffect(() => {
     Promise.all([api<Me>("/api/me"), api<{ settings: Settings }>("/api/settings"), api<{ prefs: Pref[] }>("/api/push/prefs"), api<{ models: string[]; default: string; source: string }>("/api/ai/models")]).then(
@@ -101,6 +105,31 @@ export default function ProfilePage() {
     } catch (e) {
       toast(e instanceof Error ? e.message : "Gagal", "err");
     }
+  }
+
+  async function changePassword() {
+    if (pwNext.length < 8) return toast("Password baru minimal 8 karakter", "err");
+    setPwBusy(true);
+    try {
+      await api("/api/auth/change-password", { json: { currentPassword: pwCurrent, newPassword: pwNext } });
+      setPwCurrent("");
+      setPwNext("");
+      setPwOpen(false);
+      toast("Password berhasil diubah");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Gagal", "err");
+    } finally {
+      setPwBusy(false);
+    }
+  }
+
+  async function logout() {
+    try {
+      await api("/api/auth/logout", { method: "POST", json: {} });
+    } catch {
+      /* clear the cookie regardless */
+    }
+    window.location.assign("/login");
   }
 
   // Cache-first paint
@@ -160,6 +189,50 @@ export default function ProfilePage() {
           <div className="text-xs text-[color:var(--ui-text-muted)] truncate mt-0.5">{me?.email || ""}</div>
         </div>
         <UserRound size={18} strokeWidth={1.75} className="text-[color:var(--ui-text-muted)] shrink-0" aria-hidden />
+      </Card>
+
+      {/* --- Keamanan --- */}
+      <SectionHeader icon={<UserRound size={13} strokeWidth={2} />} label="Keamanan" />
+      <Card className="!p-0 overflow-hidden mb-4">
+        <SettingRow>
+          <span className="text-[13px] text-[color:var(--ui-text-soft)]">Password</span>
+          <button
+            onClick={() => setPwOpen((v) => !v)}
+            className="text-xs font-semibold text-[color:var(--ui-text)] hover:underline transition-colors duration-[180ms]"
+          >
+            {pwOpen ? "Tutup" : "Ubah"}
+          </button>
+        </SettingRow>
+        {pwOpen && (
+          <div className="px-4 py-4 space-y-3 fade-in border-t border-[color:var(--ui-border)]">
+            <Input
+              type="password"
+              autoComplete="current-password"
+              value={pwCurrent}
+              onChange={(e) => setPwCurrent(e.target.value)}
+              placeholder="Password saat ini"
+            />
+            <Input
+              type="password"
+              autoComplete="new-password"
+              value={pwNext}
+              onChange={(e) => setPwNext(e.target.value)}
+              placeholder="Password baru (min. 8 karakter)"
+            />
+            <Btn onClick={changePassword} disabled={pwBusy} className="w-full !py-2.5">
+              {pwBusy ? "Menyimpan…" : "Simpan Password Baru"}
+            </Btn>
+          </div>
+        )}
+        <SettingRow>
+          <span className="text-[13px] text-[color:var(--ui-text-soft)]">Keluar dari perangkat ini</span>
+          <button
+            onClick={logout}
+            className="text-xs font-semibold text-[color:var(--ui-danger)] hover:underline transition-colors duration-[180ms]"
+          >
+            Keluar
+          </button>
+        </SettingRow>
       </Card>
 
       {/* --- Menu --- */}
@@ -276,6 +349,7 @@ export default function ProfilePage() {
             <li>Buka app <b className="text-[color:var(--ui-text)]">Shortcuts</b>, tap <b className="text-[color:var(--ui-text)]">+</b></li>
             <li>Tap <b className="text-[color:var(--ui-text)]">i</b>, aktifkan <b className="text-[color:var(--ui-text)]">Show in Share Sheet</b>, tipe <b className="text-[color:var(--ui-text)]">Text</b></li>
             <li>Action <b className="text-[color:var(--ui-text)]">Get Contents of URL</b>, URL di bawah, <b className="text-[color:var(--ui-text)]">Method: POST</b>, <b className="text-[color:var(--ui-text)]">Request Body: Form</b>, field <b className="text-[color:var(--ui-text)]">text</b> isi <b className="text-[color:var(--ui-text)]">Shortcut Input</b></li>
+            <li>Tambahkan header <b className="text-[color:var(--ui-text)]">Authorization</b> dengan nilai <b className="text-[color:var(--ui-text)]">Bearer &lt;token&gt;</b> (lihat panduan Autentikasi di bawah)</li>
           </ol>
           <code className="block mt-2.5 text-[10.5px] text-[color:var(--ui-text-muted)] bg-[color:var(--ui-surface-muted)] border border-[color:var(--ui-border)] rounded-control px-2.5 py-2 break-all">
             https://life-command-center-red.vercel.app/api/tasks/ai
@@ -289,6 +363,17 @@ export default function ProfilePage() {
           </ol>
           <p className="text-[10.5px] text-[color:var(--ui-text-muted)] mt-2.5 leading-relaxed">
             Struk & transfer langsung tercatat di Keuangan; soal tugas dikerjakan AI. Hapus shortcut lama yang memakai JSON.
+          </p>
+        </Guide>
+        <Guide title="Autentikasi Shortcut (wajib)" subtitle="Shortcut tidak punya sesi — pakai token">
+          <ol className="space-y-1.5 text-[12px] text-[color:var(--ui-text-soft)] leading-relaxed list-decimal pl-4">
+            <li>Di browser, buka app ini lalu login seperti biasa</li>
+            <li>Salin nilai cookie <b className="text-[color:var(--ui-text)]">lcc_session</b> (Safari: Storage → Cookies, atau DevTools → Application)</li>
+            <li>Di Shortcut, tambahkan action <b className="text-[color:var(--ui-text)]">Get Contents of URL</b> dengan header <b className="text-[color:var(--ui-text)]">Authorization: Bearer &lt;token&gt;</b></li>
+            <li>Token berlaku selama sesi login aktif. Kalau dapat error 401, login ulang di app lalu salin ulang.</li>
+          </ol>
+          <p className="text-[10.5px] text-[color:var(--ui-text-muted)] mt-2.5 leading-relaxed">
+            Tanpa header ini Shortcut akan mendapat 401, karena app sekarang mewajibkan login.
           </p>
         </Guide>
         <Guide title="Install ke Home Screen" subtitle="Fullscreen + notifikasi aktif">
